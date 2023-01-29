@@ -1,11 +1,8 @@
 using System;
 
-public interface IActor : IUnityComponent
+public interface IActor : IUnityComponent,IInitializable,IRunnable
 {
     IGOInstancePoolRegistry GOPool { get; }
-    //Props
-    bool IsInitialized { get; }
-    bool IsRunning { get; }
     bool IsBeingDestroyed { get; }
     bool IsEnded { get; }
     string EndingEventID { get; }
@@ -13,9 +10,6 @@ public interface IActor : IUnityComponent
     IEventContext EventContext { get; }
     
     //Methods
-    void InitializeIfNot();
-    void BeginIfNot();
-    void StopIfNot();
     void CheckoutFinished(string eventID);
     void CheckoutCancelled(string eventID);
     void Cancel(string requestID);

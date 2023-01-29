@@ -2,6 +2,7 @@ using System;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
+[CreateAssetMenu(fileName = "NewKey",menuName = "Keys/Key")]
 public class Key : ScriptableObject
 {
     public static event Action<Key> onCreate;

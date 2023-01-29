@@ -104,6 +104,16 @@ public struct DataField<T>
         return DataKeyPath.GetKeys();
     }
 #endif
+
+    public void RegisterOnChange(IDataContext context, Action<DataOnChangeArgs<T>> action)
+    {
+        DataRegistry<T>.RegisterOnChange(GetFromAddress(context), action, Key?Key.ID:"");
+    }
+    
+    public void UnregisterOnChange(IDataContext context, Action<DataOnChangeArgs<T>> action)
+    {
+        DataRegistry<T>.UnregisterOnChange(GetFromAddress(context), action, Key?Key.ID:"");
+    }
     
     private static bool EvaluateForAppropriateResource(DataKeyInfo keyInfo)
     {
@@ -149,6 +159,7 @@ public struct DataField<T>
         return _data;
     }
 
+    [Button]
     public void Set(IDataContext context, T value)
     {
         string key = Key ? Key.ID : "";

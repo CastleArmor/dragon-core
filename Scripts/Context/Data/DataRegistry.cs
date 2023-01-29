@@ -23,7 +23,7 @@ public static class DataRegistry<T>
 
     private static readonly HashSet<string> _globalKeys = new HashSet<string>();
 
-    private static IEqualityComparer<T> _equalityComparer;
+    private static IChangeEvaluator<T> _equalityComparer;
 
     private static bool _isRegisteredToAppQuit;
     private static bool _isRegisteredToAppPause;
@@ -74,7 +74,7 @@ public static class DataRegistry<T>
 
         if (!_recievedChangeEvaluator)
         {
-            
+            _equalityComparer = ChangeEvaluatorFactory<T>.GetChangeEvaluator();
         }
     }
 
@@ -115,13 +115,12 @@ public static class DataRegistry<T>
         else
         {
             string contextID = DataContextRegistry.GetID(context);
+            assignedID = contextID;
+            assignedID += "/" + key;
             if (!_contextKeys.ContainsKey(contextID))
             {
                 _contextKeys.Add(contextID,new List<string>());
                 context.onDestroyDataContext += OnDestroyContextOfInstalledData;
-
-                assignedID = DataContextRegistry.GetID(context);
-                assignedID += "/" + key;
             }
         }
 
@@ -139,8 +138,10 @@ public static class DataRegistry<T>
 
         if (_onChangeDictionary.ContainsKey(assignedID))
         {
+            Debug.Log("Contains Assigned ID = " + assignedID);
             if (!_equalityComparer.Equals(oldValue, value))
             {
+                Debug.Log("OnChanged Assigned ID = " + assignedID);
                 _onChangeDictionary[assignedID].Invoke(new DataOnChangeArgs<T>()
                 {
                     AssignedKey = assignedID,

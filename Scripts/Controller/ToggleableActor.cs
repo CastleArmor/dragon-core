@@ -41,14 +41,14 @@ public class ToggleableActor : Actor
         }
     }
     
-    protected override void OnInitialize()
+    protected override void OnAfterContextsInitialized()
     {
         if (_toggleableData.CanvasGroup == null)
         {
             _toggleableData.CanvasGroup = GetComponent<CanvasGroup>();
         }
         DataContext.SetData(_toggleableData);
-        base.OnInitialize();
+        base.OnAfterContextsInitialized();
         _running.InitializeIfNeedsInitialize();
         _closed.InitializeIfNeedsInitialize();
         _closing.InitializeIfNeedsInitialize();

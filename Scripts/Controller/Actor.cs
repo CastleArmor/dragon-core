@@ -77,7 +77,7 @@ public abstract class Actor : MonoBehaviour,IActor
     private bool ShowStopButton => _isInitialized && _isRunning;
     private bool ShowInitButton => !_isInitialized && Application.isPlaying;
 
-    private void OnValidate()
+    protected virtual void OnValidate()
     {
         if (!Application.isPlaying)
         {
@@ -115,19 +115,24 @@ public abstract class Actor : MonoBehaviour,IActor
         if (_isInitialized) return;
         
         _goPool = DataRegistry<IGOInstancePoolRegistry>.GetData(null);
-        
+        OnBeforeContextsInitialize();
         _dataContext = _dataContextObject as IDataContext;
         _dataContext.InitializeIfNot();
         _dataContext.SetData(this as IActor);
         
         _eventContext = _eventContextObject as IEventContext;
         _eventContext.InitializeIfNot();
-        OnInitialize();
+        OnAfterContextsInitialized();
         _isInitialized = true;
         onInitialize?.Invoke(this);
     }
 
-    protected virtual void OnInitialize()
+    protected virtual void OnBeforeContextsInitialize()
+    {
+        
+    }
+
+    protected virtual void OnAfterContextsInitialized()
     {
         
     }
@@ -199,6 +204,7 @@ public abstract class Actor : MonoBehaviour,IActor
         OnStopLogic();
         _isRunning = false;
         onStop?.Invoke(this);
+        _goInstance.ReturnPool();
     }
 
     protected virtual void OnStopLogic()

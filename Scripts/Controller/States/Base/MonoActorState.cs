@@ -106,6 +106,32 @@ public abstract class MonoActorState : MonoBehaviour, IActorState
         CheckoutEnter(main);
         CheckoutExit();
     }
+
+    protected void RegisterUpdate(EUpdateType updateType, Action action)
+    {
+        switch (updateType)
+        {
+            case EUpdateType.Update : StaticUpdate.onUpdate += action;
+                break;
+            case EUpdateType.FixedUpdate : StaticUpdate.onFixedUpdate += action;
+                break;
+            case EUpdateType.LateUpdate : StaticUpdate.onLateUpdate += action;
+                break;
+        }
+    }
+    
+    protected void UnregisterUpdate(EUpdateType updateType, Action action)
+    {
+        switch (updateType)
+        {
+            case EUpdateType.Update : StaticUpdate.onUpdate -= action;
+                break;
+            case EUpdateType.FixedUpdate : StaticUpdate.onFixedUpdate -= action;
+                break;
+            case EUpdateType.LateUpdate : StaticUpdate.onLateUpdate -= action;
+                break;
+        }
+    }
     
     protected void FinishIfNot()
     {
