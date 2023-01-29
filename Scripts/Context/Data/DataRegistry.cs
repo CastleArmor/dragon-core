@@ -91,10 +91,10 @@ public static class DataRegistry<T>
         Dictionary.Remove(key);
     }
 
-    private static void OnDestroyContextOfBoundData(IContext context)
+    private static void OnDestroyContextOfBoundData(IDataContext context)
     {
-        context.onDestroyContext -= OnDestroyContextOfBoundData;
-        foreach (string dataKey in _contextKeys[ContextRegistry.GetID(context)])
+        context.onDestroyDataContext -= OnDestroyContextOfBoundData;
+        foreach (string dataKey in _contextKeys[DataContextRegistry.GetID(context.As<IDataContext>())])
         {
             Dictionary.Remove(dataKey);
         }
@@ -114,13 +114,13 @@ public static class DataRegistry<T>
         }
         else
         {
-            string contextID = ContextRegistry.GetID(context);
+            string contextID = DataContextRegistry.GetID(context);
             if (!_contextKeys.ContainsKey(contextID))
             {
                 _contextKeys.Add(contextID,new List<string>());
-                context.onDestroyContext += OnDestroyContextOfInstalledData;
+                context.onDestroyDataContext += OnDestroyContextOfInstalledData;
 
-                assignedID = ContextRegistry.GetID(context);
+                assignedID = DataContextRegistry.GetID(context);
                 assignedID += "/" + key;
             }
         }
@@ -162,7 +162,7 @@ public static class DataRegistry<T>
         string assignedID = "Global/"+key;
         if(context != null)
         {
-            assignedID = ContextRegistry.GetID(context);
+            assignedID = DataContextRegistry.GetID(context);
             assignedID += "/" + key;
         }
 
@@ -220,7 +220,7 @@ public static class DataRegistry<T>
         string assignedID = "Global/"+key;
         if(context != null)
         {
-            assignedID = ContextRegistry.GetID(context);
+            assignedID = DataContextRegistry.GetID(context);
             assignedID += "/" + key;
         }
         return Dictionary[assignedID];
@@ -232,10 +232,10 @@ public static class DataRegistry<T>
         return Dictionary[assignedID];
     }
 
-    private static void OnDestroyContextOfInstalledData(IContext context)
+    private static void OnDestroyContextOfInstalledData(IDataContext context)
     {
-        context.onDestroyContext -= OnDestroyContextOfInstalledData;
-        foreach (string dataKey in _contextKeys[ContextRegistry.GetID(context)])
+        context.onDestroyDataContext -= OnDestroyContextOfInstalledData;
+        foreach (string dataKey in _contextKeys[DataContextRegistry.GetID(context.As<IDataContext>())])
         {
             if (!Dictionary.ContainsKey(dataKey)) continue;
             if (Dictionary[dataKey] is IInstalledData installedData)
@@ -251,7 +251,7 @@ public static class DataRegistry<T>
         string assignedID = "Global/"+key;
         if(context != null)
         {
-            assignedID = ContextRegistry.GetID(context);
+            assignedID = DataContextRegistry.GetID(context);
             assignedID += "/" + key;
         }
 
@@ -268,7 +268,7 @@ public static class DataRegistry<T>
         string assignedID = "Global/"+key;
         if(context != null)
         {
-            assignedID = ContextRegistry.GetID(context);
+            assignedID = DataContextRegistry.GetID(context);
             assignedID += "/" + key;
         }
 

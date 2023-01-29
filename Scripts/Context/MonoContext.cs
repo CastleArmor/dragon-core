@@ -10,7 +10,8 @@ public class MonoContext : MonoBehaviour, IDataContext, IEventContext, IUnityCom
     [SerializeField] private bool _isSceneContext;
     
     [ShowInInspector] [ReadOnly] private string _instanceID;
-    public string InstanceID => _instanceID;
+    public string EventContextID => _instanceID;
+    public string DataContextID => _instanceID;
 
     [TabGroup("Settings",HideWhenChildrenAreInvisible = true)]
     [SerializeField] private DefaultInstallMethod _defaultInstallMethod;
@@ -88,12 +89,14 @@ public class MonoContext : MonoBehaviour, IDataContext, IEventContext, IUnityCom
             return latest;
         }
     }
-    
+
     public event Action<IDataContext, IDataContext, IDataContext> onParentContextChanged;
     public event Action<IDataContext> onInitializeData;
     public event Action<IDataContext> onAllowAdditionalDataOnInitialize;
     public event Action<IDataContext> onRequestSaveData;
     public event Action<IDataContext> onRequestLoadData;
+    public event Action<IDataContext> onDestroyDataContext;
+    public event Action<IEventContext> onDestroyEventContext;
 
     public void SaveData()
     {
@@ -119,7 +122,8 @@ public class MonoContext : MonoBehaviour, IDataContext, IEventContext, IUnityCom
     {
         if (_isDataPrepared) return;
         _instanceID = _isSceneContext ? gameObject.scene.name : GetInstanceID().ToString();
-        ContextRegistry.Set(InstanceID,this);
+        DataContextRegistry.Set(DataContextID,this);
+        EventContextRegistry.Set(EventContextID,this);
         DataInstallMethod installMethod = CreateInstallMethod();
         installMethod.InstallFor(this);
         _isDataPrepared = true;
@@ -148,6 +152,9 @@ public class MonoContext : MonoBehaviour, IDataContext, IEventContext, IUnityCom
     private void OnDestroy()
     {
         onDestroyContext?.Invoke(this);
-        ContextRegistry.Remove(this);
+        onDestroyDataContext?.Invoke(this);
+        onDestroyEventContext?.Invoke(this);
+        DataContextRegistry.Remove(this);
+        EventContextRegistry.Remove(this);
     }
 }

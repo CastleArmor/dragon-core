@@ -4,6 +4,7 @@ public interface IDataContext : IContext
 {
     IDataContext ParentContext { get; set; }
     IDataContext RootContext { get; }
+    string DataContextID { get; }
     event Action<IDataContext, IDataContext, IDataContext> onParentContextChanged; 
     event Action<IDataContext> onInitializeData;
     event Action<IDataContext> onAllowAdditionalDataOnInitialize;
@@ -16,4 +17,5 @@ public interface IDataContext : IContext
     T GetData<T>(string key);
     void SetData<T>(T value);
     void SetData<T>(string key, T value);
+    event Action<IDataContext> onDestroyDataContext;
 }

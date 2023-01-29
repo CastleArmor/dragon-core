@@ -57,15 +57,15 @@ public static class EventRegistry
         else
         {
             _eventDictionary.Add(main,new Dictionary<string, Action<EventArgs>>(){{key,null}});
-            main.onDestroyContext += OnRequestRemoveData;
+            main.onDestroyEventContext += OnRequestRemoveData;
         }
     }
 
-    private static void OnRequestRemoveData(IContext obj)
+    private static void OnRequestRemoveData(IEventContext obj)
     {
-        _eventDictionary[obj.As<IEventContext>()] = null;
-        _eventDictionary.Remove(obj.As<IEventContext>());
-        obj.onDestroyContext -= OnRequestRemoveData;
+        _eventDictionary[obj] = null;
+        _eventDictionary.Remove(obj);
+        obj.onDestroyEventContext -= OnRequestRemoveData;
     }
 
     public static Action<EventArgs> Register(IEventContext main, string key,Action<EventArgs> action)

@@ -6,13 +6,15 @@ using Sirenix.OdinInspector;
 using Sirenix.Utilities;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public enum DataAddress
 {
     Global = 0,
     Context = 1,
     ParentContext=2,
-    RootContext=3
+    RootContext=3,
+    SceneContext=4
 }
 
 [System.Serializable][TopTitle(
@@ -163,6 +165,9 @@ public struct DataField<T>
                 case DataAddress.Context: return context;
                 case DataAddress.ParentContext: return context.ParentContext;
                 case DataAddress.RootContext: return context.RootContext;
+                case DataAddress.SceneContext :
+                    Scene scene = context.As<IUnityComponent>().gameObject.scene;
+                    return DataContextRegistry.GetContext(scene.name);
             }
             return context;
         }

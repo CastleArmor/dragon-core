@@ -109,7 +109,7 @@ public class StateMachine
     {
         _actor = actor;
 
-        _currentState = initialState;
+        _currentState = initialState ?? new EmptySimpleState();
         _currentState.CheckoutEnter(Actor);
     }
 

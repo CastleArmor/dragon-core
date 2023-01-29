@@ -6,11 +6,14 @@ public abstract class GlobalSingleton : MonoBehaviour
 }
 public abstract class GlobalSingleton<T> : GlobalSingleton where T : GlobalSingleton
 {
+    private static bool _isInstanceBeingDestroyed;
+    public static bool IsInstanceBeingDestroyed => _isInstanceBeingDestroyed;
     private static T _instance;
     protected static T Instance
     {
         get
         {
+            if (_isInstanceBeingDestroyed) return null;
             if (_instance == null)
             {
                 GameObject go = new GameObject(typeof(T).Name+"-GlobalSingleton");
@@ -27,6 +30,7 @@ public abstract class GlobalSingleton<T> : GlobalSingleton where T : GlobalSingl
         {
             Destroy(this);
         }
+        _isInstanceBeingDestroyed = false;
         _instance = this as T;
     }
 
@@ -34,6 +38,7 @@ public abstract class GlobalSingleton<T> : GlobalSingleton where T : GlobalSingl
     {
         if (_instance == this)
         {
+            _isInstanceBeingDestroyed = true;
             _instance = null;
         }
     }
