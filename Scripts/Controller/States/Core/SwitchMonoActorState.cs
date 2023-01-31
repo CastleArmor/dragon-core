@@ -4,7 +4,12 @@ using UnityEngine;
 public abstract class SwitchMonoActorState<TSwitch> : InitializedMonoActorState
 {
     [SerializeField] private List<DictionarySetupPair<TSwitch, StateField>> _setupPairs;
-    private Dictionary<TSwitch, StateField> _states = new Dictionary<TSwitch, StateField>(); 
+    private Dictionary<TSwitch, StateField> _states = new Dictionary<TSwitch, StateField>();
+
+    protected StateField GetStateField(TSwitch key)
+    {
+        return _states[key];
+    }
 
     private IActorState _currentState;
     protected abstract TSwitch SwitchValue {get;}
