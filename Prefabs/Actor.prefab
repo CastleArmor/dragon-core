@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 5510995194161613634}
   - component: {fileID: 5510995194161613635}
   - component: {fileID: 5510995194161613636}
+  - component: {fileID: 4245386046449956487}
   - component: {fileID: 5510995194161613637}
   m_Layer: 0
   m_Name: Actor
@@ -47,7 +48,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd5b2a4e44ea45af83d123a1912423cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _uniqueID: Actor
+  _objectTypeID: Actor
   _showOptions: 1
   _defaultInitialCount: 0
   _deactivateOnReturn: 1
@@ -65,10 +66,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c58da9256914be29466004961d42b33, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _isSceneContext: 0
   _defaultInstallMethod:
     _installerGroup: {fileID: 0}
   _goInstance: {fileID: 5510995194161613635}
   _initializeAtAwake: 0
+--- !u!114 &4245386046449956487
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5510995194161613638}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e9ca2a803f64c1cad46203d92861a76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _tags: []
 --- !u!114 &5510995194161613637
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -81,10 +96,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 85a42cbd01694238bb0928634ae3ff1a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _groups: []
   _stopOnEnd: 1
   _goInstance: {fileID: 5510995194161613635}
   _dataContextObject: {fileID: 5510995194161613636}
   _eventContextObject: {fileID: 5510995194161613636}
+  _tagOwnerObject: {fileID: 4245386046449956487}
   _runningState: {fileID: 5510995195207798162}
 --- !u!1 &5510995195207798163
 GameObject:

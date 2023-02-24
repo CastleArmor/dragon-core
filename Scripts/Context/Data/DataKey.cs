@@ -9,8 +9,13 @@ using UnityEditor;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "NewDataKey",menuName = "Keys/Data Key")]
-public class DataKey : Key
+public class DataKey : Key,ICreatableUnityAsset<DataKey>
 {
+    protected override void Awake()
+    {
+        AssetCreationEvents<DataKey>.NotifyCreate(this);
+    }
+
     [SerializeField] private bool _fullTypeName;
 #if UNITY_EDITOR
     [Button]

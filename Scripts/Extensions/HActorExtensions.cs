@@ -1,6 +1,22 @@
 using System;
 using UnityEngine;
 
+[System.Serializable]
+public struct ActorUsageValidateArgs
+{
+    public string UsageRequestID;
+    public IGOInstance PrefabOrInstance;
+    public DelegatedObject<bool> DelegateObject;
+}
+
+[System.Serializable]
+public struct ActorUsageEventArgs
+{
+    public string UsageRequestID;
+    public IGOInstance PrefabOrInstance;
+    public IActor ActorInstance;
+}
+
 public static class HActorExtensions
 {
     public static IActor StartTransientUsedMain(

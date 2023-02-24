@@ -6,6 +6,7 @@ public interface IActor : IUnityComponent,IInitializable,IRunnable
     bool IsBeingDestroyed { get; }
     bool IsEnded { get; }
     string EndingEventID { get; }
+    string ObjectTypeID { get; }
     IDataContext DataContext { get; }
     IEventContext EventContext { get; }
     

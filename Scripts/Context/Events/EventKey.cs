@@ -14,8 +14,13 @@ using UnityEngine;
 using UnityEngine.Serialization;
 
 [CreateAssetMenu(fileName = "Event_",menuName = "Keys/Event Key")]
-public class EventKey : Key
+public class EventKey : Key,ICreatableUnityAsset<EventKey>
 {
+    protected override void Awake()
+    {
+        AssetCreationEvents<EventKey>.NotifyCreate(this);
+    }
+
     [SerializeField] private bool _isAsyncEvent;
     public bool IsAsyncEvent => _isAsyncEvent;
         

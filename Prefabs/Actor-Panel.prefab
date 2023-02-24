@@ -61,6 +61,7 @@ GameObject:
   - component: {fileID: 5136897569089162415}
   - component: {fileID: 2243787804038055276}
   - component: {fileID: 3144608784312652072}
+  - component: {fileID: 6230874308836275745}
   - component: {fileID: 5291529585207007227}
   m_Layer: 5
   m_Name: Actor-Panel
@@ -110,7 +111,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd5b2a4e44ea45af83d123a1912423cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _uniqueID: Actor
+  _objectTypeID: Actor-Panel
   _showOptions: 1
   _defaultInitialCount: 0
   _deactivateOnReturn: 1
@@ -128,10 +129,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c58da9256914be29466004961d42b33, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _isSceneContext: 0
   _defaultInstallMethod:
     _installerGroup: {fileID: 0}
   _goInstance: {fileID: 2243787804038055276}
   _initializeAtAwake: 0
+--- !u!114 &6230874308836275745
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5951101481005148907}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e9ca2a803f64c1cad46203d92861a76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _tags: []
 --- !u!114 &5291529585207007227
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -144,8 +159,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 85a42cbd01694238bb0928634ae3ff1a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _groups: []
   _stopOnEnd: 1
   _goInstance: {fileID: 2243787804038055276}
   _dataContextObject: {fileID: 3144608784312652072}
   _eventContextObject: {fileID: 3144608784312652072}
+  _tagOwnerObject: {fileID: 6230874308836275745}
   _runningState: {fileID: 363958164315395275}

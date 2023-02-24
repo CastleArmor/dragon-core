@@ -3,21 +3,28 @@ using Animancer;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-public class CoreActor : Actor,ITagOwner
+public class CoreActor : Actor,ITagOwner,IUpdateOwner
 {
     [SerializeField][ReadOnly] private MonoBehaviour _tagOwnerObject;
     private ITagOwner _tagOwner;
     [SerializeField] private MonoActorState _runningState;
 
+    public IConfiguredUpdateBehaviour ConfiguredUpdateHandler { get; set; }
+
     protected override void OnValidate()
     {
         base.OnValidate();
         if (Application.isPlaying) return;
-        if (_tagOwnerObject != null) return;
+        if (_tagOwnerObject != null && _tagOwnerObject != this) return;
         foreach (ITagOwner owner in GetComponents<ITagOwner>())
         {
             if (owner == (ITagOwner) this) continue;
             _tagOwnerObject = owner as MonoBehaviour;
+        }
+
+        if (_tagOwnerObject == this)
+        {
+            _tagOwnerObject = null;
         }
     }
 

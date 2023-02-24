@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 //
 public static class DataKeyPath
 {
@@ -41,8 +43,8 @@ public static class DataKeyPath
     {
         if (_IsInit) return;
         _Keys = new List<DataKeyInfo>();
-        Key.onCreate += SetRequireUpdate;
-        Key.onDestroy += SetRequireUpdate;
+        AssetCreationEvents<DataKey>.onCreate += SetRequireUpdate;
+        AssetCreationEvents<DataKey>.onDestroy += SetRequireUpdate;
         _RequireUpdate = true;
         _IsInit = true;
     }

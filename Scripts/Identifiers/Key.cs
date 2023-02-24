@@ -1,12 +1,9 @@
-using System;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "NewKey",menuName = "Keys/Key")]
-public class Key : ScriptableObject
+public class Key : ScriptableObject, ICreatableUnityAsset<Key>
 {
-    public static event Action<Key> onCreate;
-    public static event Action<Key> onDestroy; 
     protected virtual bool HideIDString => false;
     [SerializeField][HideIf("HideIDString")][OnValueChanged("OnIDChanged")] private string _id;
 
@@ -21,8 +18,8 @@ public class Key : ScriptableObject
         set => _id = value;
     }
 
-    private void Awake()
+    protected virtual void Awake()
     {
-        onCreate?.Invoke(this);
+        AssetCreationEvents<Key>.NotifyCreate(this);
     }
 }

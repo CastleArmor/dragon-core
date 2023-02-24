@@ -9,8 +9,8 @@ public static class EventKeyPath
     public static void InitIfNot()
     {
         if (_IsInit) return;
-        EventKey.onCreate += SetRequireUpdate;
-        EventKey.onDestroy += SetRequireUpdate;
+        AssetCreationEvents<EventKey>.onCreate += SetRequireUpdate;
+        AssetCreationEvents<EventKey>.onDestroy += SetRequireUpdate;
         _RequireUpdate = true;
         _IsInit = true;
     }

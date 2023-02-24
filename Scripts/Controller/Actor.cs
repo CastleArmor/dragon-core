@@ -18,6 +18,9 @@ public abstract class Actor : MonoBehaviour,IActor
     
     [ShowInInspector][HideInEditorMode]
     private IDataContext _dataContext;
+
+    public string ObjectTypeID => _goInstance.ObjectTypeID;
+
     public IDataContext DataContext
     {
         get
@@ -62,7 +65,7 @@ public abstract class Actor : MonoBehaviour,IActor
     private string _endingEventID;
     public string EndingEventID => _endingEventID;
     public bool IsBeingDestroyed => _goInstance.IsBeingDestroyed;
-    
+
     public event Action<IActor> onInitialize;
     public event Action<IActor> onBeginBeforeLogic;
     public event Action<IActor> onBegin;
