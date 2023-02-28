@@ -10,5 +10,6 @@ public enum EventAddressType
     ContextUserRelative = 1<<3,
     Global = 1<<4,
     FromGroupFirstMember = 1<<5,
-    ToAllGroupMembers = 1<<6
+    ToAllGroupMembers = 1<<6,
+    FinalUser = 1<<7
 }

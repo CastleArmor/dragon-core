@@ -75,6 +75,7 @@ public class GOInstancePool : IGOInstancePool
 
     private void Clone(int count)
     {
+        if (StaticUpdate.IsAppQuit) return;
         for (int i = 0; i < count; i++)
         {
             GameObject newInstance = GameObject.Instantiate(_original.gameObject);

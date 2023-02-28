@@ -28,6 +28,12 @@ public struct AddressField
     
     [SerializeField]
     [HideLabel]
+    [HideIf("HideIfGroupKey")]
+    public DataKey GroupKey;
+    private bool HideIfGroupKey => DataAddress != DataAddress.GroupFirstMember;
+    
+    [SerializeField]
+    [HideLabel]
     [HideIf("HideIfRelativeAddress")]
     [HorizontalGroup(GroupID = "relative", Width = 0.80f)]
     public RelativeContextStack RelativeStack;
@@ -37,6 +43,10 @@ public struct AddressField
         if (DataAddress == DataAddress.Global) return null;
         else
         {
+            if (DataAddress == DataAddress.GroupFirstMember)
+            {
+                return DataRegistry<List<IActor>>.GetData(null, GroupKey.ID)[0].DataContext;
+            }
             switch (ContextAddress)
             {
                 case ContextAddress.Self: return context;

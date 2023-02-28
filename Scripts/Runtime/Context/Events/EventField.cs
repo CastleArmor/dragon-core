@@ -258,6 +258,10 @@ using UnityEditor;
             {
                 returned = EventRegistry.Register(selfMain, _eventKey.ID, action);
             }
+            if ((_addressType & EventAddressType.FinalUser) != 0)
+            {
+                returned = EventRegistry.Register(selfMain.As<IHierarchyContext>().RootContext.As<IEventContext>(), _eventKey.ID,action);
+            }
             if ((_addressType & EventAddressType.FromGroupFirstMember) != 0)
             {
                 returned = EventRegistry.Register(DataRegistry<List<IActor>>.GetData(null,_groupKey.ID)[0].EventContext, _eventKey.ID, action);
@@ -281,6 +285,10 @@ using UnityEditor;
             if ((_addressType & EventAddressType.Context) != 0)
             {
                 returned = EventRegistry.Unregister(selfMain, _eventKey.ID, action);
+            }
+            if ((_addressType & EventAddressType.FinalUser) != 0)
+            {
+                returned = EventRegistry.Unregister(selfMain.As<IHierarchyContext>().RootContext.As<IEventContext>(), _eventKey.ID,action);
             }
             if ((_addressType & EventAddressType.FromGroupFirstMember) != 0)
             {
@@ -308,6 +316,10 @@ using UnityEditor;
             if ((_addressType & EventAddressType.Context) != 0)
             {
                 EventRegistry.Raise(selfMain, _eventKey.ID);
+            }
+            if ((_addressType & EventAddressType.FinalUser) != 0)
+            {
+                EventRegistry.Raise(selfMain.As<IHierarchyContext>().RootContext.As<IEventContext>(), _eventKey.ID);
             }
             if ((_addressType & EventAddressType.FromGroupFirstMember) != 0)
             {

@@ -3,9 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Sirenix.OdinInspector;
+#if UNITY_EDITOR
 using Sirenix.OdinInspector.Editor;
+#endif
 using Sirenix.Utilities;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "NewDataKey",menuName = "Keys/Data Key")]
@@ -122,6 +126,8 @@ public class DataKey : Key,ICreatableUnityAsset<DataKey>
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
         return key;
+#else
+        return null;
 #endif
     }
 }

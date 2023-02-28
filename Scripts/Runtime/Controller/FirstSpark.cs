@@ -23,6 +23,7 @@ public class FirstSpark : MonoBehaviour
     private IEnumerator Start()
     {
         yield return null;
+        Application.targetFrameRate = 60;
         _actor.InitializeIfNot();
         _actor.BeginIfNot();
     }

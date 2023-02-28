@@ -52,7 +52,7 @@ public class AS_ActorRunner : ActorService
     protected override void OnUnregisterOrStopAfterBegin()
     {
         base.OnUnregisterOrStopAfterBegin();
-        ActorUsageStandards.StopAllChildActors("Exit",_runningList.Data);
+        //ActorUsageStandards.StopAllChildActors("Exit",_runningList.Data);
         
         _actorListPool.Clear();
         _stringListPool.Clear();
@@ -112,6 +112,7 @@ public class AS_ActorRunner : ActorService
 
     protected virtual void OnActorCancelEnded(IActor endedActor)
     {
+        if (endedActor == null) return;
         Debug.Log("Cancelled Ended " + endedActor.name);
         ActorUsageStandards.StandardChildActorRelease(
             endedActor,_runningDictionary.Data,

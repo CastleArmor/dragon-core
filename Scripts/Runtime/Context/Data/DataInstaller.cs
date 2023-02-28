@@ -96,8 +96,11 @@ public struct DataInstaller<T> : IDataInstaller
     {
         Key = DataKey.CreateAtFolder<T>(_keyName);
         _createBegun = false;
+        
+#if UNITY_EDITOR
         Undo.RecordObject(parentObject,"DictionaryKeyCreateAndSet");
         EditorUtility.SetDirty(parentObject);
+#endif
     }
     
     private static IEnumerable GetAllAppropriateKeys()
