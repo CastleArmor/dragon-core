@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
 
-public struct SMTransition : ITransition
+public struct SMTransition : IFSMTransition
 {
     public Func<bool> Condition;
     public IActorState From;
@@ -25,7 +25,7 @@ public struct SMTransition : ITransition
     }
 }
 
-public struct SMTriggerTransition : ITransition
+public struct SMTriggerTransition : IFSMTransition
 {
     public Func<bool> Condition;
     public Action OnTrigger;
@@ -65,15 +65,15 @@ public class StateMachine
     public IActor Actor => _actor;
 
     [ShowInInspector][ReadOnly]
-    private readonly Dictionary<IActorState, List<ITransition>> _direct = new Dictionary<IActorState, List<ITransition>>();
+    private readonly Dictionary<IActorState, List<IFSMTransition>> _direct = new Dictionary<IActorState, List<IFSMTransition>>();
     
     [ShowInInspector][ReadOnly]
-    private readonly List<ITransition> _any = new List<ITransition>();
+    private readonly List<IFSMTransition> _any = new List<IFSMTransition>();
 
     [ShowInInspector][ReadOnly]
     private IActorState _currentState;
 
-    public void InstallTransitions(List<ITransition> transitionList)
+    public void InstallTransitions(List<IFSMTransition> transitionList)
     {
         for (var i = 0; i < transitionList.Count; i++)
         {
@@ -95,7 +95,7 @@ public class StateMachine
                 }
                 else
                 {
-                    _direct.Add(transition.FromState,new List<ITransition>(){transition});
+                    _direct.Add(transition.FromState,new List<IFSMTransition>(){transition});
                 }
             }
             else
@@ -121,9 +121,9 @@ public class StateMachine
     public void Evaluate()
     {
         bool hasSwitchedThisEvaluate = false;
-        for (var i = 0; i < _any.Count; i++)
+        for (int i = 0; i < _any.Count; i++)
         {
-            ITransition transition = _any[i];
+            IFSMTransition transition = _any[i];
 
             if (transition.ToState == _currentState) continue;
             if (transition.GetCondition())
@@ -134,13 +134,15 @@ public class StateMachine
                 {
                     Evaluate();
                 }
+
+                return;
             }
         }
         
         if (!hasSwitchedThisEvaluate)
         {
             if (!_direct.ContainsKey(_currentState)) return;
-            for (var i = 0; i < _direct[_currentState].Count; i++)
+            for (int i = 0; i < _direct[_currentState].Count; i++)
             {
                 var transition = _direct[_currentState][i];
                 if (transition.GetCondition())
@@ -151,6 +153,8 @@ public class StateMachine
                     {
                         Evaluate();
                     }
+
+                    return;
                 }
             }
         }

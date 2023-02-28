@@ -5,8 +5,16 @@ using UnityEngine;
 public class InstalledData : IInstalledData
 {
     [NonSerialized]
-    private IDataContext _context;
-    public IDataContext Context => _context;
+    private IContext _context;
+    public IContext Context => _context;
+    
+    [NonSerialized]
+    private IDataContext _dataContext;
+    public IDataContext DataContext => _dataContext;
+    
+    [NonSerialized]
+    private IEventContext _eventContext;
+    public IEventContext EventContext => _eventContext;
     
     [NonSerialized]
     private bool _isInstalled;
@@ -24,15 +32,28 @@ public class InstalledData : IInstalledData
         set => _assignedID = value;
     }
 
-    public void OnInstalledData(IDataContext context)
+    [NonSerialized]
+    private string _keyID;
+    public string KeyID
     {
-        _isInitializing = true;
+        get => _keyID;
+        set => _keyID = value;
+    }
+
+    public void OnInstalledData(IContext context)
+    {
         _context = context;
-        OnBindAdditional();
-        OnInitialize();
-        if (context != null)
+        if (_context != null)
         {
-            if (!context.IsPrefab && !context.IsDefaultPrefabInstance)
+            _dataContext = context as IDataContext;
+            _eventContext = context as IEventContext;
+        }
+        _isInitializing = true;
+        OnBindAdditional(context);
+        OnInitialize();
+        if (_dataContext != null)
+        {
+            if (!_dataContext.IsPrefab && !_dataContext.IsDefaultPrefabInstance)
             {
                 OnInitializeInstanceData();
             }
@@ -42,12 +63,7 @@ public class InstalledData : IInstalledData
         _isInstalled = true;
     }
 
-    protected virtual void OnBindAdditional()
-    {
-        
-    }
-
-    protected virtual void OnUnbindAdditional()
+    protected virtual void OnBindAdditional(IContext context)
     {
         
     }
@@ -64,15 +80,14 @@ public class InstalledData : IInstalledData
 
     public void OnRemoveData()
     {
-        if (_context != null)
+        if (_dataContext != null)
         {
-            if (!_context.IsPrefab && !_context.IsDefaultPrefabInstance)
+            if (!_dataContext.IsPrefab && !_dataContext.IsDefaultPrefabInstance)
             {
                 OnInitializeInstanceData();
             }
         }
 
-        OnUnbindAdditional();
         OnRemove();
         _isInstalled = false;
     }

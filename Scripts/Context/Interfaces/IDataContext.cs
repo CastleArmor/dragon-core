@@ -1,11 +1,14 @@
 using System;
 
-public interface IDataContext : IContext
+public interface IHierarchyContext : IContext
 {
-    IDataContext ParentContext { get; set; }
-    IDataContext RootContext { get; }
-    string DataContextID { get; }
-    event Action<IDataContext, IDataContext, IDataContext> onParentContextChanged; 
+    IContext ParentContext { get; set; }
+    IContext RootContext { get; }
+    event Action<IContext, IContext, IContext> onParentContextChanged; 
+}
+
+public interface IDataContext : IHierarchyContext, IUnityObject
+{
     event Action<IDataContext> onInitializeData;
     event Action<IDataContext> onAllowAdditionalDataOnInitialize;
     event Action<IDataContext> onRequestSaveData; 

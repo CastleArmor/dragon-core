@@ -12,11 +12,26 @@ using UnityEngine.SceneManagement;
 
 public enum DataAddress
 {
-    Global = 0,
-    Context = 1,
-    ParentContext=2,
-    RootContext=3,
-    SceneContext=4
+    Context = 0,
+    Global = 1,
+    GroupFirstMember = 2
+}
+
+public enum ContextAddress
+{
+    Self = 0,
+    Parent=1,
+    Root=2,
+    Scene=3,
+    Relative = 4
+}
+
+public enum RelativeAddress
+{
+    Self = 0,
+    Parent = 1,
+    Root = 2,
+    Scene = 3
 }
 
 [System.Serializable][TopTitle(
@@ -47,18 +62,68 @@ public struct DataField<T>
     
     public Type DataType => typeof(T);
     
+    private bool _keyFieldToggled;
+    [PropertyOrder(-1)]
+    [HorizontalGroup(GroupID = "install",Width = 0.40f)]
+    [Button("Single")][HideIf("HideIfShowKey")]
+    private void ShowKey()
+    {
+        _keyFieldToggled = true;
+    }
+
+    private bool HideIfShowKey => _keyFieldToggled || Key != null;
+    private bool ShowIfHideKey => _keyFieldToggled && Key == null;
+
+    [PropertyOrder(-1)]
+    [HorizontalGroup(GroupID = "install",Width = 0.05f)]
+    [Button("X")][ShowIf("ShowIfHideKey")]
+    private void HideKey()
+    {
+        _createBegun = false;
+        _keyFieldToggled = false;
+    }
+    
     [HideInPlayMode]
     [SerializeField]
     [HideLabel]
     [ValueDropdown("GetAllAppropriateKeys")]
     [HorizontalGroup(GroupID = "install",Width = 0.40f)]
+    [HideIf("HideIfKey")]
     public DataKey Key;
 
-    [HideInPlayMode]
+    private bool HideIfKey => !_keyFieldToggled && Key == null;
+    
     [SerializeField]
     [HideLabel]
-    [HorizontalGroup(GroupID = "install", Width = 0.40f)]
+    [HorizontalGroup(GroupID = "install", Width = 0.30f)]
     public DataAddress DataAddress;
+    
+    [SerializeField]
+    [HideLabel]
+    [HideIf("HideIfContextAddress")]
+    [HorizontalGroup(GroupID = "install", Width = 0.30f)]
+    public ContextAddress ContextAddress;
+
+    private bool HideIfContextAddress => DataAddress != DataAddress.Context;
+    
+    [SerializeField]
+    [HideLabel]
+    [HideIf("HideIfRelativeAddress")]
+    [HorizontalGroup(GroupID = "relative", Width = 0.20f)]
+    public RelativeAddress RelativeAddress;
+    private bool HideIfRelativeAddress => ContextAddress != ContextAddress.Relative || HideIfContextAddress;
+
+    [SerializeField]
+    [HideLabel]
+    [HideIf("HideIfRelativeAddress")]
+    [HorizontalGroup(GroupID = "relative", Width = 0.80f)]
+    public RelativeContextStack RelativeStack;
+
+    [SerializeField]
+    [HideLabel]
+    [HideIf("HideIfGroupKey")]
+    public DataKey GroupKey;
+    private bool HideIfGroupKey => DataAddress != DataAddress.GroupFirstMember;
 
     [ShowInInspector][ReadOnly]
     private T _data;
@@ -67,9 +132,9 @@ public struct DataField<T>
     private bool _createBegun;
     private bool ShouldShowCreateDataSetKey => Key == null;
     public bool CreateBegun => _createBegun && ShouldShowCreateDataSetKey;
-    public bool ShowBeginCreate => !_createBegun && ShouldShowCreateDataSetKey;
+    public bool ShowBeginCreate => !_createBegun && ShouldShowCreateDataSetKey && _keyFieldToggled && Key == null;
     
-    [Button("Create")][HorizontalGroup(GroupID = "install",Width = 0.2f)][ShowIf("ShowBeginCreate")]
+    [Button("Create")][HorizontalGroup(GroupID = "install",Width = 0.1f)][ShowIf("ShowBeginCreate")][PropertyOrder(-1)]
     public void BeginCreate()
     {
         _createBegun = true;
@@ -78,7 +143,7 @@ public struct DataField<T>
     [ShowInInspector] [HideLabel] [HorizontalGroup(GroupID = "creation", Width = 0.8f)] [ShowIf("CreateBegun")]
     private string _keyName;
 
-    [Button("Create")][HorizontalGroup(GroupID = "creation",Width = 0.1f)][ShowIf("CreateBegun")]
+    [Button("Create")][HorizontalGroup(GroupID = "creation",Width = 0.1f)][ShowIf("CreateBegun")][PropertyOrder(-1)]
     public void CreateDataSetKey()
     {
         Key = DataKey.CreateAtFolder<T>(_keyName);
@@ -107,12 +172,12 @@ public struct DataField<T>
     }
 #endif
 
-    public void RegisterOnChange(IDataContext context, Action<DataOnChangeArgs<T>> action)
+    public void RegisterOnChange(IHierarchyContext context, Action<DataOnChangeArgs<T>> action)
     {
         DataRegistry<T>.RegisterOnChange(GetFromAddress(context), action, Key?Key.ID:"");
     }
     
-    public void UnregisterOnChange(IDataContext context, Action<DataOnChangeArgs<T>> action)
+    public void UnregisterOnChange(IHierarchyContext context, Action<DataOnChangeArgs<T>> action)
     {
         DataRegistry<T>.UnregisterOnChange(GetFromAddress(context), action, Key?Key.ID:"");
     }
@@ -153,6 +218,18 @@ public struct DataField<T>
         return default;
 #endif
     }
+
+    public bool TryGet(IDataContext context)
+    {
+        string key = Key ? Key.ID : "";
+        if (DataRegistry<T>.ContainsData(GetFromAddress(context), key))
+        {
+            _data = DataRegistry<T>.GetData(GetFromAddress(context),key);
+            return true;
+        }
+
+        return false;
+    }
     
     public T Get(IDataContext context)
     {
@@ -168,21 +245,86 @@ public struct DataField<T>
         DataRegistry<T>.SetData(GetFromAddress(context),value,key);
     }
 
-    private IDataContext GetFromAddress(IDataContext context)
+    private IContext GetFromAddress(IHierarchyContext context)
     {
         if (DataAddress == DataAddress.Global) return null;
         else
         {
-            switch (DataAddress)
+            if (DataAddress == DataAddress.GroupFirstMember)
             {
-                case DataAddress.Context: return context;
-                case DataAddress.ParentContext: return context.ParentContext;
-                case DataAddress.RootContext: return context.RootContext;
-                case DataAddress.SceneContext :
+                return DataRegistry<List<IActor>>.GetData(null, GroupKey.ID)[0].DataContext;
+            }
+            switch (ContextAddress)
+            {
+                case ContextAddress.Self: return context;
+                case ContextAddress.Parent: return context.ParentContext;
+                case ContextAddress.Root: return context.RootContext;
+                case ContextAddress.Scene:
                     Scene scene = context.As<IUnityComponent>().gameObject.scene;
-                    return DataContextRegistry.GetContext(scene.name);
+                    if (ContextRegistry.Contains(scene.name))
+                    {
+                        return ContextRegistry.GetContext(scene.name);
+                    }
+                    else return null;
+                case ContextAddress.Relative:
+                    switch (RelativeAddress)
+                    {
+                        case RelativeAddress.Self : 
+                            return GetRelativeAtAddress(RelativeStack.ContextKeys, context);
+                        case RelativeAddress.Parent :
+                            return GetRelativeAtAddress(RelativeStack.ContextKeys, context.ParentContext);
+                        case RelativeAddress.Root :
+                            return GetRelativeAtAddress(RelativeStack.ContextKeys, context.RootContext);
+                        case RelativeAddress.Scene :
+                            Scene scene2 = context.As<IUnityComponent>().gameObject.scene;
+                            return GetRelativeAtAddress(RelativeStack.ContextKeys, ContextRegistry.GetContext(scene2.name));
+                    }
+                    return context;
             }
             return context;
         }
+    }
+    
+    public IContext GetRelativeAtAddress(List<DataKey> stack,IContext starting)
+    {
+        if (stack.Count == 0) return null;
+        return RecursiveGetRelativeAtAddress(starting,stack, 0);
+    }
+
+    /// <summary>
+    /// Returns only on initials.
+    /// </summary>
+    /// <param name="relationOwner"></param>
+    /// <param name="stack"></param>
+    /// <param name="currentIndex"></param>
+    /// <returns></returns>
+    private IContext RecursiveGetRelativeAtAddress(IContext relationOwner,List<DataKey> stack, int currentIndex)
+    {
+        if (stack.Count <= currentIndex)
+        {
+            return null;
+        }
+        if (relationOwner.ContainsData<IContext>(stack[currentIndex].ID))
+        {
+            IContext main = relationOwner.GetData<IContext>(stack[currentIndex].ID);
+            IContext nextOwner = main;
+            IContext recurse = RecursiveGetRelativeAtAddress(nextOwner,stack, currentIndex + 1);
+            if (recurse != null)
+            {
+                main = recurse;
+            }
+
+            return main;
+        }
+        return null;
+    }
+
+    public static DataField<T> SingleContextRoot()
+    {
+        return new DataField<T>()
+        {
+            ContextAddress = ContextAddress.Root,
+            DataAddress = DataAddress.Context
+        };
     }
 }

@@ -38,12 +38,36 @@ public struct DataInstaller<T> : IDataInstaller
     
     public Type DataType => typeof(T);
     
+    private bool _keyFieldToggled;
+    [PropertyOrder(-1)]
+    [HorizontalGroup(GroupID = "install",Width = 0.99f)]
+    [Button("Single")][HideIf("HideIfShowKey")]
+    private void ShowKey()
+    {
+        _keyFieldToggled = true;
+    }
+
+    [PropertyOrder(-1)]
+    [HorizontalGroup(GroupID = "install",Width = 0.05f)]
+    [Button("X")][ShowIf("ShowIfHideKey")]
+    private void HideKey()
+    {
+        _createBegun = false;
+        _keyFieldToggled = false;
+    }
+
+    private bool HideIfShowKey => _keyFieldToggled || Key != null;
+    private bool ShowIfHideKey => _keyFieldToggled && Key == null;
+    
     [HideInPlayMode]
     [SerializeField]
     [HideLabel]
     [ValueDropdown("GetAllAppropriateKeys")]
-    [HorizontalGroup(GroupID = "install",Width = 0.45f)]
+    [HorizontalGroup(GroupID = "install",Width = 0.40f)]
+    [HideIf("HideIfKey")]
     public DataKey Key;
+
+    private bool HideIfKey => !_keyFieldToggled && Key == null;
 
     [SerializeField][HideLabel]
     public T InstalledValue;
@@ -51,14 +75,14 @@ public struct DataInstaller<T> : IDataInstaller
     private bool _createBegun;
     private bool ShouldShowCreateDataSetKey => Key == null;
     public bool CreateBegun => _createBegun && ShouldShowCreateDataSetKey;
-    public bool ShowBeginCreate => !_createBegun && ShouldShowCreateDataSetKey;
+    public bool ShowBeginCreate => !_createBegun && ShouldShowCreateDataSetKey && _keyFieldToggled && Key == null;
     
-    [Button("Create")][HorizontalGroup(GroupID = "install",Width = 0.15f)][ShowIf("ShowBeginCreate")]
+    [Button("Create")][HorizontalGroup(GroupID = "install",Width = 0.15f)][ShowIf("ShowBeginCreate")][PropertyOrder(-1)]
     public void BeginCreate()
     {
         _createBegun = true;
     }
-    [Button("Cancel")][HorizontalGroup(GroupID = "install",Width = 0.15f)][ShowIf("CreateBegun")]
+    [Button("Cancel")][HorizontalGroup(GroupID = "install",Width = 0.15f)][ShowIf("CreateBegun")][PropertyOrder(-1)]
     public void CancelCreate()
     {
         _createBegun = false;
@@ -67,7 +91,7 @@ public struct DataInstaller<T> : IDataInstaller
     [ShowInInspector] [HideLabel] [HorizontalGroup(GroupID = "creation", Width = 0.8f)] [ShowIf("CreateBegun")]
     private string _keyName;
 
-    [Button("Create")][HorizontalGroup(GroupID = "creation",Width = 0.15f)][ShowIf("CreateBegun")]
+    [Button("Create")][HorizontalGroup(GroupID = "creation",Width = 0.15f)][ShowIf("CreateBegun")][PropertyOrder(-1)]
     public void CreateDataSetKey()
     {
         Key = DataKey.CreateAtFolder<T>(_keyName);

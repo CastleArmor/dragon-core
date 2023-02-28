@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -5,16 +6,9 @@ using UnityEngine;
 [System.Serializable]
 public class D_GOInstancePoolRegistry : InstalledData,IGOInstancePoolRegistry
 {
-    protected override void OnBindAdditional()
+    protected override void OnBindAdditional(IContext context)
     {
-        base.OnBindAdditional();
-        DataRegistry<IGOInstancePoolRegistry>.BindData(Context,this,AssignedID);
-    }
-
-    protected override void OnUnbindAdditional()
-    {
-        base.OnUnbindAdditional();
-        DataRegistry<IGOInstancePoolRegistry>.UnbindData(Context,AssignedID);
+        DataRegistry<IGOInstancePoolRegistry>.BindData(context,this,KeyID);
     }
 
     [ShowInInspector][ReadOnly]
@@ -24,6 +18,10 @@ public class D_GOInstancePoolRegistry : InstalledData,IGOInstancePoolRegistry
     {
         _pools[original] = new GOInstancePool();
         GameObject parent = new GameObject(original.name + "-Pool");
+        if (original.TryGetComponent(out RectTransform rect))
+        {
+            parent.AddComponent<RectTransform>();
+        }
         _pools[original].Initialize(original,initialCount,parent.transform);
     }
 

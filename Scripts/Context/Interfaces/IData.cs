@@ -1,4 +1,4 @@
 public interface IData : ICastable
 {
-    IDataContext Context { get; }
+    IDataContext DataContext { get; }
 }

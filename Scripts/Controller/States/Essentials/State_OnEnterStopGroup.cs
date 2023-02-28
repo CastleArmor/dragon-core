@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class State_OnEnterStartGroup : MonoActorState
+public class State_OnEnterStopGroup : MonoActorState
 {
     [SerializeField] private DataField<List<IActor>> _group;
     [SerializeField] private float _delay;
@@ -19,8 +19,7 @@ public class State_OnEnterStartGroup : MonoActorState
         {
             foreach (IActor actor in _group.Data)
             {
-                actor.InitializeIfNot();
-                actor.BeginIfNot();
+                actor.StopIfNot();
             }
         }
     }
@@ -32,8 +31,7 @@ public class State_OnEnterStartGroup : MonoActorState
         {
             foreach (IActor actor in _group.Data)
             {
-                actor.InitializeIfNot();
-                actor.BeginIfNot();
+                actor.StopIfNot();
             }
         }
     }

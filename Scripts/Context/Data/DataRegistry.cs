@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 
 public struct DataOnChangeArgs<T>
 {
     public string AssignedKey;
-    public IDataContext Context;
+    public IContext Context;
     public T OldValue;
     public T NewValue;
 }
@@ -29,10 +30,13 @@ public static class DataRegistry<T>
     private static bool _isRegisteredToAppPause;
     private static bool _recievedChangeEvaluator;
     
+    private static StringBuilder _stringBuilder = new StringBuilder();
+    
     private static void OnApplicationQuit()
     {
         foreach (string key in _globalKeys)
         {
+            if (!Dictionary.ContainsKey(key)) continue;
             if (Dictionary[key] is IInstalledData installedData)
             {
                 installedData.OnRemoveData();
@@ -78,33 +82,38 @@ public static class DataRegistry<T>
         }
     }
 
-    public static void BindData(IDataContext context, T value, string key)
+    public static void BindData(IContext context,T value, string key)
+    {
+        EnsureEventRegisters();
+
+        string assignedID = GetAssignedKey(context, key);
+        if (context != null)
+        {
+            context.onDestroyContext += (c) => UnbindData(c,key);
+        }
+
+        Dictionary[assignedID] = value;
+    }
+
+    public static void UnbindData(IContext context,string key)
     {
         EnsureEventRegisters();
         
-        Dictionary[key] = value;
-    }
-
-    public static void UnbindData(IDataContext context, string key)
-    {
-        EnsureEventRegisters();
-        Dictionary.Remove(key);
-    }
-
-    private static void OnDestroyContextOfBoundData(IDataContext context)
-    {
-        context.onDestroyDataContext -= OnDestroyContextOfBoundData;
-        foreach (string dataKey in _contextKeys[DataContextRegistry.GetID(context.As<IDataContext>())])
+        string assignedID = GetAssignedKey(context, key);
+        if (context != null)
         {
-            Dictionary.Remove(dataKey);
+            context.onDestroyContext -= (c) => UnbindData(c,key);
         }
+        
+        Dictionary.Remove(assignedID);
     }
 
-    public static void SetData(IDataContext context, T value, string key = "")
+    private static string GetAssignedKey(IContext context,string key)
     {
-        EnsureEventRegisters();
-
-        string assignedID = "Global/"+key;
+        _stringBuilder.Clear();
+        _stringBuilder.Append("Global/");
+        _stringBuilder.Append(key);
+        string assignedID = _stringBuilder.ToString();
         if (context == null)
         {
             if (!_globalKeys.Contains(assignedID))
@@ -114,14 +123,106 @@ public static class DataRegistry<T>
         }
         else
         {
-            string contextID = DataContextRegistry.GetID(context);
-            assignedID = contextID;
-            assignedID += "/" + key;
+            if (!ContextRegistry.Contains(context))
+            {
+                return assignedID;
+            }
+            string contextID = ContextRegistry.GetID(context);
+            _stringBuilder.Clear();
+            _stringBuilder.Append(contextID);
+            _stringBuilder.Append("/");
+            _stringBuilder.Append(key);
+            assignedID = _stringBuilder.ToString();
+        }
+
+        return assignedID;
+    }
+
+    public static void RemoveData(IContext context, string key = "")
+    {
+        EnsureEventRegisters();
+        string assignedID = GetAssignedKey(context, key);
+        if (context == null)
+        {
+            if (!_globalKeys.Contains(assignedID))
+            {
+                return;
+            }
+        }
+        else
+        {
+            string contextID = ContextRegistry.GetID(context);
+            if (!_contextKeys.ContainsKey(contextID))
+            {
+                return;
+            }
+
+            string givenKey = "Single";
+            if (!string.IsNullOrEmpty(key))
+            {
+                givenKey = key;
+            }
+            _contextKeys[contextID].Remove(givenKey);
+
+            if (_contextKeys.Count == 0)
+            {
+                _contextKeys.Remove(contextID);
+                context.onDestroyContext -= OnDestroyContextOfInstalledData;
+            }
+        }
+        if (!Dictionary.ContainsKey(assignedID))
+        {
+            return;
+        }
+        T oldValue = Dictionary[assignedID];
+        if (oldValue is IInstalledData installedData)
+        {
+            installedData.OnRemoveData();
+        }
+        if (_onChangeDictionary.ContainsKey(assignedID))
+        {
+            Debug.Log("Contains Assigned ID = " + assignedID);
+            if (!_equalityComparer.Equals(oldValue, default))
+            {
+                Debug.Log("OnChanged Assigned ID = " + assignedID);
+                _onChangeDictionary[assignedID].Invoke(new DataOnChangeArgs<T>()
+                {
+                    AssignedKey = assignedID,
+                    Context = context,
+                    OldValue = oldValue,
+                    NewValue = default
+                });
+            }
+        }
+    }
+
+    public static void SetData(IContext context, T value, string key = "")
+    {
+        EnsureEventRegisters();
+
+        string assignedID = GetAssignedKey(context, key);
+        if (context == null)
+        {
+            if (!_globalKeys.Contains(assignedID))
+            {
+                _globalKeys.Add(assignedID);
+            }
+        }
+        else
+        {
+            string contextID = ContextRegistry.GetID(context);
             if (!_contextKeys.ContainsKey(contextID))
             {
                 _contextKeys.Add(contextID,new List<string>());
-                context.onDestroyDataContext += OnDestroyContextOfInstalledData;
+                context.onDestroyContext += OnDestroyContextOfInstalledData;
             }
+
+            string givenKey = "Single";
+            if (!string.IsNullOrEmpty(key))
+            {
+                givenKey = key;
+            }
+            _contextKeys[contextID].Add(givenKey);
         }
 
         T oldValue = default;
@@ -133,6 +234,7 @@ public static class DataRegistry<T>
         if (value is IInstalledData installedData)
         {
             installedData.AssignedID = assignedID;
+            installedData.KeyID = key;
             installedData.OnInstalledData(context);
         }
 
@@ -142,7 +244,7 @@ public static class DataRegistry<T>
             if (!_equalityComparer.Equals(oldValue, value))
             {
                 Debug.Log("OnChanged Assigned ID = " + assignedID);
-                _onChangeDictionary[assignedID].Invoke(new DataOnChangeArgs<T>()
+                _onChangeDictionary[assignedID]?.Invoke(new DataOnChangeArgs<T>()
                 {
                     AssignedKey = assignedID,
                     Context = context,
@@ -158,21 +260,19 @@ public static class DataRegistry<T>
         return Dictionary.ContainsKey(fullKey);
     }
 
-    public static bool ContainsData(IDataContext context, string key)
+    public static bool ContainsData(IContext context, string key)
     {
-        string assignedID = "Global/"+key;
-        if(context != null)
-        {
-            assignedID = DataContextRegistry.GetID(context);
-            assignedID += "/" + key;
-        }
-
+        string assignedID = GetAssignedKey(context, key);
         return Dictionary.ContainsKey(assignedID);
     }
     
     public static bool ContainsData(string contextID, string key)
     {
-        string assignedID = contextID+"/"+key;
+        _stringBuilder.Clear();
+        _stringBuilder.Append(contextID);
+        _stringBuilder.Append("/");
+        _stringBuilder.Append(key);
+        string assignedID = _stringBuilder.ToString();
         return Dictionary.ContainsKey(assignedID);
     }
 
@@ -216,14 +316,15 @@ public static class DataRegistry<T>
         }
     }
 
-    public static T GetData(IDataContext context, string key = "")
+    public static T GetData(IContext context, string key = "")
     {
-        string assignedID = "Global/"+key;
-        if(context != null)
+        string assignedID = GetAssignedKey(context, key);
+        #if UNITY_EDITOR
+        if (!Dictionary.ContainsKey(assignedID))
         {
-            assignedID = DataContextRegistry.GetID(context);
-            assignedID += "/" + key;
+            Debug.LogError(context.As<IUnityObject>().name + " doesn't contain " + typeof(T).Name + " With " + (string.IsNullOrEmpty(key)?"Single":key));
         }
+        #endif
         return Dictionary[assignedID];
     }
     
@@ -233,10 +334,10 @@ public static class DataRegistry<T>
         return Dictionary[assignedID];
     }
 
-    private static void OnDestroyContextOfInstalledData(IDataContext context)
+    private static void OnDestroyContextOfInstalledData(IContext context)
     {
-        context.onDestroyDataContext -= OnDestroyContextOfInstalledData;
-        foreach (string dataKey in _contextKeys[DataContextRegistry.GetID(context.As<IDataContext>())])
+        context.onDestroyContext -= OnDestroyContextOfInstalledData;
+        foreach (string dataKey in _contextKeys[ContextRegistry.GetID(context.As<IDataContext>())])
         {
             if (!Dictionary.ContainsKey(dataKey)) continue;
             if (Dictionary[dataKey] is IInstalledData installedData)
@@ -247,14 +348,9 @@ public static class DataRegistry<T>
         }
     }
 
-    public static void RegisterOnChange(IDataContext context, Action<DataOnChangeArgs<T>> action,string key = "")
+    public static void RegisterOnChange(IContext context, Action<DataOnChangeArgs<T>> action,string key = "")
     {
-        string assignedID = "Global/"+key;
-        if(context != null)
-        {
-            assignedID = DataContextRegistry.GetID(context);
-            assignedID += "/" + key;
-        }
+        string assignedID = GetAssignedKey(context, key);
 
         if (!_onChangeDictionary.ContainsKey(assignedID))
         {
@@ -264,18 +360,13 @@ public static class DataRegistry<T>
         _onChangeDictionary[assignedID] += action;
     }
     
-    public static void UnregisterOnChange(IDataContext context, Action<DataOnChangeArgs<T>> action,string key = "")
+    public static void UnregisterOnChange(IContext context, Action<DataOnChangeArgs<T>> action,string key = "")
     {
-        string assignedID = "Global/"+key;
-        if(context != null)
-        {
-            assignedID = DataContextRegistry.GetID(context);
-            assignedID += "/" + key;
-        }
+        string assignedID = GetAssignedKey(context, key);
 
         if (!_onChangeDictionary.ContainsKey(assignedID))
         {
-            _onChangeDictionary.Add(assignedID,null);
+            return;
         }
 
         _onChangeDictionary[assignedID] -= action;

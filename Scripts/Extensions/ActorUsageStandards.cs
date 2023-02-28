@@ -8,6 +8,7 @@ public enum SlotOccupationMode
     Additive //Added on on top, but when override comes along, it will be removed.
 }
 
+[System.Serializable]
 public struct SlotOccupationInfo
 {
     public Key Slot;
@@ -33,7 +34,8 @@ public static class ActorUsageStandards
         Dictionary<string,List<IActor>> occupationDictionary = null,
         Dictionary<IActor,List<string>> occupierToOccupiedList = null,
         InstancePool<List<IActor>> actorListPool = null,
-        InstancePool<List<string>> stringListPool = null)
+        InstancePool<List<string>> stringListPool = null,
+        string relationKey = null,bool doNotMoveToParent = false)
     {
         if(parent.IsBeingDestroyed) return new ActorRunResult(){IsSuccess = false};
 
@@ -70,16 +72,14 @@ public static class ActorUsageStandards
         {
             instanceActor = instance.GetComponent<IActor>();
         }
-
-        if (instanceActor is IUpdateOwner uoi && parent is IUpdateOwner uop)
-        {
-            uoi.ConfiguredUpdateHandler = uop.ConfiguredUpdateHandler; //Child shares update handlers.
-        }
         
         if (occupationList != null && occupationDictionary != null && occupierToOccupiedList != null)
         {
+            Debug.Log("Slotting");
+            occupierToOccupiedList.Add(instanceActor,stringListPool.Get());
             foreach (SlotOccupationInfo info in occupationList)
             {
+                Debug.Log("Evaluating " + info.Slot.ID + " - " + info.Mode);
                 if (occupationDictionary.ContainsKey(info.Slot.ID))
                 {
                     switch (info.Mode)
@@ -91,8 +91,9 @@ public static class ActorUsageStandards
                             for (var i = 0; i < occupationDictionary[info.Slot.ID].Count; i++)
                             {
                                 var cancelled = occupationDictionary[info.Slot.ID][i];
-                                cancelled.Cancel(usageRequestID);
-                                occupationDictionary[info.Slot.ID].Remove(cancelled);
+                                cancelled.CancelIfNotEnded(usageRequestID);
+                                Debug.Log("Cancelled " + cancelled.name);
+                                //occupationDictionary[info.Slot.ID].Remove(cancelled);
                                 i--;
                             }
                             occupationDictionary[info.Slot.ID].Add(instanceActor);
@@ -102,13 +103,22 @@ public static class ActorUsageStandards
                 else
                 {
                     occupationDictionary.Add(info.Slot.ID,actorListPool.Get());
+                    occupationDictionary[info.Slot.ID].Add(instanceActor);
                 }
+                occupierToOccupiedList[instanceActor].Add(info.Slot.ID);
             }
-            occupierToOccupiedList.Add(instanceActor,stringListPool.Get());
         }
 
         instanceActor.DataContext.ParentContext = parent.DataContext;
+        if (!string.IsNullOrEmpty(relationKey))
+        {
+            string relationStringKey = "ActorRelation" + instanceActor.DataContext.ContextID;
+            parent.DataContext.SetData<string>(relationStringKey,instanceActor.DataContext.ContextID);
+            parent.DataContext.SetData<IContext>(relationKey,instanceActor.DataContext);
+        }
         instanceActor.InitializeIfNot();
+
+        instanceActor.DataContext.SetData(parent.DataContext.GetData<IConfiguredUpdateBehaviour>());
         
         startConfirmed?.Invoke(new ActorUsageEventArgs()
         {
@@ -154,7 +164,7 @@ public static class ActorUsageStandards
         
         beforeStart?.Invoke(actor);
         actor.BeginIfNot();
-        Debug.Log("Starting actor");
+        Debug.Log("Starting actor " + actor.name);
         return new ActorRunResult()
         {
             IsSuccess = true,
@@ -186,11 +196,13 @@ public static class ActorUsageStandards
 
                 if (occupationDictionary[occupiedSlot].Count == 0)
                 {
+                    occupationDictionary[occupiedSlot].Clear();
                     actorListPool.Return(occupationDictionary[occupiedSlot]);
                 }
             }
 
             var list = occupierToOccupiedList[endedActor];
+            list.Clear();
             stringListPool.Return(list);
             occupierToOccupiedList.Remove(endedActor);
         }
@@ -204,13 +216,22 @@ public static class ActorUsageStandards
                 runningDictionary.Remove(endedActor.ObjectTypeID);
             }
         }
+
+        IContext parent = endedActor.DataContext.ParentContext;
+        string relationStringKey = "ActorRelation" + endedActor.DataContext.ContextID;
+        if (parent.ContainsData<string>(relationStringKey))
+        {
+            string relationKey = parent.GetData<string>(relationStringKey);
+            endedActor.DataContext.ParentContext.RemoveData<IContext>(relationKey);
+            endedActor.DataContext.ParentContext.RemoveData<string>(relationStringKey);
+        }
     }
 
     public static void StopAllChildActors(string cancelID,UniqueList<IActor> runningList)
     {
         for (var i = 0; i < runningList.Count; i++)
         {
-            runningList[i].Cancel(cancelID);
+            runningList[i].CancelIfNotEnded(cancelID);
             i--; //We expect cancelling triggering the StandardChildActorRelease resulting in runningList element removals.
         }
     }

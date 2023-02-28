@@ -29,10 +29,25 @@ public static class ChangeEvaluatorFactory<T>
         {
             return new CEF_Vector3Comparer() as IChangeEvaluator<T>;
         }
+        
+        if (typeof(T) == typeof(Quaternion))
+        {
+            return new CEF_QuaternionComparer() as IChangeEvaluator<T>;
+        }
+        
+        if (typeof(T) == typeof(Vector2))
+        {
+            return new CEF_Vector2Comparer() as IChangeEvaluator<T>;
+        }
 
         if (typeof(T).IsClass)
         {
             return new CEF_ReferenceComparer<T>();
+        }
+        
+        if (typeof(T) == typeof(double))
+        {
+            return new CEF_DoubleComparer() as IChangeEvaluator<T>;
         }
 
         return new CEF_DefaultComparer<T>();
@@ -76,6 +91,14 @@ public class CEF_BoolComparer : IChangeEvaluator<bool>
     }
 }
 
+public class CEF_DoubleComparer : IChangeEvaluator<double>
+{
+    public bool Equals(double x, double y)
+    {
+        return x == y;
+    }
+}
+
 public class CEF_StringComparer : IChangeEvaluator<string>
 {
     public bool Equals(string x, string y)
@@ -87,6 +110,22 @@ public class CEF_StringComparer : IChangeEvaluator<string>
 public class CEF_Vector3Comparer : IChangeEvaluator<Vector3>
 {
     public bool Equals(Vector3 x, Vector3 y)
+    {
+        return x == y;
+    }
+}
+
+public class CEF_Vector2Comparer : IChangeEvaluator<Vector2>
+{
+    public bool Equals(Vector2 x, Vector2 y)
+    {
+        return x == y;
+    }
+}
+
+public class CEF_QuaternionComparer : IChangeEvaluator<Quaternion>
+{
+    public bool Equals(Quaternion x, Quaternion y)
     {
         return x == y;
     }

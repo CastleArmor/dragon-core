@@ -1,5 +1,52 @@
+using System;
 using Sirenix.OdinInspector;
+using UnityEngine;
 
+public abstract class ExplicitBooleanBranchMonoActorState : BranchMonoActorState
+{
+    [SerializeField] private StateField _true;
+    [SerializeField] private StateField _false;
+
+    public abstract bool Boolean
+    {
+        get;
+    }
+
+    public abstract event Action onChangeEvent;
+
+    protected override void OnInitialize()
+    {
+        _true.InitializeIfNeedsInitialize();
+        _false.InitializeIfNeedsInitialize();
+    }
+
+    protected override IActorState InitialState =>
+        Boolean ? _true.State : _false.State;
+
+    protected override void OnEnter()
+    {
+        base.OnEnter();
+        onChangeEvent += Evaluate;
+    }
+
+    protected override void OnExit()
+    {
+        base.OnExit();
+        onChangeEvent -= Evaluate;
+    }
+
+    private void Evaluate()
+    {
+        if (Boolean)
+        {
+            SwitchStateIfNotEntered(_true.State);
+        }
+        else
+        {
+            SwitchStateIfNotEntered(_false.State);
+        }
+    }
+}
 public abstract class BranchMonoActorState : InitializedMonoActorState
 {
     [ShowInInspector][ReadOnly]

@@ -17,7 +17,7 @@ public static class EventContextRegistry
 
     public static void Set(IEventContext context)
     {
-        string stringID = context.EventContextID;
+        string stringID = context.ContextID;
         _idToContext[stringID] = context;
         _contextToID[context] = stringID;
     }
@@ -31,7 +31,7 @@ public static class EventContextRegistry
 
     public static void Remove(IEventContext context)
     {
-        string stringID = context.EventContextID;
+        string stringID = context.ContextID;
         _idToContext.Remove(stringID);
         _contextToID.Remove(context);
     }

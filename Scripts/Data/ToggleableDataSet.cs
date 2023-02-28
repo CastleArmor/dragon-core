@@ -125,8 +125,8 @@ public class ToggleableDataSet : InstalledData
     
     public void OpenIfNot(EventArgs senderArgs)
     {
-        if (Context == null) return;
-        if (!Context.GetData<IActor>().IsRunning) return;
+        if (DataContext == null) return;
+        if (!DataContext.GetData<IActor>().IsRunning) return;
         if (IsOpeningOrOpened) return;
 
         _toggleableStatus = ToggleableStatus.Opening;
@@ -250,8 +250,8 @@ public class ToggleableDataSet : InstalledData
     
     public void CloseIfNot(EventArgs senderArgs)
     {
-        if (Context == null) return;
-        if (!Context.GetData<IActor>().IsRunning) return;
+        if (DataContext == null) return;
+        if (!DataContext.GetData<IActor>().IsRunning) return;
         if (IsClosingOrClosed) return;
         
         if (UpdatesCanvasGroup)
@@ -345,8 +345,8 @@ public class ToggleableDataSet : InstalledData
     {
         base.OnInitializeInstanceData();
         _handlesCanvasGroup = _canvasGroup != null;
-        _openIfNot.Register(Context.As<IEventContext>(),OpenIfNot);
-        _closeIfNot.Register(Context.As<IEventContext>(),CloseIfNot);
+        _openIfNot.Register(DataContext.As<IEventContext>(),OpenIfNot);
+        _closeIfNot.Register(DataContext.As<IEventContext>(),CloseIfNot);
 
         if (_toggleableStatus == ToggleableStatus.Closing)
         {
@@ -371,8 +371,8 @@ public class ToggleableDataSet : InstalledData
     protected override void OnRemove()
     {
         base.OnRemove();
-        _openIfNot.Unregister(Context.As<IEventContext>(),OpenIfNot);
-        _closeIfNot.Unregister(Context.As<IEventContext>(),CloseIfNot);
+        _openIfNot.Unregister(DataContext.As<IEventContext>(),OpenIfNot);
+        _closeIfNot.Unregister(DataContext.As<IEventContext>(),CloseIfNot);
         _openingUpdate.UnregisterTry();
         _closingUpdate.UnregisterTry();
     }

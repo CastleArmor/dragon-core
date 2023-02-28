@@ -14,7 +14,7 @@ using UnityEngine;
         void InitializeIfNot();
         void TriggerUpdate(string tag);
     }
-    public class ConfiguredUpdateHandler : MonoBehaviour,IConfiguredUpdateBehaviour
+    public class AS_ConfiguredUpdateHandler : ActorService,IConfiguredUpdateBehaviour
     {
         public struct RemovalPair
         {
@@ -53,14 +53,21 @@ using UnityEngine;
         [ShowInInspector][ReadOnly]
         private bool _isInitialized;
 
-        [SerializeField] private bool _initializeAtAwake;
-
-        private void Awake()
+        protected override void OnRegisterActor()
         {
-            if (_initializeAtAwake)
-            {
-                InitializeIfNot();
-            }
+            base.OnRegisterActor();
+            
+            DataRegistry<IConfiguredUpdateBehaviour>.SetData(Actor.DataContext,this);
+            InitializeIfNot();
+        }
+
+        protected override void OnUnregisterMain()
+        {
+            base.OnUnregisterMain();
+            _updateDictionary.Clear();
+            _fixedUpdateDictionary.Clear();
+            _lateUpdateDictionary.Clear();
+            _triggeredUpdateDictionary.Clear();
         }
 
         public void InitializeIfNot()
@@ -85,7 +92,7 @@ using UnityEngine;
 
             _isInitialized = true;
         }
-        
+
         [Button]
         public void ApplyFromConfig(UpdateHandlerConfig config)
         {
@@ -256,22 +263,45 @@ using UnityEngine;
                 _additionPairs.RemoveAt(index);
             }
         }
-        
-        private void Update()
+
+        protected override void OnBeginBehaviour()
+        {
+            base.OnBeginBehaviour();
+            StaticUpdate.onUpdate += OnUpdate;
+            StaticUpdate.onFixedUpdate += OnFixedUpdate;
+            StaticUpdate.onLateUpdate += OnLateUpdate;
+        }
+
+        protected override void OnUnregisterOrStopAfterBegin()
+        {
+            base.OnUnregisterOrStopAfterBegin();
+            if (_isAppQuit) return;
+            StaticUpdate.onUpdate -= OnUpdate;
+            StaticUpdate.onFixedUpdate -= OnFixedUpdate;
+            StaticUpdate.onLateUpdate -= OnLateUpdate;
+        }
+
+        private bool _isAppQuit;
+        private void OnApplicationQuit()
+        {
+            _isAppQuit = true;
+        }
+
+        private void OnUpdate()
         {
             ExecuteConfiguredUpdateAdditions(UpdateType.Update);
             ExecuteConfiguredUpdateRemovals(UpdateType.Update);
             ExecuteConfiguredUpdateDictionary(_updateDictionary);
         }
 
-        private void FixedUpdate()
+        private void OnFixedUpdate()
         {
             ExecuteConfiguredUpdateAdditions(UpdateType.FixedUpdate);
             ExecuteConfiguredUpdateRemovals(UpdateType.FixedUpdate);
             ExecuteConfiguredUpdateDictionary(_fixedUpdateDictionary);
         }
 
-        private void LateUpdate()
+        private void OnLateUpdate()
         {
             ExecuteConfiguredUpdateAdditions(UpdateType.LateUpdate);
             ExecuteConfiguredUpdateRemovals(UpdateType.LateUpdate);

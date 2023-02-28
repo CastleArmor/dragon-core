@@ -3,8 +3,9 @@ using Animancer;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-public class CoreActor : Actor,ITagOwner,IUpdateOwner
+public class CoreActor : Actor,ITagOwner
 {
+    [SerializeField] private DataInstaller<D_Positioning> _positioning;
     [SerializeField][ReadOnly] private MonoBehaviour _tagOwnerObject;
     private ITagOwner _tagOwner;
     [SerializeField] private MonoActorState _runningState;
@@ -41,6 +42,8 @@ public class CoreActor : Actor,ITagOwner,IUpdateOwner
     protected override void OnAfterContextsInitialized()
     {
         base.OnAfterContextsInitialized();
+        DataContext.SetData(transform); //Set our own transform.
+        _positioning.InstallFor(DataContext);
         if (_runningState is IInitializedSubState state)
         {
             state.Initialize();

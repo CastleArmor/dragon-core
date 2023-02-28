@@ -110,7 +110,7 @@ public class GOInstance : MonoBehaviour, IGOInstance
             {
                 return;
             }
-
+            
             _pool.Return(this);
         }
     }

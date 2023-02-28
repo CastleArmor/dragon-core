@@ -140,7 +140,7 @@ public class ToggleableGroupControlState : MonoActorState
         }
         
         GroupDictionary.Remove(toggleable.GetComponent<IGOInstance>().ObjectTypeID);
-        toggleable.GetComponent<IActor>().CheckoutCancelled("Cancelled");
+        toggleable.GetComponent<IActor>().CancelIfNotEnded("Cancelled");
     }
 
     private void OnAddedToggleable(GameObject toggleable)
@@ -169,7 +169,7 @@ public class ToggleableGroupControlState : MonoActorState
             data.onBeginOpening -= OnOpening;
             
             GroupDictionary.Remove(toggleable.GetComponent<IGOInstance>().ObjectTypeID);
-            toggleable.GetComponent<IActor>().CheckoutCancelled("Cancelled");
+            toggleable.GetComponent<IActor>().CancelIfNotEnded("Cancelled");
         }
         
         _openPrevious.Unregister(EventContext,OnOpenPreviousMain);
@@ -183,20 +183,20 @@ public class ToggleableGroupControlState : MonoActorState
 
     private void OnMainOpened(ToggleableDataSet dataSet)
     {
-        if (GroupData.Opening == dataSet.Context)
+        if (GroupData.Opening == dataSet.DataContext)
         {
             GroupData.Opening = null;
         }
         
-        GroupData.Opened = dataSet.Context;
+        GroupData.Opened = dataSet.DataContext;
     }
     private void OnMainClosed(ToggleableDataSet dataSet)
     {
-        if (GroupData.Closing == dataSet.Context)
+        if (GroupData.Closing == dataSet.DataContext)
         {
             
         }
-        GroupData.Previous = dataSet.Context;
+        GroupData.Previous = dataSet.DataContext;
         
         if (GroupData.Closing == GroupData.Opened)
         {
@@ -217,12 +217,12 @@ public class ToggleableGroupControlState : MonoActorState
     
     private void OnOpening(ToggleableDataSet dataSet)
     {
-        GroupData.Opening = dataSet.Context;
+        GroupData.Opening = dataSet.DataContext;
     }
     
     private void OnClosing(ToggleableDataSet dataSet)
     {
-        GroupData.Closing = dataSet.Context;
+        GroupData.Closing = dataSet.DataContext;
     }
 
     private void OnRequestOpen(EventArgs senderArgs,ToggleableRequestArgs arg)

@@ -10,8 +10,7 @@ public class MonoContext : MonoBehaviour, IDataContext, IEventContext, IUnityCom
     [SerializeField] private bool _isSceneContext;
     
     [ShowInInspector] [ReadOnly] private string _instanceID;
-    public string EventContextID => _instanceID;
-    public string DataContextID => _instanceID;
+    public string ContextID => _instanceID;
 
     [TabGroup("Settings",HideWhenChildrenAreInvisible = true)]
     [SerializeField] private DefaultInstallMethod _defaultInstallMethod;
@@ -31,13 +30,13 @@ public class MonoContext : MonoBehaviour, IDataContext, IEventContext, IUnityCom
     [ShowInInspector] 
     [TabGroup("Outputs",HideWhenChildrenAreInvisible = true)] 
     [ReadOnly]
-    private IDataContext _parentContext; 
-    public IDataContext ParentContext
+    private IContext _parentContext; 
+    public IContext ParentContext
     {
         get => _parentContext;
         set
         {
-            IDataContext oldValue = _parentContext;
+            IContext oldValue = _parentContext;
             if (value != null)
             {
                 if (value == (IDataContext)this)
@@ -67,30 +66,33 @@ public class MonoContext : MonoBehaviour, IDataContext, IEventContext, IUnityCom
     
     public event Action<IContext> onDestroyContext;
 
-    public IDataContext RootContext
+    public IContext RootContext
     {
         get
         {
-            IDataContext latest = this;
+            IHierarchyContext latestHierarchyContext = this;
+            IContext latestContext = this;
             bool isFinal = false;
             while (!isFinal)
             {
-                IDataContext iteration = latest.ParentContext;
+                IContext iteration = latestHierarchyContext.ParentContext;
                 if (iteration == null)
                 {
                     isFinal = true;
                 }
                 else
                 {
-                    latest = iteration;
+                    latestContext = iteration;
+                    latestHierarchyContext = latestContext as IHierarchyContext;
+                    if (latestHierarchyContext == null) break;
                 }
             }
 
-            return latest;
+            return latestContext;
         }
     }
 
-    public event Action<IDataContext, IDataContext, IDataContext> onParentContextChanged;
+    public event Action<IContext, IContext, IContext> onParentContextChanged;
     public event Action<IDataContext> onInitializeData;
     public event Action<IDataContext> onAllowAdditionalDataOnInitialize;
     public event Action<IDataContext> onRequestSaveData;
@@ -110,22 +112,26 @@ public class MonoContext : MonoBehaviour, IDataContext, IEventContext, IUnityCom
         Debug.Log("Loading data completed...");
     }
 
-    private void Awake()
+    private bool _onEnableRun;
+    protected void OnEnable()
     {
+        if (_onEnableRun) return;
+        _instanceID = _isSceneContext ? gameObject.scene.name : GetInstanceID().ToString();
         if (_initializeAtAwake)
         {
             InitializeIfNot();
         }
+
+        _onEnableRun = true;
     }
 
     public void InitializeIfNot()
     {
         if (_isDataPrepared) return;
-        _instanceID = _isSceneContext ? gameObject.scene.name : GetInstanceID().ToString();
-        DataContextRegistry.Set(DataContextID,this);
-        EventContextRegistry.Set(EventContextID,this);
+        ContextRegistry.Set(ContextID,this);
         DataInstallMethod installMethod = CreateInstallMethod();
         installMethod.InstallFor(this);
+        onAllowAdditionalDataOnInitialize?.Invoke(this);
         _isDataPrepared = true;
     }
 
@@ -154,7 +160,6 @@ public class MonoContext : MonoBehaviour, IDataContext, IEventContext, IUnityCom
         onDestroyContext?.Invoke(this);
         onDestroyDataContext?.Invoke(this);
         onDestroyEventContext?.Invoke(this);
-        DataContextRegistry.Remove(this);
-        EventContextRegistry.Remove(this);
+        ContextRegistry.Remove(this);
     }
 }

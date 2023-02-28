@@ -52,6 +52,10 @@ public class GOInstancePool : IGOInstancePool
     {
         _activeInstances.Remove(instance);
         _deactiveInstances.Add(instance);
+        if (!instance.IsBeingDestroyed)
+        {
+            instance.transform.SetParent(ContainingParent);
+        }
         instance.PoolCheckoutReturnedToPool();
     }
 

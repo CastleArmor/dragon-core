@@ -2,41 +2,59 @@
 using System.Collections;
 using UnityEngine;
 
-
-
 public class StaticUpdate : GlobalSingleton<StaticUpdate>
 {
     public static event Action<bool> onApplicationPause
     {
-        add => Instance._onApplicationPause += value;
-        remove => Instance._onApplicationPause -= value;
+        add
+        {
+            Ensure();
+            _onApplicationPause += value;
+        }
+        remove => _onApplicationPause -= value;
     }
     public static event Action onApplicationQuit
     {
-        add => Instance._onApplicationQuit += value;
-        remove => Instance._onApplicationQuit -= value;
+        add
+        {
+            Ensure();
+            _onApplicationQuit += value;
+        }
+        remove => _onApplicationQuit -= value;
     }
     public static event Action onUpdate
     {
-        add => Instance._onUpdate += value;
-        remove => Instance._onUpdate -= value;
+        add
+        {
+            Ensure();
+            _onUpdate += value;
+        }
+        remove => _onUpdate -= value;
     }
     public static event Action onFixedUpdate
     {
-        add => Instance._onFixedUpdate += value;
-        remove => Instance._onFixedUpdate -= value;
+        add
+        {
+            Ensure();
+            _onFixedUpdate += value;
+        }
+        remove => _onFixedUpdate -= value;
     }
     public static event Action onLateUpdate
     {
-        add => Instance._onLateUpdate += value;
-        remove => Instance._onLateUpdate -= value;
+        add
+        {
+            Ensure();
+            _onLateUpdate += value; 
+        }
+        remove => _onLateUpdate -= value;
     }
 
-    public event Action<bool> _onApplicationPause; 
-    public event Action _onApplicationQuit;
-    public event Action _onUpdate;
-    public event Action _onFixedUpdate;
-    public event Action _onLateUpdate;
+    private static event Action<bool> _onApplicationPause; 
+    private static event Action _onApplicationQuit;
+    private static event Action _onUpdate;
+    private static event Action _onFixedUpdate;
+    private static event Action _onLateUpdate;
 
     public static Coroutine StartCoroutineStatic(IEnumerator enumerator)
     {

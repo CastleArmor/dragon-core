@@ -22,7 +22,7 @@ using Object = UnityEngine.Object;
             get => _parentObject;
             set => _parentObject = value;
         }
-        [HideLabel][ValueDropdown("GetAllAppropriateKeys",AppendNextDrawer = true)]
+        [HideLabel]
         [SerializeField] private UpdateKey _updateKey;
 
         public UpdateKey UpdateKey => _updateKey;
@@ -33,10 +33,10 @@ using Object = UnityEngine.Object;
 
         private bool _isRegistered;
 
-        public void RegisterUpdate(IActor main,Action action)
+        public void RegisterUpdate(IActor actor,Action action)
         {
             if (_isRegistered) return;
-            main.As<IUpdateOwner>().ConfiguredUpdateHandler.RegisterConfiguredUpdate(_updateKey.ID,new UpdateArgs()
+            actor.DataContext.GetData<IConfiguredUpdateBehaviour>().RegisterConfiguredUpdate(_updateKey.ID,new UpdateArgs()
             {
                 UpdateName = UpdateName
             }, action);
@@ -60,10 +60,10 @@ using Object = UnityEngine.Object;
             _isRegistered = false;
         }
         
-        public void UnregisterUpdate(IActor main, Action action)
+        public void UnregisterUpdate(IActor actor, Action action)
         {
             if (!_isRegistered) return;
-            main.As<IUpdateOwner>().ConfiguredUpdateHandler.UnregisterConfiguredUpdate(_updateKey.ID, action);
+            actor.DataContext.GetData<IConfiguredUpdateBehaviour>().UnregisterConfiguredUpdate(_updateKey.ID, action);
             _isRegistered = false;
         }
     }

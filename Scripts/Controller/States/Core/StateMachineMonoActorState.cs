@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public interface ITransition
+public interface IFSMTransition
 {
     IActorState FromState { get; set; }
     IActorState ToState { get; set; }
@@ -13,7 +13,7 @@ public abstract class StateMachineMonoActorState : InitializedMonoActorState
 {
     [SerializeField] private StateMachine _stateMachine;
     protected abstract IActorState InitialState { get; }
-    private List<ITransition> _transitions = new List<ITransition>();
+    private List<IFSMTransition> _transitions = new List<IFSMTransition>();
 
     protected void Evaluate()
     {

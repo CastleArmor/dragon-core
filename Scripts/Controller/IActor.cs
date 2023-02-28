@@ -11,18 +11,17 @@ public interface IActor : IUnityComponent,IInitializable,IRunnable
     IEventContext EventContext { get; }
     
     //Methods
-    void CheckoutFinished(string eventID);
-    void CheckoutCancelled(string eventID);
-    void Cancel(string requestID);
+    void FinishIfNotEnded(string eventID);
+    void CancelIfNotEnded(string eventID);
     
     //Events
     event Action<IActor> onInitialize; 
     event Action<IActor> onBeginBeforeLogic;
     event Action<IActor> onBegin;
-    event Action<IActor> onStop;     
+    event Action<IActor> onStop;
+    event Action<IActor> onDestroyActor; 
     event Action<IActor> onFinishEnded;
     event Action<IActor> onCancelEnded;
     event Action<IActor> onEnded;
     event Action<IActor> onEndedStateChanged;
-    event Action<IActor,string> onRequestCancel;
 }

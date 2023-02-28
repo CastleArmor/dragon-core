@@ -12,6 +12,10 @@ public abstract class Actor : MonoBehaviour,IActor
 {
     [SerializeField] private List<Key> _groups;
     [SerializeField] private bool _stopOnEnd;
+    [SerializeField] private bool _setSceneReference;
+    [ShowIf("_setSceneReference")] [SerializeField]
+    private DataInstaller<IActor> _sceneInstall;
+    
     [SerializeField][HideInPlayMode][ReadOnly] private GOInstance _goInstance;
     [SerializeField][HideInPlayMode][ReadOnly] private MonoBehaviour _dataContextObject;
     [SerializeField][HideInPlayMode][ReadOnly] private MonoBehaviour _eventContextObject;
@@ -70,11 +74,11 @@ public abstract class Actor : MonoBehaviour,IActor
     public event Action<IActor> onBeginBeforeLogic;
     public event Action<IActor> onBegin;
     public event Action<IActor> onStop;
+    public event Action<IActor> onDestroyActor;
     public event Action<IActor> onFinishEnded;
     public event Action<IActor> onCancelEnded;
     public event Action<IActor> onEnded; // Cancel or Finish
     public event Action<IActor> onEndedStateChanged;
-    public event Action<IActor,string> onRequestCancel;
 
     private bool ShowBeginButton => _isInitialized && !_isRunning;
     private bool ShowStopButton => _isInitialized && _isRunning;
@@ -116,10 +120,16 @@ public abstract class Actor : MonoBehaviour,IActor
     public void InitializeIfNot()
     {
         if (_isInitialized) return;
-        
+
+        if (_setSceneReference)
+        {
+            _sceneInstall.InstalledValue = this;
+            _sceneInstall.InstallFor(ContextRegistry.GetContext(gameObject.scene.name).As<IDataContext>());
+        }
         _goPool = DataRegistry<IGOInstancePoolRegistry>.GetData(null);
         OnBeforeContextsInitialize();
         _dataContext = _dataContextObject as IDataContext;
+        _dataContext.onDestroyContext += OnDestroyDataContext;
         _dataContext.InitializeIfNot();
         _dataContext.SetData(this as IActor);
         
@@ -128,6 +138,22 @@ public abstract class Actor : MonoBehaviour,IActor
         OnAfterContextsInitialized();
         _isInitialized = true;
         onInitialize?.Invoke(this);
+    }
+
+    private void OnDestroyDataContext(IContext obj)
+    {
+        if (!_isInitialized) return;
+        _dataContext.onDestroyContext -= OnDestroyDataContext;
+        foreach (Key group in _groups)
+        {
+            DataRegistry<List<IActor>>.TryActionOnData(null,(a)=>a.Remove(this),group.ID);
+        }
+
+        if (_isRunning && !_onApplicationQuit)
+        {
+            StopIfNot();
+        }
+        onDestroyActor?.Invoke(this);
     }
 
     protected virtual void OnBeforeContextsInitialize()
@@ -155,10 +181,11 @@ public abstract class Actor : MonoBehaviour,IActor
         onBegin?.Invoke(this);
     }
     
-    //Designed to called by owner of this
-    public void CheckoutFinished(string eventID)
+    [Button][ShowIf("ShowStopButton")]
+    public void FinishIfNotEnded(string eventID)
     {
         if (_isEnded) return;
+        if (!_isRunning) return;
         _endingEventID = eventID;
         //Debug.Log("Checkout Finished, " + name + " - " + eventID);
         _isEnded = true;
@@ -169,12 +196,14 @@ public abstract class Actor : MonoBehaviour,IActor
             StopIfNot();
         }
         onEndedStateChanged?.Invoke(this);
+        DataContext.ParentContext = null;
     }
     
-    //Designed to called by owner of this
-    public void CheckoutCancelled(string eventID)
+    [Button][ShowIf("ShowStopButton")]
+    public void CancelIfNotEnded(string eventID)
     {
         if (_isEnded) return;
+        if (!_isRunning) return;
         _endingEventID = eventID;
         _isEnded = true;
         onCancelEnded?.Invoke(this);
@@ -185,12 +214,7 @@ public abstract class Actor : MonoBehaviour,IActor
             main.StopIfNot();
         }
         onEndedStateChanged?.Invoke(this);
-    }
-    
-    public void Cancel(string requestID)
-    {
-        onRequestCancel?.Invoke(this,requestID);
-        CheckoutCancelled(requestID);
+        DataContext.ParentContext = null;
     }
 
     protected virtual void OnBeginLogic()
@@ -203,10 +227,11 @@ public abstract class Actor : MonoBehaviour,IActor
     {
         if (!_isInitialized) return;
         if (!_isRunning) return;
-        
+
         OnStopLogic();
         _isRunning = false;
         onStop?.Invoke(this);
+        if (IsBeingDestroyed) return;
         _goInstance.ReturnPool();
     }
 
@@ -215,17 +240,9 @@ public abstract class Actor : MonoBehaviour,IActor
         
     }
 
-    private void OnDestroy()
+    private bool _onApplicationQuit;
+    private void OnApplicationQuit()
     {
-        if (!_isInitialized) return;
-        foreach (Key group in _groups)
-        {
-            DataRegistry<List<IActor>>.TryActionOnData(null,(a)=>a.Remove(this),group.ID);
-        }
-
-        if (_isRunning)
-        {
-            StopIfNot();
-        }
+        _onApplicationQuit = true;
     }
 }

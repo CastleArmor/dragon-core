@@ -1,7 +1,6 @@
 using System;
 
-public interface IEventContext : IContext
+public interface IEventContext : IContext, IUnityObject
 {
-    string EventContextID { get; }
     event Action<IEventContext> onDestroyEventContext;
 }
