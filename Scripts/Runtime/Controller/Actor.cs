@@ -132,12 +132,18 @@ public abstract class Actor : MonoBehaviour,IActor
         _dataContext.onDestroyContext += OnDestroyDataContext;
         _dataContext.InitializeIfNot();
         _dataContext.SetData(this as IActor);
+        OnAfterActorInstalledItself();
         
         _eventContext = _eventContextObject as IEventContext;
         _eventContext.InitializeIfNot();
         OnAfterContextsInitialized();
         _isInitialized = true;
         onInitialize?.Invoke(this);
+    }
+
+    protected virtual void OnAfterActorInstalledItself()
+    {
+        
     }
 
     private void OnDestroyDataContext(IContext obj)
