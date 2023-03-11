@@ -14,8 +14,31 @@ public struct AddressField
     [SerializeField]
     [HideLabel]
     [HideIf("HideIfContextAddress")]
-    [HorizontalGroup(GroupID = "install", Width = 0.30f)]
+    [HorizontalGroup(GroupID = "install", Width = 0.30f)][GUIColor("GetContextAddressColor")]
     public ContextAddress ContextAddress;
+
+    private Color GetContextAddressColor()
+    {
+        Color returned = Color.white;
+        if (ContextAddress == ContextAddress.Parent)
+        {
+            returned = Color.cyan;
+        }
+        else if (ContextAddress == ContextAddress.Relative)
+        {
+            returned = new Color(0.8f,0.5f,0.8f);
+        }
+        else if (ContextAddress == ContextAddress.Root)
+        {
+            returned = new Color(0.8f,0.8f,0.5f);
+        }
+        else if (ContextAddress == ContextAddress.Scene)
+        {
+            returned = new Color(1f,0.4f,0.4f);
+        }
+
+        return returned;
+    }
 
     private bool HideIfContextAddress => DataAddress != DataAddress.Context;
     
@@ -37,6 +60,15 @@ public struct AddressField
     [HideIf("HideIfRelativeAddress")]
     [HorizontalGroup(GroupID = "relative", Width = 0.80f)]
     public RelativeContextStack RelativeStack;
+    
+    public static AddressField SingleContextRoot()
+    {
+        return new AddressField()
+        {
+            ContextAddress = ContextAddress.Root,
+            DataAddress = DataAddress.Context
+        };
+    }
     
     public IContext GetFromAddress(IHierarchyContext context)
     {

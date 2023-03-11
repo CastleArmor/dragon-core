@@ -34,7 +34,8 @@ public enum RelativeAddress
     Scene = 3
 }
 
-[System.Serializable][TopTitle(
+[System.Serializable]
+[TopTitle(
     NameSuffix = "<color=#00ffff33><b>☵</b></color>",
     NamePrefix = "<color=#00ffff33><b>☵</b></color>",
     ShowGenericName = true,SetParentObject = true,
@@ -59,12 +60,12 @@ public struct DataField<T>
         get => _parentObject;
         set => _parentObject = value;
     }
-    
+
     public Type DataType => typeof(T);
     
     private bool _keyFieldToggled;
     [PropertyOrder(-1)]
-    [HorizontalGroup(GroupID = "install",Width = 0.40f)]
+    [HorizontalGroup(GroupID = "install",Width = 0.20f)]
     [Button("Single")][HideIf("HideIfShowKey")]
     private void ShowKey()
     {
@@ -90,42 +91,16 @@ public struct DataField<T>
     [HorizontalGroup(GroupID = "install",Width = 0.40f)]
     [HideIf("HideIfKey")]
     public DataKey Key;
+    
+    [SerializeField]
+    [InlineProperty]
+    [HideLabel]
+    [HorizontalGroup(GroupID = "install",Width = 0.55f)] 
+    private AddressField _addressField;
 
     private bool HideIfKey => !_keyFieldToggled && Key == null;
     
-    [SerializeField]
-    [HideLabel]
-    [HorizontalGroup(GroupID = "install", Width = 0.30f)]
-    public DataAddress DataAddress;
-    
-    [SerializeField]
-    [HideLabel]
-    [HideIf("HideIfContextAddress")]
-    [HorizontalGroup(GroupID = "install", Width = 0.30f)]
-    public ContextAddress ContextAddress;
-
-    private bool HideIfContextAddress => DataAddress != DataAddress.Context;
-    
-    [SerializeField]
-    [HideLabel]
-    [HideIf("HideIfRelativeAddress")]
-    [HorizontalGroup(GroupID = "relative", Width = 0.20f)]
-    public RelativeAddress RelativeAddress;
-    private bool HideIfRelativeAddress => ContextAddress != ContextAddress.Relative || HideIfContextAddress;
-
-    [SerializeField]
-    [HideLabel]
-    [HideIf("HideIfRelativeAddress")]
-    [HorizontalGroup(GroupID = "relative", Width = 0.80f)]
-    public RelativeContextStack RelativeStack;
-
-    [SerializeField]
-    [HideLabel]
-    [HideIf("HideIfGroupKey")]
-    public DataKey GroupKey;
-    private bool HideIfGroupKey => DataAddress != DataAddress.GroupFirstMember;
-
-    [ShowInInspector][ReadOnly]
+    [ShowInInspector][ReadOnly][HideInEditorMode]
     private T _data;
     public T Data => _data;
 
@@ -176,12 +151,12 @@ public struct DataField<T>
 
     public void RegisterOnChange(IHierarchyContext context, Action<DataOnChangeArgs<T>> action)
     {
-        DataRegistry<T>.RegisterOnChange(GetFromAddress(context), action, Key?Key.ID:"");
+        DataRegistry<T>.RegisterOnChange(_addressField.GetFromAddress(context), action, Key?Key.ID:"");
     }
     
     public void UnregisterOnChange(IHierarchyContext context, Action<DataOnChangeArgs<T>> action)
     {
-        DataRegistry<T>.UnregisterOnChange(GetFromAddress(context), action, Key?Key.ID:"");
+        DataRegistry<T>.UnregisterOnChange(_addressField.GetFromAddress(context), action, Key?Key.ID:"");
     }
     
     private static bool EvaluateForAppropriateResource(DataKeyInfo keyInfo)
@@ -224,9 +199,9 @@ public struct DataField<T>
     public bool TryGet(IDataContext context)
     {
         string key = Key ? Key.ID : "";
-        if (DataRegistry<T>.ContainsData(GetFromAddress(context), key))
+        if (DataRegistry<T>.ContainsData(_addressField.GetFromAddress(context), key))
         {
-            _data = DataRegistry<T>.GetData(GetFromAddress(context),key);
+            _data = DataRegistry<T>.GetData(_addressField.GetFromAddress(context),key);
             return true;
         }
 
@@ -236,55 +211,14 @@ public struct DataField<T>
     public T Get(IDataContext context)
     {
         string key = Key ? Key.ID : "";
-        _data = DataRegistry<T>.GetData(GetFromAddress(context),key);
+        _data = DataRegistry<T>.GetData(_addressField.GetFromAddress(context),key);
         return _data;
     }
 
-    [Button]
     public void Set(IDataContext context, T value)
     {
         string key = Key ? Key.ID : "";
-        DataRegistry<T>.SetData(GetFromAddress(context),value,key);
-    }
-
-    private IContext GetFromAddress(IHierarchyContext context)
-    {
-        if (DataAddress == DataAddress.Global) return null;
-        else
-        {
-            if (DataAddress == DataAddress.GroupFirstMember)
-            {
-                return DataRegistry<List<IActor>>.GetData(null, GroupKey.ID)[0].DataContext;
-            }
-            switch (ContextAddress)
-            {
-                case ContextAddress.Self: return context;
-                case ContextAddress.Parent: return context.ParentContext;
-                case ContextAddress.Root: return context.RootContext;
-                case ContextAddress.Scene:
-                    Scene scene = context.As<IUnityComponent>().gameObject.scene;
-                    if (ContextRegistry.Contains(scene.name))
-                    {
-                        return ContextRegistry.GetContext(scene.name);
-                    }
-                    else return null;
-                case ContextAddress.Relative:
-                    switch (RelativeAddress)
-                    {
-                        case RelativeAddress.Self : 
-                            return GetRelativeAtAddress(RelativeStack.ContextKeys, context);
-                        case RelativeAddress.Parent :
-                            return GetRelativeAtAddress(RelativeStack.ContextKeys, context.ParentContext);
-                        case RelativeAddress.Root :
-                            return GetRelativeAtAddress(RelativeStack.ContextKeys, context.RootContext);
-                        case RelativeAddress.Scene :
-                            Scene scene2 = context.As<IUnityComponent>().gameObject.scene;
-                            return GetRelativeAtAddress(RelativeStack.ContextKeys, ContextRegistry.GetContext(scene2.name));
-                    }
-                    return context;
-            }
-            return context;
-        }
+        DataRegistry<T>.SetData(_addressField.GetFromAddress(context),value,key);
     }
     
     public IContext GetRelativeAtAddress(List<DataKey> stack,IContext starting)
@@ -325,8 +259,7 @@ public struct DataField<T>
     {
         return new DataField<T>()
         {
-            ContextAddress = ContextAddress.Root,
-            DataAddress = DataAddress.Context
+            _addressField = AddressField.SingleContextRoot()
         };
     }
 }
