@@ -1,5 +1,12 @@
 # dragon-core
 
+Requires [Odin](https://assetstore.unity.com/packages/tools/utilities/odin-inspector-and-serializer-89041) from AssetStore.
+
+How to install;
+
+1. Create a folder named "Framework" inside your Asset/ path.
+2. Clone or copy the repository to Asset/Framework/dragon-core.
+
 High Level UML Diagram
 
 [documentation](https://egehantolunay.atlassian.net/l/cp/ioX1fhNi)
