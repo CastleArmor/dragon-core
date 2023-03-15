@@ -7,7 +7,7 @@ How to install;
 1. Create a folder named "Framework" inside your Asset/ path.
 2. Clone or copy the repository to Asset/Framework/dragon-core.
 
-[documentation](https://egehantolunay.atlassian.net/l/cp/ioX1fhNi)
+[Documentation](https://egehantolunay.atlassian.net/l/cp/ioX1fhNi)
 
 High Level UML Diagram
 
