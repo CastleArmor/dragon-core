@@ -1,4 +1,4 @@
-public static class HStateExtensions
+public static class _DCoreStateExtensions
 {
     public static void TryInitializeIfInitializedSubState(this IActorState actorState)
     {

@@ -1,5 +1,4 @@
-﻿using Heimdallr.Core;
-using UnityEngine;
+﻿using UnityEngine;
 
 [System.Serializable]
 public struct ResourceNameAssetInfo<T> where T : UnityEngine.Object

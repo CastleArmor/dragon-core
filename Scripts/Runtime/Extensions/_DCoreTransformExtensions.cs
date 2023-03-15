@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public static class HTransformExtension
+public static class _DCoreTransformExtensions
 {
     /* Finds a child to this transform by name. Searches not only the first level in the 
          * tree hierarchy of child objects, but all the children, grand children, and so on.  

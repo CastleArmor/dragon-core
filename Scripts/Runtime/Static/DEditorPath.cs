@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEditor;
 #endif
 
-public class HEditorPath
+public class DEditorPath
 {
 #if UNITY_EDITOR
     /// <summary>

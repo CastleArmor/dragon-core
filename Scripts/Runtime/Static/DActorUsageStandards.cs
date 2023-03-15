@@ -2,20 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum SlotOccupationMode
-{
-    Override, //Whatever is on the slot gets removed, and new one gets added.
-    Additive //Added on on top, but when override comes along, it will be removed.
-}
-
-[System.Serializable]
-public struct SlotOccupationInfo
-{
-    public Key Slot;
-    public SlotOccupationMode Mode;
-}
-
-public static class ActorUsageStandards
+public static class DActorUsageStandards
 {
     public static ActorRunResult TryStartChildActor(
         IActor parent, 

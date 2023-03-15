@@ -4,9 +4,9 @@ using UnityEngine;
 #if UNITY_EDITOR
 #endif
 
-namespace Heimdallr.Core
+namespace Dragon.Core
 {
-    public static class HPhysicsUtil
+    public static class DCorePhysics
     {
         public static void OwnerIgnoreCollision(List<Collider> ownerCurrentlyIgnored,List<Collider> ownerColliders,List<Collider> newIgnoredColliders)
         {
@@ -62,7 +62,7 @@ namespace Heimdallr.Core
             if (slowWhenNotFacingTarget && (forward.x != 0 || forward.y != 0))
             {
                 float currentSpeed;
-                var normalizedVelocity = HVectorMath.Normalize(velocity, out currentSpeed);
+                var normalizedVelocity = DVectorMath.Normalize(velocity, out currentSpeed);
                 float dot = Vector2.Dot(normalizedVelocity, forward);
 
                 // Lower the speed when the character's forward direction is not pointing towards the desired velocity

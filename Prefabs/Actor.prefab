@@ -98,9 +98,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _groups: []
   _stopOnEnd: 1
+  _setSceneReference: 0
+  _sceneInstall:
+    _transform: {fileID: 0}
+    _parentObject: {fileID: 0}
+    Key: {fileID: 0}
   _goInstance: {fileID: 5510995194161613635}
   _dataContextObject: {fileID: 5510995194161613636}
   _eventContextObject: {fileID: 5510995194161613636}
+  _positioning:
+    _transform: {fileID: 5510995194161613634}
+    _parentObject: {fileID: 5510995194161613637}
+    Key: {fileID: 0}
+    InstalledValue:
+      _moveTransform: {fileID: 0}
+      _lookTransform: {fileID: 0}
+      _facingTransform: {fileID: 0}
   _tagOwnerObject: {fileID: 4245386046449956487}
   _runningState: {fileID: 5510995195207798162}
 --- !u!1 &5510995195207798163

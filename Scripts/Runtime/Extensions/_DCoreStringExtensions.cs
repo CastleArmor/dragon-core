@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 
-public static class HStringExtension
+public static class _DCoreStringExtensions
 {
     public static string RemoveUntilString(this string input, string untilString)
     {

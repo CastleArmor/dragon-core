@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-public static class HCollectionExtension
+public static class _DCoreCollectionExtension
 {
     public static T GetRandom<T>(this List<T> list,T defaultValue = default)
     {

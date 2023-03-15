@@ -1,4 +1,4 @@
-public static class EventConstructs
+public static class DEventConstructs
 {
     public static IEventContext GetReturnEventAddressMain(IEventContext context,ReturnEventAddressType addressType)
     {

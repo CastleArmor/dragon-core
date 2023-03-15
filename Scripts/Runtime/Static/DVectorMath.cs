@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public static class HVectorMath
+public static class DVectorMath
 { 
     /// <summary>
     /// 
@@ -26,7 +26,7 @@ public static class HVectorMath
 
 
         float signedAngle =
-            HVectorMath.CalculateSignedAngleTowards(transform, desiredForward, customForwardVector, customUpVector:upVector);
+            DVectorMath.CalculateSignedAngleTowards(transform, desiredForward, customForwardVector, customUpVector:upVector);
         Vector3 rotDiff = signedAngle * upVector;
         /*Debug.Log("forward vector : " + forwardVector + " desired forward : " +
                   desiredForward + " Signed angle : " + signedAngle);*/

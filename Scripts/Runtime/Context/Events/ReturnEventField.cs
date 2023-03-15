@@ -169,7 +169,7 @@ public struct ReturnEventField<TReturn>:IEventInstaller,ISerializationCallbackRe
     }
     private IEventContext GetAddressMain(IEventContext selfMain)
     {
-        return EventConstructs.GetReturnEventAddressMain(selfMain,_addressType).As<IEventContext>();
+        return DEventConstructs.GetReturnEventAddressMain(selfMain,_addressType).As<IEventContext>();
     }
 
     public void OnBeforeSerialize()

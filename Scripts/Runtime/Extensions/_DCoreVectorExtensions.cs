@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public static class VectorExtensions
+public static class _DCoreVectorExtensions
 {
     public static Vector3 ToWorldPos(this Vector2 v2)
     {

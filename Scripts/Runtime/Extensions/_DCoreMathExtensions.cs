@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 
-
-public static class KMathExtension
+public static class _DCoreMathExtensions
 {
     public static float Abs(this float value)
     {
@@ -25,7 +24,7 @@ public static class KMathExtension
 
     public static bool RollChance(this float chance)
     {
-        return HMath.RollPercentageChance(chance);
+        return DMath.RollPercentageChance(chance);
     }
 
     public static float Clamp(this float value,float min,float max)

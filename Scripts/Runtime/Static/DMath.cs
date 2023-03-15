@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
-public static class HMath
+public static class DMath
     {
         public static bool RollPercentageChance(float chance)
         {

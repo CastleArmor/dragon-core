@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public static class KVectorCalculationExtensions
+public static class _DCoreVectorCalculationExtensions
 {
     public static float DistanceTo(this Rigidbody rigidbody, Rigidbody toRigidbody)
     {

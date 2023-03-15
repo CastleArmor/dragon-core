@@ -120,7 +120,7 @@ public class DataKey : Key,ICreatableUnityAsset<DataKey>
         ScriptableObject obj = ScriptableObject.CreateInstance(typeof(DataKey));
         DataKey key = obj as DataKey;
         key.SetupKey(typeof(T),keyName);
-        HEditorPath.EnsurePathExistence("Assets/_Project/ScriptAssets/DataKeys");
+        DEditorPath.EnsurePathExistence("Assets/_Project/ScriptAssets/DataKeys");
         string uniquePath = AssetDatabase.GenerateUniqueAssetPath("Assets/_Project/ScriptAssets/DataKeys" + "/" + key.name + ".asset");
         AssetDatabase.CreateAsset(key,uniquePath);
         AssetDatabase.SaveAssets();
