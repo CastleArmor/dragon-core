@@ -1,39 +1,42 @@
-public abstract class InitializedMonoActorState : MonoActorState,IInitializedSubState
+namespace Dragon.Core
 {
-    public override StateFlags Flags
+    public abstract class InitializedMonoActorState : MonoActorState,IInitializedSubState
     {
-        get
+        public override StateFlags Flags
         {
-            StateFlags flags = base.Flags;
+            get
+            {
+                StateFlags flags = base.Flags;
+                if (_isInitialized)
+                {
+                    flags |= StateFlags.Initialized;
+                }
+                return flags;
+            }
+        }
+
+        private bool _isInitialized;
+        public bool IsInitialized => _isInitialized;
+        public void Initialize()
+        {
+            if (_isInitialized) return;
+            OnInitialize();
+            _isInitialized = true;
+        }
+
+        protected abstract void OnInitialize();
+
+        private void OnDestroy()
+        {
             if (_isInitialized)
             {
-                flags |= StateFlags.Initialized;
+                OnDestroyInitialized();
             }
-            return flags;
         }
-    }
 
-    private bool _isInitialized;
-    public bool IsInitialized => _isInitialized;
-    public void Initialize()
-    {
-        if (_isInitialized) return;
-        OnInitialize();
-        _isInitialized = true;
-    }
-
-    protected abstract void OnInitialize();
-
-    private void OnDestroy()
-    {
-        if (_isInitialized)
+        protected virtual void OnDestroyInitialized()
         {
-            OnDestroyInitialized();
-        }
-    }
-
-    protected virtual void OnDestroyInitialized()
-    {
             
+        }
     }
 }

@@ -1,14 +1,17 @@
-[System.Serializable]
-public struct DataKeyInfo
+namespace Dragon.Core
 {
-    public string PathID;
-    public DataKey Key;
-    public string Path;
-}
-[System.Serializable]
-public struct EventKeyInfo
-{
-    public string PathID;
-    public EventKey Key;
-    public string Path;
+    [System.Serializable]
+    public struct DataKeyInfo
+    {
+        public string PathID;
+        public DataKey Key;
+        public string Path;
+    }
+    [System.Serializable]
+    public struct EventKeyInfo
+    {
+        public string PathID;
+        public EventKey Key;
+        public string Path;
+    }
 }

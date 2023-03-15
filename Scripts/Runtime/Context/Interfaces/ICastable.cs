@@ -1,1 +1,4 @@
-public interface ICastable{}
+namespace Dragon.Core
+{
+    public interface ICastable{}
+}

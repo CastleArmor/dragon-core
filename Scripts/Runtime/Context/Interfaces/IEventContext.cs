@@ -1,6 +1,9 @@
 using System;
 
-public interface IEventContext : IContext, IUnityObject
+namespace Dragon.Core
 {
-    event Action<IEventContext> onDestroyEventContext;
+    public interface IEventContext : IContext, IUnityObject
+    {
+        event Action<IEventContext> onDestroyEventContext;
+    }
 }

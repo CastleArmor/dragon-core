@@ -1,6 +1,9 @@
-[System.Serializable]
-public struct DictionarySetupPair<TKey, TValue>
+namespace Dragon.Core
 {
-    public TKey Key;
-    public TValue Value;
+    [System.Serializable]
+    public struct DictionarySetupPair<TKey, TValue>
+    {
+        public TKey Key;
+        public TValue Value;
+    }
 }

@@ -1,17 +1,20 @@
 ﻿using UnityEngine;
 
-public class State_Debug : MonoActorState
+namespace Dragon.Core
 {
-    [SerializeField] private string _debug;
-    protected override void OnEnter()
+    public class State_Debug : MonoActorState
     {
-        base.OnEnter();
-        Debug.Log("Entered : " + _debug);
-    }
+        [SerializeField] private string _debug;
+        protected override void OnEnter()
+        {
+            base.OnEnter();
+            Debug.Log("Entered : " + _debug);
+        }
 
-    protected override void OnExit()
-    {
-        base.OnExit();
-        Debug.Log("Exited : " + _debug);
+        protected override void OnExit()
+        {
+            base.OnExit();
+            Debug.Log("Exited : " + _debug);
+        }
     }
 }

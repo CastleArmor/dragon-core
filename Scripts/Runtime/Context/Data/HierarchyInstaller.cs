@@ -1,32 +1,34 @@
-using System;
 using UnityEngine;
 
-public class HierarchyInstaller : MonoBehaviour
+namespace Dragon.Core
 {
-    [SerializeField] private DataInstallerGroup _installerGroup;
-
-    private void Awake()
+    public class HierarchyInstaller : MonoBehaviour
     {
-        IDataContext parentContext = GetComponentInParent<IDataContext>();
-        if (parentContext != null)
+        [SerializeField] private DataInstallerGroup _installerGroup;
+
+        private void Awake()
         {
-            if (!parentContext.IsDataPrepared)
+            IDataContext parentContext = GetComponentInParent<IDataContext>();
+            if (parentContext != null)
             {
-                parentContext.onAllowAdditionalDataOnInitialize += OnMainAllowsDataInstallOnInitialize;
+                if (!parentContext.IsDataPrepared)
+                {
+                    parentContext.onAllowAdditionalDataOnInitialize += OnMainAllowsDataInstallOnInitialize;
+                }
+                else
+                {
+                    _installerGroup.InstallFor(parentContext);
+                }
             }
             else
             {
-                _installerGroup.InstallFor(parentContext);
+                _installerGroup.InstallFor(null);//Global install.
             }
         }
-        else
+        private void OnMainAllowsDataInstallOnInitialize(IDataContext obj)
         {
-            _installerGroup.InstallFor(null);//Global install.
+            obj.onAllowAdditionalDataOnInitialize -= OnMainAllowsDataInstallOnInitialize;
+            _installerGroup.InstallFor(obj);
         }
-    }
-    private void OnMainAllowsDataInstallOnInitialize(IDataContext obj)
-    {
-        obj.onAllowAdditionalDataOnInitialize -= OnMainAllowsDataInstallOnInitialize;
-        _installerGroup.InstallFor(obj);
     }
 }

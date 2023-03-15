@@ -1,9 +1,12 @@
-public enum AsyncEventAddressType
+namespace Dragon.Core
 {
-    Context,
-    ContextUser,
-    ContextRelative,
-    ContextUserRelative,
-    Global,
-    FromGroupFirstMember
+    public enum AsyncEventAddressType
+    {
+        Context,
+        ContextUser,
+        ContextRelative,
+        ContextUserRelative,
+        Global,
+        FromGroupFirstMember
+    }
 }

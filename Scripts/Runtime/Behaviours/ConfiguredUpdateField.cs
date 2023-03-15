@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections;
-using Sirenix.OdinInspector;
-#if UNITY_EDITOR
-using UnityEditor;
+﻿#if UNITY_EDITOR
 #endif
+using System;
+using Sirenix.OdinInspector;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-[System.Serializable][TopTitle(SetName = true,SetParentObject = true)]
+namespace Dragon.Core
+{
+    [System.Serializable][TopTitle(SetName = true,SetParentObject = true)]
     public struct ConfiguredUpdateField
     {
         [SerializeField] [HideInInspector] private string _name;
@@ -67,3 +67,4 @@ using Object = UnityEngine.Object;
             _isRegistered = false;
         }
     }
+}

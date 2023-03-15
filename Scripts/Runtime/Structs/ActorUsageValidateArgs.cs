@@ -1,7 +1,10 @@
-﻿[System.Serializable]
-public struct ActorUsageValidateArgs
+﻿namespace Dragon.Core
 {
-    public string UsageRequestID;
-    public IGOInstance PrefabOrInstance;
-    public DelegatedObject<bool> DelegateObject;
+    [System.Serializable]
+    public struct ActorUsageValidateArgs
+    {
+        public string UsageRequestID;
+        public IGOInstance PrefabOrInstance;
+        public DelegatedObject<bool> DelegateObject;
+    }
 }

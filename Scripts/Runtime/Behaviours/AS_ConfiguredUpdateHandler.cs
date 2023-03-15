@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
+namespace Dragon.Core
+{
     public interface IConfiguredUpdateObject : ICastable
     {
         void RegisterConfiguredUpdate(string tag,UpdateArgs args, Action action);
@@ -318,3 +320,4 @@ using UnityEngine;
             }
         }
     }
+}

@@ -1,7 +1,10 @@
 
 
-public interface IInitializedSubState : IActorState
+namespace Dragon.Core
 {
-    bool IsInitialized { get; }
-    void Initialize();
+    public interface IInitializedSubState : IActorState
+    {
+        bool IsInitialized { get; }
+        void Initialize();
+    }
 }

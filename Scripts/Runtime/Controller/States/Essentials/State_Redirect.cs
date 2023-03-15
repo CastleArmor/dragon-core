@@ -1,66 +1,69 @@
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-public class State_Redirect : InitializedMonoActorState
+namespace Dragon.Core
 {
-    [GUIColor("GetFieldColor")]
-    [SerializeField] private MonoActorState _monoState;
-    private bool _isNull;
-    private bool _isPreparedNull;
-
-    private Color GetFieldColor()
+    public class State_Redirect : InitializedMonoActorState
     {
-        if(_monoState == null) return new Color(0,0.7f,1f);
-        else return new Color(0,1f,0.7f);
-    }
+        [GUIColor("GetFieldColor")]
+        [SerializeField] private MonoActorState _monoState;
+        private bool _isNull;
+        private bool _isPreparedNull;
 
-    public bool IsNull
-    {
-        get
+        private Color GetFieldColor()
         {
-            if (!_isPreparedNull)
-            {
-                _isNull = _monoState == null;
-                _isPreparedNull = true;
-            }
-
-            return _isNull;
+            if(_monoState == null) return new Color(0,0.7f,1f);
+            else return new Color(0,1f,0.7f);
         }
-    }
+
+        public bool IsNull
+        {
+            get
+            {
+                if (!_isPreparedNull)
+                {
+                    _isNull = _monoState == null;
+                    _isPreparedNull = true;
+                }
+
+                return _isNull;
+            }
+        }
         
         
 
-    protected override void OnEnter()
-    {
-        base.OnEnter();
-        if (IsNull)
+        protected override void OnEnter()
+        {
+            base.OnEnter();
+            if (IsNull)
+            {
+                FinishIfNot();
+                return;
+            }
+            _monoState.onStateFinish += OnFinished;
+            _monoState.CheckoutEnter(Actor);
+        }
+
+        private void OnFinished(IActorState state)
         {
             FinishIfNot();
-            return;
         }
-        _monoState.onStateFinish += OnFinished;
-        _monoState.CheckoutEnter(Actor);
-    }
 
-    private void OnFinished(IActorState state)
-    {
-        FinishIfNot();
-    }
-
-    protected override void OnExit()
-    {
-        base.OnExit();
-        if (IsNull) return;
-        _monoState.CheckoutExit();
-        _monoState.onStateFinish -= OnFinished;
-    }
-    protected override void OnInitialize()
-    {
-        if (_monoState is IInitializedSubState initialized)
+        protected override void OnExit()
         {
-            if (!initialized.IsInitialized)
+            base.OnExit();
+            if (IsNull) return;
+            _monoState.CheckoutExit();
+            _monoState.onStateFinish -= OnFinished;
+        }
+        protected override void OnInitialize()
+        {
+            if (_monoState is IInitializedSubState initialized)
             {
-                initialized.Initialize();
+                if (!initialized.IsInitialized)
+                {
+                    initialized.Initialize();
+                }
             }
         }
     }

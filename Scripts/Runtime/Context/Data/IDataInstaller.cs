@@ -1,4 +1,7 @@
-public interface IDataInstaller
+namespace Dragon.Core
 {
-    void InstallFor(IDataContext context);
+    public interface IDataInstaller
+    {
+        void InstallFor(IDataContext context);
+    }
 }

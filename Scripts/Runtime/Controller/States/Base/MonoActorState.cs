@@ -2,143 +2,146 @@ using System;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-[Flags]
-public enum StateFlags
+namespace Dragon.Core
 {
-    Nothing =0,
-    Running =1<<0,
-    Finished=1<<1,
-    Initialized=1<<2
-}
-
-public abstract class MonoActorState : MonoBehaviour, IActorState
-{
-    private bool _showMinimal = true;
-    
-    [ShowInInspector][HorizontalGroup("Status")][DisplayAsString][PropertyOrder(-1000)][HideLabel]
-    public virtual StateFlags Flags
+    [Flags]
+    public enum StateFlags
     {
-        get
+        Nothing =0,
+        Running =1<<0,
+        Finished=1<<1,
+        Initialized=1<<2
+    }
+
+    public abstract class MonoActorState : MonoBehaviour, IActorState
+    {
+        private bool _showMinimal = true;
+    
+        [ShowInInspector][HorizontalGroup("Status")][DisplayAsString][PropertyOrder(-1000)][HideLabel]
+        public virtual StateFlags Flags
         {
-            StateFlags flags = StateFlags.Nothing;
-            if (_isRunning)
+            get
             {
-                flags |= StateFlags.Running;
+                StateFlags flags = StateFlags.Nothing;
+                if (_isRunning)
+                {
+                    flags |= StateFlags.Running;
+                }
+                if (_isFinished)
+                {
+                    flags |= StateFlags.Finished;
+                }
+
+                return flags;
             }
-            if (_isFinished)
+        }
+    
+        private IActor _actor;
+        public IActor Actor => _actor;
+
+        private IGOInstancePoolRegistry _goPool;
+        public IGOInstancePoolRegistry GOPool => _goPool;
+    
+        private IDataContext _dataContext;
+        public IDataContext DataContext => _dataContext;
+    
+        private IEventContext _eventContext;
+        public IEventContext EventContext => _eventContext;
+
+        public T Get<T>(DataField<T> field)
+        {
+            return field.Get(DataContext);
+        }
+
+        public void Set<T>(DataField<T> field,T value)
+        {
+            field.Set(DataContext, value);
+        }
+    
+        private bool _isRunning;
+        public bool IsRunning => _isRunning;
+        private bool _isFinished;
+        public bool IsFinished => _isFinished;
+
+        private void InsertActor(IActor actor)
+        {
+            _actor = actor;
+            _goPool = _actor.GOPool;
+            _dataContext = _actor.DataContext;
+            _eventContext = _actor.EventContext;
+        }
+    
+        public void CheckoutEnter(IActor actor)
+        {
+            if (_isRunning) return;
+            _isRunning = true;
+            _isFinished = false;
+            InsertActor(actor);
+            OnGetData();
+            OnEnter();
+        }
+
+        protected virtual void OnGetData()
+        {
+        
+        }
+
+        protected virtual void OnEnter()
+        {
+        
+        }
+
+        public void CheckoutExit()
+        {
+            if (!_isRunning) return;
+            OnExit();
+            _isRunning = false;
+        }
+
+        protected virtual void OnExit()
+        {
+        
+        }
+
+        public void CheckoutInstant(IActor main)
+        {
+            CheckoutEnter(main);
+            CheckoutExit();
+        }
+
+        protected void RegisterUpdate(EUpdateType updateType, Action action)
+        {
+            switch (updateType)
             {
-                flags |= StateFlags.Finished;
+                case EUpdateType.Update : StaticUpdate.onUpdate += action;
+                    break;
+                case EUpdateType.FixedUpdate : StaticUpdate.onFixedUpdate += action;
+                    break;
+                case EUpdateType.LateUpdate : StaticUpdate.onLateUpdate += action;
+                    break;
             }
-
-            return flags;
         }
-    }
     
-    private IActor _actor;
-    public IActor Actor => _actor;
-
-    private IGOInstancePoolRegistry _goPool;
-    public IGOInstancePoolRegistry GOPool => _goPool;
-    
-    private IDataContext _dataContext;
-    public IDataContext DataContext => _dataContext;
-    
-    private IEventContext _eventContext;
-    public IEventContext EventContext => _eventContext;
-
-    public T Get<T>(DataField<T> field)
-    {
-        return field.Get(DataContext);
-    }
-
-    public void Set<T>(DataField<T> field,T value)
-    {
-        field.Set(DataContext, value);
-    }
-    
-    private bool _isRunning;
-    public bool IsRunning => _isRunning;
-    private bool _isFinished;
-    public bool IsFinished => _isFinished;
-
-    private void InsertActor(IActor actor)
-    {
-        _actor = actor;
-        _goPool = _actor.GOPool;
-        _dataContext = _actor.DataContext;
-        _eventContext = _actor.EventContext;
-    }
-    
-    public void CheckoutEnter(IActor actor)
-    {
-        if (_isRunning) return;
-        _isRunning = true;
-        _isFinished = false;
-        InsertActor(actor);
-        OnGetData();
-        OnEnter();
-    }
-
-    protected virtual void OnGetData()
-    {
-        
-    }
-
-    protected virtual void OnEnter()
-    {
-        
-    }
-
-    public void CheckoutExit()
-    {
-        if (!_isRunning) return;
-        OnExit();
-        _isRunning = false;
-    }
-
-    protected virtual void OnExit()
-    {
-        
-    }
-
-    public void CheckoutInstant(IActor main)
-    {
-        CheckoutEnter(main);
-        CheckoutExit();
-    }
-
-    protected void RegisterUpdate(EUpdateType updateType, Action action)
-    {
-        switch (updateType)
+        protected void UnregisterUpdate(EUpdateType updateType, Action action)
         {
-            case EUpdateType.Update : StaticUpdate.onUpdate += action;
-                break;
-            case EUpdateType.FixedUpdate : StaticUpdate.onFixedUpdate += action;
-                break;
-            case EUpdateType.LateUpdate : StaticUpdate.onLateUpdate += action;
-                break;
+            switch (updateType)
+            {
+                case EUpdateType.Update : StaticUpdate.onUpdate -= action;
+                    break;
+                case EUpdateType.FixedUpdate : StaticUpdate.onFixedUpdate -= action;
+                    break;
+                case EUpdateType.LateUpdate : StaticUpdate.onLateUpdate -= action;
+                    break;
+            }
         }
-    }
     
-    protected void UnregisterUpdate(EUpdateType updateType, Action action)
-    {
-        switch (updateType)
+        protected void FinishIfNot()
         {
-            case EUpdateType.Update : StaticUpdate.onUpdate -= action;
-                break;
-            case EUpdateType.FixedUpdate : StaticUpdate.onFixedUpdate -= action;
-                break;
-            case EUpdateType.LateUpdate : StaticUpdate.onLateUpdate -= action;
-                break;
+            if (_isFinished) return;
+            _isFinished = true;
+            onStateFinish?.Invoke(this);
         }
-    }
-    
-    protected void FinishIfNot()
-    {
-        if (_isFinished) return;
-        _isFinished = true;
-        onStateFinish?.Invoke(this);
-    }
 
-    public event Action<IActorState> onStateFinish;
+        public event Action<IActorState> onStateFinish;
+    }
 }

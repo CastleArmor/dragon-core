@@ -1,15 +1,18 @@
 using UnityEngine;
 
-[System.Serializable]
-public class DefaultInstallMethod : DataInstallMethod
+namespace Dragon.Core
 {
-    [SerializeField] private DataInstallerGroup _installerGroup;
-
-    public override void InstallFor(IDataContext context)
+    [System.Serializable]
+    public class DefaultInstallMethod : DataInstallMethod
     {
-        if (_installerGroup)
+        [SerializeField] private DataInstallerGroup _installerGroup;
+
+        public override void InstallFor(IDataContext context)
         {
-            _installerGroup.InstallFor(context);
+            if (_installerGroup)
+            {
+                _installerGroup.InstallFor(context);
+            }
         }
     }
 }

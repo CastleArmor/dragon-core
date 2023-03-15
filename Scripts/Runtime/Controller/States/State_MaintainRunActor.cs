@@ -1,8 +1,11 @@
-public class State_MaintainRunActor : State_RunActor
+namespace Dragon.Core
 {
-    protected override void OnEnter()
+    public class State_MaintainRunActor : State_RunActor
     {
-        base.OnEnter();
-        RunActor();
+        protected override void OnEnter()
+        {
+            base.OnEnter();
+            RunActor();
+        }
     }
 }

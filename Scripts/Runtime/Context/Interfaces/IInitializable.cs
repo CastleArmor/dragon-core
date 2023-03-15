@@ -1,5 +1,8 @@
-﻿public interface IInitializable
+﻿namespace Dragon.Core
 {
-    bool IsInitialized { get; }
-    void InitializeIfNot();
+    public interface IInitializable
+    {
+        bool IsInitialized { get; }
+        void InitializeIfNot();
+    }
 }

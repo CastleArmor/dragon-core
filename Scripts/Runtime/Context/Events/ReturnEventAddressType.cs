@@ -1,9 +1,12 @@
-public enum ReturnEventAddressType
+namespace Dragon.Core
 {
-    Context,
-    ContextUser,
-    ContextRelative,
-    ContextUserRelative,
-    Global,
-    FromGroupFirstMember
+    public enum ReturnEventAddressType
+    {
+        Context,
+        ContextUser,
+        ContextRelative,
+        ContextUserRelative,
+        Global,
+        FromGroupFirstMember
+    }
 }

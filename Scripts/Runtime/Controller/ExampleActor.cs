@@ -1,12 +1,15 @@
-﻿public class ExampleActor : CoreActor
+﻿namespace Dragon.Core
 {
-    public void DoSomething()
+    public class ExampleActor : CoreActor
     {
+        public void DoSomething()
+        {
         
-    }
+        }
 
-    protected override void OnAfterActorInstalledItself()
-    {
-        base.OnAfterActorInstalledItself();
+        protected override void OnAfterActorInstalledItself()
+        {
+            base.OnAfterActorInstalledItself();
+        }
     }
 }

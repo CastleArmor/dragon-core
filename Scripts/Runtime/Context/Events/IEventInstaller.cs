@@ -1,5 +1,8 @@
-public interface IEventInstaller
+namespace Dragon.Core
 {
-    public void Install(IEventContext selfMain);
-    public void Remove();
+    public interface IEventInstaller
+    {
+        public void Install(IEventContext selfMain);
+        public void Remove();
+    }
 }

@@ -2,83 +2,86 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public interface IFSMTransition
+namespace Dragon.Core
 {
-    IActorState FromState { get; set; }
-    IActorState ToState { get; set; }
-    bool GetCondition();
-}
-
-public abstract class StateMachineMonoActorState : InitializedMonoActorState
-{
-    [SerializeField] private StateMachine _stateMachine;
-    protected abstract IActorState InitialState { get; }
-    private List<IFSMTransition> _transitions = new List<IFSMTransition>();
-
-    protected void Evaluate()
+    public interface IFSMTransition
     {
-        _stateMachine.Evaluate();
+        IActorState FromState { get; set; }
+        IActorState ToState { get; set; }
+        bool GetCondition();
     }
 
-    protected abstract void OnGetTransitions();
-
-    protected void AddDirectTransition(IActorState from, IActorState to, Func<bool> condition)
+    public abstract class StateMachineMonoActorState : InitializedMonoActorState
     {
-        _transitions.Add(new SMTransition()
+        [SerializeField] private StateMachine _stateMachine;
+        protected abstract IActorState InitialState { get; }
+        private List<IFSMTransition> _transitions = new List<IFSMTransition>();
+
+        protected void Evaluate()
         {
-            From = from,
-            To = to,
-            Condition = condition
-        });
-    }
+            _stateMachine.Evaluate();
+        }
+
+        protected abstract void OnGetTransitions();
+
+        protected void AddDirectTransition(IActorState from, IActorState to, Func<bool> condition)
+        {
+            _transitions.Add(new SMTransition()
+            {
+                From = from,
+                To = to,
+                Condition = condition
+            });
+        }
     
-    protected void AddDirectTransition(IActorState from, IActorState to, Func<bool> condition,Action onTrigger)
-    {
-        _transitions.Add(new SMTriggerTransition()
+        protected void AddDirectTransition(IActorState from, IActorState to, Func<bool> condition,Action onTrigger)
         {
-            From = from,
-            To = to,
-            Condition = condition,
-            OnTrigger = onTrigger
-        });
-    }
+            _transitions.Add(new SMTriggerTransition()
+            {
+                From = from,
+                To = to,
+                Condition = condition,
+                OnTrigger = onTrigger
+            });
+        }
 
-    protected void AddAnyTransition(IActorState to, Func<bool> condition)
-    {
-        _transitions.Add(new SMTransition()
+        protected void AddAnyTransition(IActorState to, Func<bool> condition)
         {
-            From = null,
-            To = to,
-            Condition = condition
-        });
-    }
+            _transitions.Add(new SMTransition()
+            {
+                From = null,
+                To = to,
+                Condition = condition
+            });
+        }
     
-    protected void AddAnyTransition(IActorState to, Func<bool> condition, Action onTrigger)
-    {
-        _transitions.Add(new SMTriggerTransition()
+        protected void AddAnyTransition(IActorState to, Func<bool> condition, Action onTrigger)
         {
-            From = null,
-            To = to,
-            Condition = condition,
-            OnTrigger = onTrigger
-        });
-    }
+            _transitions.Add(new SMTriggerTransition()
+            {
+                From = null,
+                To = to,
+                Condition = condition,
+                OnTrigger = onTrigger
+            });
+        }
 
-    protected override void OnEnter()
-    {
-        base.OnEnter();
-        _stateMachine.Enter(Actor,InitialState);
-    }
+        protected override void OnEnter()
+        {
+            base.OnEnter();
+            _stateMachine.Enter(Actor,InitialState);
+        }
 
-    protected override void OnExit()
-    {
-        base.OnExit();
-        _stateMachine.Exit();
-    }
+        protected override void OnExit()
+        {
+            base.OnExit();
+            _stateMachine.Exit();
+        }
 
-    protected override void OnInitialize()
-    {
-        OnGetTransitions();
-        _stateMachine.InstallTransitions(_transitions);
+        protected override void OnInitialize()
+        {
+            OnGetTransitions();
+            _stateMachine.InstallTransitions(_transitions);
+        }
     }
 }

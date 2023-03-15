@@ -1,6 +1,9 @@
-﻿public interface IRunnable
+﻿namespace Dragon.Core
 {
-    bool IsRunning { get; }
-    void BeginIfNot();
-    void StopIfNot();
+    public interface IRunnable
+    {
+        bool IsRunning { get; }
+        void BeginIfNot();
+        void StopIfNot();
+    }
 }

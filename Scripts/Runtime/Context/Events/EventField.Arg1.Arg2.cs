@@ -4,14 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using Sirenix.OdinInspector;
 using Sirenix.Utilities;
-using UnityEngine;
-#if UNITY_EDITOR
 using UnityEditor;
-#endif
+using UnityEngine;
 
-    #region TArg1,TArg2
+#region TArg1,TArg2
 
-[System.Serializable][TopTitle(ShowGenericName = true,
+namespace Dragon.Core
+{
+    [System.Serializable][TopTitle(ShowGenericName = true,
         NameSuffix = "<color=#ff77ff55><b>↖EVENT</b></color>",
         NamePrefix = "<color=#ff77ff55><b>↖</b></color>",
         PerGenericArgString = ",",
@@ -98,7 +98,7 @@ using UnityEditor;
                 directory += "/" + folder;
             }
         }
-        #endif
+#endif
         #endregion
 
 #if UNITY_EDITOR
@@ -287,5 +287,6 @@ using UnityEditor;
             OnEventKeyChanged();
         }
     }
+}
     
     #endregion

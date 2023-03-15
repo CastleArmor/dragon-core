@@ -1,30 +1,32 @@
-using System;
 using System.Collections;
 using UnityEngine;
 
-[DisallowMultipleComponent]
-[RequireComponent(typeof(Actor))]
-public class FirstSpark : MonoBehaviour
+namespace Dragon.Core
 {
-    [SerializeField] private Actor _actor;
-
-    private void OnValidate()
+    [DisallowMultipleComponent]
+    [RequireComponent(typeof(Actor))]
+    public class FirstSpark : MonoBehaviour
     {
-        if (!Application.isPlaying)
+        [SerializeField] private Actor _actor;
+
+        private void OnValidate()
         {
-            if (_actor == null)
+            if (!Application.isPlaying)
             {
-                _actor = GetComponent<Actor>();
+                if (_actor == null)
+                {
+                    _actor = GetComponent<Actor>();
+                }
             }
         }
-    }
     
 
-    private IEnumerator Start()
-    {
-        yield return null;
-        Application.targetFrameRate = 60;
-        _actor.InitializeIfNot();
-        _actor.BeginIfNot();
+        private IEnumerator Start()
+        {
+            yield return null;
+            Application.targetFrameRate = 60;
+            _actor.InitializeIfNot();
+            _actor.BeginIfNot();
+        }
     }
 }

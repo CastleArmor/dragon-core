@@ -5,254 +5,257 @@ using UnityEngine;
 
 //Responsible for integrating logic with data.
 //First spark of logic.
-[RequireComponent(typeof(IDataContext))]
-[RequireComponent(typeof(IEventContext))]
-[DisallowMultipleComponent]
-public abstract class Actor : MonoBehaviour,IActor
+namespace Dragon.Core
 {
-    [SerializeField] private List<Key> _groups;
-    [SerializeField] private bool _stopOnEnd;
-    [SerializeField] private bool _setSceneReference;
-    [ShowIf("_setSceneReference")] [SerializeField]
-    private DataInstaller<IActor> _sceneInstall;
-    
-    [SerializeField][HideInPlayMode][ReadOnly] private GOInstance _goInstance;
-    [SerializeField][HideInPlayMode][ReadOnly] private MonoBehaviour _dataContextObject;
-    [SerializeField][HideInPlayMode][ReadOnly] private MonoBehaviour _eventContextObject;
-    
-    [ShowInInspector][HideInEditorMode]
-    private IDataContext _dataContext;
-
-    public string ObjectTypeID => _goInstance.ObjectTypeID;
-
-    public IDataContext DataContext
+    [RequireComponent(typeof(IDataContext))]
+    [RequireComponent(typeof(IEventContext))]
+    [DisallowMultipleComponent]
+    public abstract class Actor : MonoBehaviour,IActor
     {
-        get
+        [SerializeField] private List<Key> _groups;
+        [SerializeField] private bool _stopOnEnd;
+        [SerializeField] private bool _setSceneReference;
+        [ShowIf("_setSceneReference")] [SerializeField]
+        private DataInstaller<IActor> _sceneInstall;
+    
+        [SerializeField][HideInPlayMode][ReadOnly] private GOInstance _goInstance;
+        [SerializeField][HideInPlayMode][ReadOnly] private MonoBehaviour _dataContextObject;
+        [SerializeField][HideInPlayMode][ReadOnly] private MonoBehaviour _eventContextObject;
+    
+        [ShowInInspector][HideInEditorMode]
+        private IDataContext _dataContext;
+
+        public string ObjectTypeID => _goInstance.ObjectTypeID;
+
+        public IDataContext DataContext
         {
+            get
+            {
 #if UNITY_EDITOR
-            if (!Application.isPlaying) return null;
+                if (!Application.isPlaying) return null;
 #endif
-            if (!_isInitialized)
-            {
-                _dataContext = _dataContextObject as IDataContext;
-            }
+                if (!_isInitialized)
+                {
+                    _dataContext = _dataContextObject as IDataContext;
+                }
 
-            return _dataContext;
+                return _dataContext;
+            }
         }
-    }
-    [ShowInInspector][HideInEditorMode]
-    private IEventContext _eventContext;
-    public IEventContext EventContext
-    {
-        get
+        [ShowInInspector][HideInEditorMode]
+        private IEventContext _eventContext;
+        public IEventContext EventContext
         {
+            get
+            {
 #if UNITY_EDITOR
-            if (!Application.isPlaying) return null;
+                if (!Application.isPlaying) return null;
 #endif
-            if (!_isInitialized)
-            {
-                _eventContext = _eventContextObject as IEventContext;
-            }
+                if (!_isInitialized)
+                {
+                    _eventContext = _eventContextObject as IEventContext;
+                }
 
-            return _eventContext;
+                return _eventContext;
+            }
         }
-    }
     
-    private bool _isInitialized;
-    private IGOInstancePoolRegistry _goPool;
-    public IGOInstancePoolRegistry GOPool => _goPool;
-    public bool IsInitialized => _isInitialized;
-    private bool _isRunning;
-    public bool IsRunning => _isRunning;
-    private bool _isEnded;
-    public bool IsEnded => _isEnded;
-    private string _endingEventID;
-    public string EndingEventID => _endingEventID;
-    public bool IsBeingDestroyed => _goInstance.IsBeingDestroyed;
+        private bool _isInitialized;
+        private IGOInstancePoolRegistry _goPool;
+        public IGOInstancePoolRegistry GOPool => _goPool;
+        public bool IsInitialized => _isInitialized;
+        private bool _isRunning;
+        public bool IsRunning => _isRunning;
+        private bool _isEnded;
+        public bool IsEnded => _isEnded;
+        private string _endingEventID;
+        public string EndingEventID => _endingEventID;
+        public bool IsBeingDestroyed => _goInstance.IsBeingDestroyed;
 
-    public event Action<IActor> onInitialize;
-    public event Action<IActor> onBeginBeforeLogic;
-    public event Action<IActor> onBegin;
-    public event Action<IActor> onStop;
-    public event Action<IActor> onDestroyActor;
-    public event Action<IActor> onFinishEnded;
-    public event Action<IActor> onCancelEnded;
-    public event Action<IActor> onEnded; // Cancel or Finish
-    public event Action<IActor> onEndedStateChanged;
+        public event Action<IActor> onInitialize;
+        public event Action<IActor> onBeginBeforeLogic;
+        public event Action<IActor> onBegin;
+        public event Action<IActor> onStop;
+        public event Action<IActor> onDestroyActor;
+        public event Action<IActor> onFinishEnded;
+        public event Action<IActor> onCancelEnded;
+        public event Action<IActor> onEnded; // Cancel or Finish
+        public event Action<IActor> onEndedStateChanged;
 
-    private bool ShowBeginButton => _isInitialized && !_isRunning;
-    private bool ShowStopButton => _isInitialized && _isRunning;
-    private bool ShowInitButton => !_isInitialized && Application.isPlaying;
+        private bool ShowBeginButton => _isInitialized && !_isRunning;
+        private bool ShowStopButton => _isInitialized && _isRunning;
+        private bool ShowInitButton => !_isInitialized && Application.isPlaying;
 
-    protected virtual void OnValidate()
-    {
-        if (!Application.isPlaying)
+        protected virtual void OnValidate()
         {
-            if (_goInstance == null)
+            if (!Application.isPlaying)
             {
-                _goInstance = GetComponent<IGOInstance>() as GOInstance;
+                if (_goInstance == null)
+                {
+                    _goInstance = GetComponent<IGOInstance>() as GOInstance;
+                }
+                if (_dataContextObject == null)
+                {
+                    _dataContextObject = GetComponent<IDataContext>() as MonoBehaviour;
+                }
+                if (_eventContextObject == null)
+                {
+                    _eventContextObject = GetComponent<IEventContext>() as MonoBehaviour;
+                }
             }
-            if (_dataContextObject == null)
+        }
+
+        protected void Awake()
+        {
+            foreach (Key group in _groups)
             {
-                _dataContextObject = GetComponent<IDataContext>() as MonoBehaviour;
+                if (!DataRegistry<List<IActor>>.ContainsData("Global/"+group.ID))
+                {
+                    DataRegistry<List<IActor>>.SetData(null,new List<IActor>(),group.ID);
+                }
+
+                DataRegistry<List<IActor>>.GetData(null, group.ID).Add(this);
             }
-            if (_eventContextObject == null)
+        }
+
+        [Button][ShowIf("ShowInitButton")]
+        public void InitializeIfNot()
+        {
+            if (_isInitialized) return;
+
+            if (_setSceneReference)
             {
-                _eventContextObject = GetComponent<IEventContext>() as MonoBehaviour;
+                _sceneInstall.InstalledValue = this;
+                _sceneInstall.InstallFor(ContextRegistry.GetContext(gameObject.scene.name).As<IDataContext>());
             }
+            _goPool = DataRegistry<IGOInstancePoolRegistry>.GetData(null);
+            OnBeforeContextsInitialize();
+            _dataContext = _dataContextObject as IDataContext;
+            _dataContext.onDestroyContext += OnDestroyDataContext;
+            _dataContext.InitializeIfNot();
+            _dataContext.SetData(this as IActor);
+            OnAfterActorInstalledItself();
+        
+            _eventContext = _eventContextObject as IEventContext;
+            _eventContext.InitializeIfNot();
+            OnAfterContextsInitialized();
+            _isInitialized = true;
+            onInitialize?.Invoke(this);
         }
-    }
 
-    protected void Awake()
-    {
-        foreach (Key group in _groups)
+        protected virtual void OnAfterActorInstalledItself()
         {
-            if (!DataRegistry<List<IActor>>.ContainsData("Global/"+group.ID))
+        
+        }
+
+        private void OnDestroyDataContext(IContext obj)
+        {
+            if (!_isInitialized) return;
+            _dataContext.onDestroyContext -= OnDestroyDataContext;
+            foreach (Key group in _groups)
             {
-                DataRegistry<List<IActor>>.SetData(null,new List<IActor>(),group.ID);
+                DataRegistry<List<IActor>>.TryActionOnData(null,(a)=>a.Remove(this),group.ID);
             }
 
-            DataRegistry<List<IActor>>.GetData(null, group.ID).Add(this);
+            if (_isRunning && !_onApplicationQuit)
+            {
+                StopIfNot();
+            }
+            onDestroyActor?.Invoke(this);
         }
-    }
 
-    [Button][ShowIf("ShowInitButton")]
-    public void InitializeIfNot()
-    {
-        if (_isInitialized) return;
-
-        if (_setSceneReference)
+        protected virtual void OnBeforeContextsInitialize()
         {
-            _sceneInstall.InstalledValue = this;
-            _sceneInstall.InstallFor(ContextRegistry.GetContext(gameObject.scene.name).As<IDataContext>());
+        
         }
-        _goPool = DataRegistry<IGOInstancePoolRegistry>.GetData(null);
-        OnBeforeContextsInitialize();
-        _dataContext = _dataContextObject as IDataContext;
-        _dataContext.onDestroyContext += OnDestroyDataContext;
-        _dataContext.InitializeIfNot();
-        _dataContext.SetData(this as IActor);
-        OnAfterActorInstalledItself();
-        
-        _eventContext = _eventContextObject as IEventContext;
-        _eventContext.InitializeIfNot();
-        OnAfterContextsInitialized();
-        _isInitialized = true;
-        onInitialize?.Invoke(this);
-    }
 
-    protected virtual void OnAfterActorInstalledItself()
-    {
-        
-    }
-
-    private void OnDestroyDataContext(IContext obj)
-    {
-        if (!_isInitialized) return;
-        _dataContext.onDestroyContext -= OnDestroyDataContext;
-        foreach (Key group in _groups)
+        protected virtual void OnAfterContextsInitialized()
         {
-            DataRegistry<List<IActor>>.TryActionOnData(null,(a)=>a.Remove(this),group.ID);
+        
         }
 
-        if (_isRunning && !_onApplicationQuit)
+        [Button][ShowIf("ShowBeginButton")]
+        public void BeginIfNot()
         {
-            StopIfNot();
+            if (!_isInitialized) return;
+            if (_isRunning) return;
+
+            if (!gameObject.activeSelf)
+            {
+                gameObject.SetActive(true);
+            }
+        
+            //Resets.
+            _isEnded = false;
+        
+            onBeginBeforeLogic?.Invoke(this);
+            OnBeginLogic();
+            _isRunning = true;
+            onBegin?.Invoke(this);
         }
-        onDestroyActor?.Invoke(this);
-    }
-
-    protected virtual void OnBeforeContextsInitialize()
-    {
-        
-    }
-
-    protected virtual void OnAfterContextsInitialized()
-    {
-        
-    }
-
-    [Button][ShowIf("ShowBeginButton")]
-    public void BeginIfNot()
-    {
-        if (!_isInitialized) return;
-        if (_isRunning) return;
-
-        if (!gameObject.activeSelf)
-        {
-            gameObject.SetActive(true);
-        }
-        
-        //Resets.
-        _isEnded = false;
-        
-        onBeginBeforeLogic?.Invoke(this);
-        OnBeginLogic();
-        _isRunning = true;
-        onBegin?.Invoke(this);
-    }
     
-    [Button][ShowIf("ShowStopButton")]
-    public void FinishIfNotEnded(string eventID)
-    {
-        if (_isEnded) return;
-        if (!_isRunning) return;
-        _endingEventID = eventID;
-        //Debug.Log("Checkout Finished, " + name + " - " + eventID);
-        _isEnded = true;
-        if (_stopOnEnd)
+        [Button][ShowIf("ShowStopButton")]
+        public void FinishIfNotEnded(string eventID)
         {
-            StopIfNot();
+            if (_isEnded) return;
+            if (!_isRunning) return;
+            _endingEventID = eventID;
+            //Debug.Log("Checkout Finished, " + name + " - " + eventID);
+            _isEnded = true;
+            if (_stopOnEnd)
+            {
+                StopIfNot();
+            }
+            onFinishEnded?.Invoke(this);
+            onEnded?.Invoke(this);
+            onEndedStateChanged?.Invoke(this);
+            DataContext.ParentContext = null;
         }
-        onFinishEnded?.Invoke(this);
-        onEnded?.Invoke(this);
-        onEndedStateChanged?.Invoke(this);
-        DataContext.ParentContext = null;
-    }
     
-    [Button][ShowIf("ShowStopButton")]
-    public void CancelIfNotEnded(string eventID)
-    {
-        if (_isEnded) return;
-        if (!_isRunning) return;
-        _endingEventID = eventID;
-        _isEnded = true;
-        if (_stopOnEnd)
+        [Button][ShowIf("ShowStopButton")]
+        public void CancelIfNotEnded(string eventID)
         {
-            StopIfNot();
+            if (_isEnded) return;
+            if (!_isRunning) return;
+            _endingEventID = eventID;
+            _isEnded = true;
+            if (_stopOnEnd)
+            {
+                StopIfNot();
+            }
+            onCancelEnded?.Invoke(this);
+            onEnded?.Invoke(this);
+            onEndedStateChanged?.Invoke(this);
+            DataContext.ParentContext = null;
         }
-        onCancelEnded?.Invoke(this);
-        onEnded?.Invoke(this);
-        onEndedStateChanged?.Invoke(this);
-        DataContext.ParentContext = null;
-    }
 
-    protected virtual void OnBeginLogic()
-    {
+        protected virtual void OnBeginLogic()
+        {
         
-    }
+        }
 
-    [Button][ShowIf("ShowStopButton")]
-    public void StopIfNot()
-    {
-        if (!_isInitialized) return;
-        if (!_isRunning) return;
+        [Button][ShowIf("ShowStopButton")]
+        public void StopIfNot()
+        {
+            if (!_isInitialized) return;
+            if (!_isRunning) return;
 
-        OnStopLogic();
-        _isRunning = false;
-        onStop?.Invoke(this);
-        if (IsBeingDestroyed) return;
-        _goInstance.ReturnPool();
-    }
+            OnStopLogic();
+            _isRunning = false;
+            onStop?.Invoke(this);
+            if (IsBeingDestroyed) return;
+            _goInstance.ReturnPool();
+        }
 
-    protected virtual void OnStopLogic()
-    {
+        protected virtual void OnStopLogic()
+        {
         
-    }
+        }
 
-    private bool _onApplicationQuit;
-    private void OnApplicationQuit()
-    {
-        _onApplicationQuit = true;
+        private bool _onApplicationQuit;
+        private void OnApplicationQuit()
+        {
+            _onApplicationQuit = true;
+        }
     }
 }

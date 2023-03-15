@@ -4,262 +4,262 @@ using System.Collections.Generic;
 using System.Linq;
 using Sirenix.OdinInspector;
 using Sirenix.Utilities;
-#if UNITY_EDITOR
 using UnityEditor;
-#endif
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
-public enum DataAddress
+namespace Dragon.Core
 {
-    Context = 0,
-    Global = 1,
-    GroupFirstMember = 2
-}
-
-public enum ContextAddress
-{
-    Self = 0,
-    Parent=1,
-    Root=2,
-    Scene=3,
-    Relative = 4
-}
-
-public enum RelativeAddress
-{
-    Self = 0,
-    Parent = 1,
-    Root = 2,
-    Scene = 3
-}
-
-[System.Serializable]
-[TopTitle(
-    NameSuffix = "<color=#00ffff33><b>☵</b></color>",
-    NamePrefix = "<color=#00ffff33><b>☵</b></color>",
-    ShowGenericName = true,SetParentObject = true,
-    BoldName = true,SetTransform = true,HideNameOnMid = true,ShowNameOnPrefix = true,ShowTypeOnSuffix = true)][GUIColor(0.5f,0.8f,1f)]
-public struct DataField<T>
-{
-    [SerializeField]
-    [HideInInspector] 
-    private Transform _transform;
-    public Transform transform
+    public enum DataAddress
     {
-        get => _transform;
-        set
+        Context = 0,
+        Global = 1,
+        GroupFirstMember = 2
+    }
+
+    public enum ContextAddress
+    {
+        Self = 0,
+        Parent=1,
+        Root=2,
+        Scene=3,
+        Relative = 4
+    }
+
+    public enum RelativeAddress
+    {
+        Self = 0,
+        Parent = 1,
+        Root = 2,
+        Scene = 3
+    }
+
+    [System.Serializable]
+    [TopTitle(
+        NameSuffix = "<color=#00ffff33><b>☵</b></color>",
+        NamePrefix = "<color=#00ffff33><b>☵</b></color>",
+        ShowGenericName = true,SetParentObject = true,
+        BoldName = true,SetTransform = true,HideNameOnMid = true,ShowNameOnPrefix = true,ShowTypeOnSuffix = true)][GUIColor(0.5f,0.8f,1f)]
+    public struct DataField<T>
+    {
+        [SerializeField]
+        [HideInInspector] 
+        private Transform _transform;
+        public Transform transform
         {
-            _transform = value;
+            get => _transform;
+            set
+            {
+                _transform = value;
+            }
         }
-    }
     
-    [SerializeField] [HideInInspector] private UnityEngine.Object _parentObject;
-    public UnityEngine.Object parentObject
-    {
-        get => _parentObject;
-        set => _parentObject = value;
-    }
+        [SerializeField] [HideInInspector] private UnityEngine.Object _parentObject;
+        public UnityEngine.Object parentObject
+        {
+            get => _parentObject;
+            set => _parentObject = value;
+        }
 
-    public Type DataType => typeof(T);
+        public Type DataType => typeof(T);
     
-    private bool _keyFieldToggled;
-    [PropertyOrder(-1)]
-    [HorizontalGroup(GroupID = "install",Width = 0.20f)]
-    [Button("Single")][HideIf("HideIfShowKey")]
-    private void ShowKey()
-    {
-        _keyFieldToggled = true;
-    }
+        private bool _keyFieldToggled;
+        [PropertyOrder(-1)]
+        [HorizontalGroup(GroupID = "install",Width = 0.20f)]
+        [Button("Single")][HideIf("HideIfShowKey")]
+        private void ShowKey()
+        {
+            _keyFieldToggled = true;
+        }
 
-    private bool HideIfShowKey => _keyFieldToggled || Key != null;
-    private bool ShowIfHideKey => _keyFieldToggled && Key == null;
+        private bool HideIfShowKey => _keyFieldToggled || Key != null;
+        private bool ShowIfHideKey => _keyFieldToggled && Key == null;
 
-    [PropertyOrder(-1)]
-    [HorizontalGroup(GroupID = "install",Width = 0.05f)]
-    [Button("X")][ShowIf("ShowIfHideKey")]
-    private void HideKey()
-    {
-        _createBegun = false;
-        _keyFieldToggled = false;
-    }
+        [PropertyOrder(-1)]
+        [HorizontalGroup(GroupID = "install",Width = 0.05f)]
+        [Button("X")][ShowIf("ShowIfHideKey")]
+        private void HideKey()
+        {
+            _createBegun = false;
+            _keyFieldToggled = false;
+        }
     
-    [HideInPlayMode]
-    [SerializeField]
-    [HideLabel]
-    [ValueDropdown("GetAllAppropriateKeys")]
-    [HorizontalGroup(GroupID = "install",Width = 0.40f)]
-    [HideIf("HideIfKey")]
-    public DataKey Key;
+        [HideInPlayMode]
+        [SerializeField]
+        [HideLabel]
+        [ValueDropdown("GetAllAppropriateKeys")]
+        [HorizontalGroup(GroupID = "install",Width = 0.40f)]
+        [HideIf("HideIfKey")]
+        public DataKey Key;
     
-    [SerializeField]
-    [InlineProperty]
-    [HideLabel]
-    [HorizontalGroup(GroupID = "install",Width = 0.55f)] 
-    private AddressField _addressField;
+        [SerializeField]
+        [InlineProperty]
+        [HideLabel]
+        [HorizontalGroup(GroupID = "install",Width = 0.55f)] 
+        private AddressField _addressField;
 
-    private bool HideIfKey => !_keyFieldToggled && Key == null;
+        private bool HideIfKey => !_keyFieldToggled && Key == null;
     
-    [ShowInInspector][ReadOnly][HideInEditorMode]
-    private T _data;
-    public T Data => _data;
+        [ShowInInspector][ReadOnly][HideInEditorMode]
+        private T _data;
+        public T Data => _data;
 
-    private bool _createBegun;
-    private bool ShouldShowCreateDataSetKey => Key == null;
-    public bool CreateBegun => _createBegun && ShouldShowCreateDataSetKey;
-    public bool ShowBeginCreate => !_createBegun && ShouldShowCreateDataSetKey && _keyFieldToggled && Key == null;
+        private bool _createBegun;
+        private bool ShouldShowCreateDataSetKey => Key == null;
+        public bool CreateBegun => _createBegun && ShouldShowCreateDataSetKey;
+        public bool ShowBeginCreate => !_createBegun && ShouldShowCreateDataSetKey && _keyFieldToggled && Key == null;
     
-    [Button("Create")][HorizontalGroup(GroupID = "install",Width = 0.1f)][ShowIf("ShowBeginCreate")][PropertyOrder(-1)]
-    public void BeginCreate()
-    {
-        _createBegun = true;
-    }
+        [Button("Create")][HorizontalGroup(GroupID = "install",Width = 0.1f)][ShowIf("ShowBeginCreate")][PropertyOrder(-1)]
+        public void BeginCreate()
+        {
+            _createBegun = true;
+        }
 
-    [ShowInInspector] [HideLabel] [HorizontalGroup(GroupID = "creation", Width = 0.8f)] [ShowIf("CreateBegun")]
-    private string _keyName;
+        [ShowInInspector] [HideLabel] [HorizontalGroup(GroupID = "creation", Width = 0.8f)] [ShowIf("CreateBegun")]
+        private string _keyName;
 
-    [Button("Create")][HorizontalGroup(GroupID = "creation",Width = 0.1f)][ShowIf("CreateBegun")][PropertyOrder(-1)]
-    public void CreateDataSetKey()
-    {
-        Key = DataKey.CreateAtFolder<T>(_keyName);
-        _createBegun = false;
+        [Button("Create")][HorizontalGroup(GroupID = "creation",Width = 0.1f)][ShowIf("CreateBegun")][PropertyOrder(-1)]
+        public void CreateDataSetKey()
+        {
+            Key = DataKey.CreateAtFolder<T>(_keyName);
+            _createBegun = false;
 #if UNITY_EDITOR
-        Undo.RecordObject(parentObject,"DictionaryKeyCreateAndSet");
-        EditorUtility.SetDirty(parentObject);
+            Undo.RecordObject(parentObject,"DictionaryKeyCreateAndSet");
+            EditorUtility.SetDirty(parentObject);
 #endif
-    }
+        }
     
-    private static IEnumerable GetAllAppropriateKeys()
-    {
+        private static IEnumerable GetAllAppropriateKeys()
+        {
 #if UNITY_EDITOR
-        IEnumerable<DataKeyInfo> enumerable = GetAllResourceKeys();
-        if (enumerable == null) return null;
-        return enumerable
-            .Where(EvaluateForAppropriateResource)
-            .Select(PrepareDropdownItem);
+            IEnumerable<DataKeyInfo> enumerable = GetAllResourceKeys();
+            if (enumerable == null) return null;
+            return enumerable
+                .Where(EvaluateForAppropriateResource)
+                .Select(PrepareDropdownItem);
 #else
         return null;
 #endif
-    }
+        }
 
 #if UNITY_EDITOR
-    private static IEnumerable<DataKeyInfo> GetAllResourceKeys()
-    {
-        return DataKeyPath.GetKeys();
-    }
+        private static IEnumerable<DataKeyInfo> GetAllResourceKeys()
+        {
+            return DataKeyPath.GetKeys();
+        }
 #endif
 
-    public void RegisterOnChange(IHierarchyContext context, Action<DataOnChangeArgs<T>> action)
-    {
-        DataRegistry<T>.RegisterOnChange(_addressField.GetFromAddress(context), action, Key?Key.ID:"");
-    }
-    
-    public void UnregisterOnChange(IHierarchyContext context, Action<DataOnChangeArgs<T>> action)
-    {
-        DataRegistry<T>.UnregisterOnChange(_addressField.GetFromAddress(context), action, Key?Key.ID:"");
-    }
-    
-    private static bool EvaluateForAppropriateResource(DataKeyInfo keyInfo)
-    {
-#if UNITY_EDITOR
-        if (keyInfo.Key == null) return false;
-        string[] types = keyInfo.Key.DataType.Split(';');
-        foreach (var typestr in types)
+        public void RegisterOnChange(IHierarchyContext context, Action<DataOnChangeArgs<T>> action)
         {
-            System.Type type = System.Type.GetType(typestr);
-            if (typestr == typeof(T).GetNiceName()) return true;
-            else if (type != null)
+            DataRegistry<T>.RegisterOnChange(_addressField.GetFromAddress(context), action, Key?Key.ID:"");
+        }
+    
+        public void UnregisterOnChange(IHierarchyContext context, Action<DataOnChangeArgs<T>> action)
+        {
+            DataRegistry<T>.UnregisterOnChange(_addressField.GetFromAddress(context), action, Key?Key.ID:"");
+        }
+    
+        private static bool EvaluateForAppropriateResource(DataKeyInfo keyInfo)
+        {
+#if UNITY_EDITOR
+            if (keyInfo.Key == null) return false;
+            string[] types = keyInfo.Key.DataType.Split(';');
+            foreach (var typestr in types)
             {
-                if (typeof(T).IsAssignableFrom(type))
+                System.Type type = System.Type.GetType(typestr);
+                if (typestr == typeof(T).GetNiceName()) return true;
+                else if (type != null)
                 {
-                    return true;
+                    if (typeof(T).IsAssignableFrom(type))
+                    {
+                        return true;
+                    }
                 }
             }
-        }
-        return false;
+            return false;
 #else
         return false;
 #endif
-    }
+        }
     
-    private static ValueDropdownItem PrepareDropdownItem(DataKeyInfo keyInfo)
-    {
+        private static ValueDropdownItem PrepareDropdownItem(DataKeyInfo keyInfo)
+        {
 #if UNITY_EDITOR
-        ValueDropdownItem item = new ValueDropdownItem();
-        string path = keyInfo.Path.RemoveUntilString("DataKeys/");
-        path = path.Replace("DataKeys/", "");
-        item.Text = keyInfo.PathID+"/"+path.Replace(keyInfo.Key.name+".asset","")+keyInfo.Key.ID;
-        item.Value = keyInfo.Key;
-        return item;
+            ValueDropdownItem item = new ValueDropdownItem();
+            string path = keyInfo.Path.RemoveUntilString("DataKeys/");
+            path = path.Replace("DataKeys/", "");
+            item.Text = keyInfo.PathID+"/"+path.Replace(keyInfo.Key.name+".asset","")+keyInfo.Key.ID;
+            item.Value = keyInfo.Key;
+            return item;
 #else
         return default;
 #endif
-    }
-
-    public bool TryGet(IDataContext context)
-    {
-        string key = Key ? Key.ID : "";
-        if (DataRegistry<T>.ContainsData(_addressField.GetFromAddress(context), key))
-        {
-            _data = DataRegistry<T>.GetData(_addressField.GetFromAddress(context),key);
-            return true;
         }
 
-        return false;
-    }
-    
-    public T Get(IDataContext context)
-    {
-        string key = Key ? Key.ID : "";
-        _data = DataRegistry<T>.GetData(_addressField.GetFromAddress(context),key);
-        return _data;
-    }
-
-    public void Set(IDataContext context, T value)
-    {
-        string key = Key ? Key.ID : "";
-        DataRegistry<T>.SetData(_addressField.GetFromAddress(context),value,key);
-    }
-    
-    public IContext GetRelativeAtAddress(List<DataKey> stack,IContext starting)
-    {
-        if (stack.Count == 0) return null;
-        return RecursiveGetRelativeAtAddress(starting,stack, 0);
-    }
-
-    /// <summary>
-    /// Returns only on initials.
-    /// </summary>
-    /// <param name="relationOwner"></param>
-    /// <param name="stack"></param>
-    /// <param name="currentIndex"></param>
-    /// <returns></returns>
-    private IContext RecursiveGetRelativeAtAddress(IContext relationOwner,List<DataKey> stack, int currentIndex)
-    {
-        if (stack.Count <= currentIndex)
+        public bool TryGet(IDataContext context)
         {
-            return null;
-        }
-        if (relationOwner.ContainsData<IContext>(stack[currentIndex].ID))
-        {
-            IContext main = relationOwner.GetData<IContext>(stack[currentIndex].ID);
-            IContext nextOwner = main;
-            IContext recurse = RecursiveGetRelativeAtAddress(nextOwner,stack, currentIndex + 1);
-            if (recurse != null)
+            string key = Key ? Key.ID : "";
+            if (DataRegistry<T>.ContainsData(_addressField.GetFromAddress(context), key))
             {
-                main = recurse;
+                _data = DataRegistry<T>.GetData(_addressField.GetFromAddress(context),key);
+                return true;
             }
 
-            return main;
+            return false;
         }
-        return null;
-    }
-
-    public static DataField<T> SingleContextRoot()
-    {
-        return new DataField<T>()
+    
+        public T Get(IDataContext context)
         {
-            _addressField = AddressField.SingleContextRoot()
-        };
+            string key = Key ? Key.ID : "";
+            _data = DataRegistry<T>.GetData(_addressField.GetFromAddress(context),key);
+            return _data;
+        }
+
+        public void Set(IDataContext context, T value)
+        {
+            string key = Key ? Key.ID : "";
+            DataRegistry<T>.SetData(_addressField.GetFromAddress(context),value,key);
+        }
+    
+        public IContext GetRelativeAtAddress(List<DataKey> stack,IContext starting)
+        {
+            if (stack.Count == 0) return null;
+            return RecursiveGetRelativeAtAddress(starting,stack, 0);
+        }
+
+        /// <summary>
+        /// Returns only on initials.
+        /// </summary>
+        /// <param name="relationOwner"></param>
+        /// <param name="stack"></param>
+        /// <param name="currentIndex"></param>
+        /// <returns></returns>
+        private IContext RecursiveGetRelativeAtAddress(IContext relationOwner,List<DataKey> stack, int currentIndex)
+        {
+            if (stack.Count <= currentIndex)
+            {
+                return null;
+            }
+            if (relationOwner.ContainsData<IContext>(stack[currentIndex].ID))
+            {
+                IContext main = relationOwner.GetData<IContext>(stack[currentIndex].ID);
+                IContext nextOwner = main;
+                IContext recurse = RecursiveGetRelativeAtAddress(nextOwner,stack, currentIndex + 1);
+                if (recurse != null)
+                {
+                    main = recurse;
+                }
+
+                return main;
+            }
+            return null;
+        }
+
+        public static DataField<T> SingleContextRoot()
+        {
+            return new DataField<T>()
+            {
+                _addressField = AddressField.SingleContextRoot()
+            };
+        }
     }
 }

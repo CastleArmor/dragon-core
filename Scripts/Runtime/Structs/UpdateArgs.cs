@@ -1,5 +1,8 @@
-[System.Serializable]
-public struct UpdateArgs
+namespace Dragon.Core
 {
-    public string UpdateName;
+    [System.Serializable]
+    public struct UpdateArgs
+    {
+        public string UpdateName;
+    }
 }

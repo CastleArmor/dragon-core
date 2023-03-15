@@ -1,15 +1,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class DataInstallerGroup : MonoBehaviour, IDataInstaller
+namespace Dragon.Core
 {
-    public void InstallFor(IDataContext dataContext)
+    public abstract class DataInstallerGroup : MonoBehaviour, IDataInstaller
     {
-        foreach (IDataInstaller installer in GetInstallers())
+        public void InstallFor(IDataContext dataContext)
         {
-            installer.InstallFor(dataContext);
+            foreach (IDataInstaller installer in GetInstallers())
+            {
+                installer.InstallFor(dataContext);
+            }
         }
-    }
 
-    protected abstract IEnumerable<IDataInstaller> GetInstallers();
+        protected abstract IEnumerable<IDataInstaller> GetInstallers();
+    }
 }

@@ -1,12 +1,15 @@
-public interface IGOInstance : IUnityComponent
+namespace Dragon.Core
 {
-    string ObjectTypeID { get; }
-    bool IsDefaultPrefabInstance { get; set; }
-    bool IsBeingDestroyed { get; }
-    bool IsPooledInstance { get; }
-    bool IsRetrievedFromPool { get; }
-    void PoolCheckoutRegisteredToPool(IGOInstancePool pool);
-    void PoolCheckoutRetrievedFromPool();
-    void PoolCheckoutReturnedToPool();
-    void ReturnPool();
+    public interface IGOInstance : IUnityComponent
+    {
+        string ObjectTypeID { get; }
+        bool IsDefaultPrefabInstance { get; set; }
+        bool IsBeingDestroyed { get; }
+        bool IsPooledInstance { get; }
+        bool IsRetrievedFromPool { get; }
+        void PoolCheckoutRegisteredToPool(IGOInstancePool pool);
+        void PoolCheckoutRetrievedFromPool();
+        void PoolCheckoutReturnedToPool();
+        void ReturnPool();
+    }
 }

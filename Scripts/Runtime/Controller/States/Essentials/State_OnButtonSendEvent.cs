@@ -1,24 +1,27 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class State_OnButtonSendEvent : MonoActorState
+namespace Dragon.Core
 {
-    [SerializeField] private Button _button;
-    [SerializeField] private EventField _event;
-    protected override void OnEnter()
+    public class State_OnButtonSendEvent : MonoActorState
     {
-        base.OnEnter();
-        _button.onClick.AddListener(OnClose);
-    }
+        [SerializeField] private Button _button;
+        [SerializeField] private EventField _event;
+        protected override void OnEnter()
+        {
+            base.OnEnter();
+            _button.onClick.AddListener(OnClose);
+        }
 
-    private void OnClose()
-    {
-        _event.Raise(EventContext);
-    }
+        private void OnClose()
+        {
+            _event.Raise(EventContext);
+        }
 
-    protected override void OnExit()
-    {
-        base.OnExit();
-        _button.onClick.RemoveListener(OnClose);
+        protected override void OnExit()
+        {
+            base.OnExit();
+            _button.onClick.RemoveListener(OnClose);
+        }
     }
 }

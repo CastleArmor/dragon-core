@@ -1,10 +1,13 @@
 ﻿using UnityEngine;
 
-[CreateAssetMenu(fileName = "ATag_",menuName = "Keys/Actor Tag Key")]
-public class ActorTagKey : Key,ICreatableUnityAsset<ActorTagKey>
+namespace Dragon.Core
 {
-    protected override void Awake()
+    [CreateAssetMenu(fileName = "ATag_",menuName = "Keys/Actor Tag Key")]
+    public class ActorTagKey : Key,ICreatableUnityAsset<ActorTagKey>
     {
-        AssetCreationEvents<ActorTagKey>.NotifyCreate(this);
+        protected override void Awake()
+        {
+            AssetCreationEvents<ActorTagKey>.NotifyCreate(this);
+        }
     }
 }

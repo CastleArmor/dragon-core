@@ -1,11 +1,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DIG_String : DataInstallerGroup
+namespace Dragon.Core
 {
-    [SerializeField] private DataInstaller<string> _string;
-    protected override IEnumerable<IDataInstaller> GetInstallers()
+    public class DIG_String : DataInstallerGroup
     {
-        yield return _string;
+        [SerializeField] private DataInstaller<string> _string;
+        protected override IEnumerable<IDataInstaller> GetInstallers()
+        {
+            yield return _string;
+        }
     }
 }

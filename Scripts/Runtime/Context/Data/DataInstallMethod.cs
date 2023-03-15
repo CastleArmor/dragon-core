@@ -1,4 +1,7 @@
-public abstract class DataInstallMethod: IDataInstaller
+namespace Dragon.Core
 {
-    public abstract void InstallFor(IDataContext context);
+    public abstract class DataInstallMethod: IDataInstaller
+    {
+        public abstract void InstallFor(IDataContext context);
+    }
 }

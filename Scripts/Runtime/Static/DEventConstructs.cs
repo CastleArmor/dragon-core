@@ -1,12 +1,15 @@
-public static class DEventConstructs
+namespace Dragon.Core
 {
-    public static IEventContext GetReturnEventAddressMain(IEventContext context,ReturnEventAddressType addressType)
+    public static class DEventConstructs
     {
-        switch (addressType)
+        public static IEventContext GetReturnEventAddressMain(IEventContext context,ReturnEventAddressType addressType)
         {
-            case ReturnEventAddressType.Context : 
-                return context;
-            default: return context;
-        }
-    }  
+            switch (addressType)
+            {
+                case ReturnEventAddressType.Context : 
+                    return context;
+                default: return context;
+            }
+        }  
+    }
 }

@@ -4,20 +4,20 @@ using System.Collections.Generic;
 using System.Linq;
 using Sirenix.OdinInspector;
 using Sirenix.Utilities;
-using UnityEngine;
-#if UNITY_EDITOR
 using UnityEditor;
-#endif
+using UnityEngine;
 
 #region TArg1
     
-[System.Serializable][TopTitle(ShowGenericName = true,
-    NameSuffix = "<color=#ff77ff55><b>↖EVENT</b></color>",
-    NamePrefix = "<color=#ff77ff55><b>↖</b></color>",
-    PerGenericArgString = ",",SetParentObject = true,
-    BoldName = true)][GUIColor(1f,0.6f,1f)]
-public struct EventField<TArg1>:IEventInstaller,ISerializationCallbackReceiver
+namespace Dragon.Core
 {
+    [System.Serializable][TopTitle(ShowGenericName = true,
+        NameSuffix = "<color=#ff77ff55><b>↖EVENT</b></color>",
+        NamePrefix = "<color=#ff77ff55><b>↖</b></color>",
+        PerGenericArgString = ",",SetParentObject = true,
+        BoldName = true)][GUIColor(1f,0.6f,1f)]
+    public struct EventField<TArg1>:IEventInstaller,ISerializationCallbackReceiver
+    {
         [SerializeField] [HideInInspector] private UnityEngine.Object _parentObject;
 
         public UnityEngine.Object parentObject
@@ -94,7 +94,7 @@ public struct EventField<TArg1>:IEventInstaller,ISerializationCallbackReceiver
                 directory += "/" + folder;
             }
         }
-        #endif
+#endif
         #endregion
         
         private void OnEventKeyChanged()
@@ -310,5 +310,6 @@ public struct EventField<TArg1>:IEventInstaller,ISerializationCallbackReceiver
             OnEventKeyChanged();
         }
     }
+}
     
     #endregion

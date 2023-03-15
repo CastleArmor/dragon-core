@@ -1,13 +1,16 @@
 using UnityEngine;
 
-public class State_OnEnterRaiseEvent : MonoActorState
+namespace Dragon.Core
 {
-    [SerializeField] private EventField _event;
-
-    protected override void OnEnter()
+    public class State_OnEnterRaiseEvent : MonoActorState
     {
-        base.OnEnter();
-        _event.Raise(EventContext);
-        FinishIfNot();
+        [SerializeField] private EventField _event;
+
+        protected override void OnEnter()
+        {
+            base.OnEnter();
+            _event.Raise(EventContext);
+            FinishIfNot();
+        }
     }
 }

@@ -1,6 +1,6 @@
 {
     "name": "dragon-core-editor",
-    "rootNamespace": "",
+    "rootNamespace": "Dragon.Core.Editor",
     "references": [
         "GUID:04842ebb5f487b846ad302d19104c812"
     ],

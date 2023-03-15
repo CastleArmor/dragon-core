@@ -1,26 +1,29 @@
-public static class _DCoreStateExtensions
+namespace Dragon.Core
 {
-    public static void TryInitializeIfInitializedSubState(this IActorState actorState)
+    public static class _DCoreStateExtensions
     {
-        if (actorState is IInitializedSubState initialized)
+        public static void TryInitializeIfInitializedSubState(this IActorState actorState)
         {
-            if(!initialized.IsInitialized) initialized.Initialize();
+            if (actorState is IInitializedSubState initialized)
+            {
+                if(!initialized.IsInitialized) initialized.Initialize();
+            }
         }
-    }
 
-    public static void CheckoutIf(this StateField field,IActor main, bool value)
-    {
-        if (value)
+        public static void CheckoutIf(this StateField field,IActor main, bool value)
         {
-            if (field.State == null) return;
-            if (field.State.IsRunning) return;
-            field.State.CheckoutEnter(main);
-        }
-        else
-        {
-            if (field.State == null) return;
-            if (!field.State.IsRunning) return;
-            field.State.CheckoutExit();
+            if (value)
+            {
+                if (field.State == null) return;
+                if (field.State.IsRunning) return;
+                field.State.CheckoutEnter(main);
+            }
+            else
+            {
+                if (field.State == null) return;
+                if (!field.State.IsRunning) return;
+                field.State.CheckoutExit();
+            }
         }
     }
 }

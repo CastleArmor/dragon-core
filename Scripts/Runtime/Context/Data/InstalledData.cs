@@ -1,99 +1,101 @@
 using System;
-using UnityEngine;
 
-[System.Serializable]
-public class InstalledData : IInstalledData
+namespace Dragon.Core
 {
-    [NonSerialized]
-    private IContext _context;
-    public IContext Context => _context;
-    
-    [NonSerialized]
-    private IDataContext _dataContext;
-    public IDataContext DataContext => _dataContext;
-    
-    [NonSerialized]
-    private IEventContext _eventContext;
-    public IEventContext EventContext => _eventContext;
-    
-    [NonSerialized]
-    private bool _isInstalled;
-    public bool IsInstalled => _isInstalled;
-
-    [NonSerialized]
-    private bool _isInitializing;
-    public bool IsInitializing => _isInitializing;
-
-    [NonSerialized]
-    private string _assignedID;
-    public string AssignedID
+    [System.Serializable]
+    public class InstalledData : IInstalledData
     {
-        get => _assignedID;
-        set => _assignedID = value;
-    }
+        [NonSerialized]
+        private IContext _context;
+        public IContext Context => _context;
+    
+        [NonSerialized]
+        private IDataContext _dataContext;
+        public IDataContext DataContext => _dataContext;
+    
+        [NonSerialized]
+        private IEventContext _eventContext;
+        public IEventContext EventContext => _eventContext;
+    
+        [NonSerialized]
+        private bool _isInstalled;
+        public bool IsInstalled => _isInstalled;
 
-    [NonSerialized]
-    private string _keyID;
-    public string KeyID
-    {
-        get => _keyID;
-        set => _keyID = value;
-    }
+        [NonSerialized]
+        private bool _isInitializing;
+        public bool IsInitializing => _isInitializing;
 
-    public void OnInstalledData(IContext context)
-    {
-        _context = context;
-        if (_context != null)
+        [NonSerialized]
+        private string _assignedID;
+        public string AssignedID
         {
-            _dataContext = context as IDataContext;
-            _eventContext = context as IEventContext;
+            get => _assignedID;
+            set => _assignedID = value;
         }
-        _isInitializing = true;
-        OnBindAdditional(context);
-        OnInitialize();
-        if (_dataContext != null)
+
+        [NonSerialized]
+        private string _keyID;
+        public string KeyID
         {
-            if (!_dataContext.IsPrefab && !_dataContext.IsDefaultPrefabInstance)
+            get => _keyID;
+            set => _keyID = value;
+        }
+
+        public void OnInstalledData(IContext context)
+        {
+            _context = context;
+            if (_context != null)
             {
-                OnInitializeInstanceData();
+                _dataContext = context as IDataContext;
+                _eventContext = context as IEventContext;
             }
-        }
-
-        _isInitializing = false;
-        _isInstalled = true;
-    }
-
-    protected virtual void OnBindAdditional(IContext context)
-    {
-        
-    }
-    
-    protected virtual void OnInitialize()
-    {
-        
-    }
-
-    protected virtual void OnInitializeInstanceData()
-    {
-        
-    }
-
-    public void OnRemoveData()
-    {
-        if (_dataContext != null)
-        {
-            if (!_dataContext.IsPrefab && !_dataContext.IsDefaultPrefabInstance)
+            _isInitializing = true;
+            OnBindAdditional(context);
+            OnInitialize();
+            if (_dataContext != null)
             {
-                OnInitializeInstanceData();
+                if (!_dataContext.IsPrefab && !_dataContext.IsDefaultPrefabInstance)
+                {
+                    OnInitializeInstanceData();
+                }
             }
+
+            _isInitializing = false;
+            _isInstalled = true;
         }
 
-        OnRemove();
-        _isInstalled = false;
-    }
-    
-    protected virtual void OnRemove()
-    {
+        protected virtual void OnBindAdditional(IContext context)
+        {
         
+        }
+    
+        protected virtual void OnInitialize()
+        {
+        
+        }
+
+        protected virtual void OnInitializeInstanceData()
+        {
+        
+        }
+
+        public void OnRemoveData()
+        {
+            if (_dataContext != null)
+            {
+                if (!_dataContext.IsPrefab && !_dataContext.IsDefaultPrefabInstance)
+                {
+                    OnInitializeInstanceData();
+                }
+            }
+
+            OnRemove();
+            _isInstalled = false;
+        }
+    
+        protected virtual void OnRemove()
+        {
+        
+        }
     }
 }

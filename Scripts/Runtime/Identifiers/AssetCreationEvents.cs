@@ -1,12 +1,15 @@
 using System;
 
-public static class AssetCreationEvents<T> where T : UnityEngine.Object,ICreatableUnityAsset<T>
+namespace Dragon.Core
 {
-    public static event Action<T> onCreate;
-    public static event Action<T> onDestroy;
-
-    public static void NotifyCreate(T created)
+    public static class AssetCreationEvents<T> where T : UnityEngine.Object,ICreatableUnityAsset<T>
     {
-        onCreate?.Invoke(created);
+        public static event Action<T> onCreate;
+        public static event Action<T> onDestroy;
+
+        public static void NotifyCreate(T created)
+        {
+            onCreate?.Invoke(created);
+        }
     }
 }

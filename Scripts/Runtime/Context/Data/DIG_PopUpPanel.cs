@@ -1,14 +1,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DIG_PopUpPanel : DataInstallerGroup
+namespace Dragon.Core
 {
-    [SerializeField] private DataInstaller<float> _someValue;
-    [SerializeField] private DataInstaller<Transform> _someOtherValue;
-
-    protected override IEnumerable<IDataInstaller> GetInstallers()
+    public class DIG_PopUpPanel : DataInstallerGroup
     {
-        yield return _someValue;
-        yield return _someOtherValue;
+        [SerializeField] private DataInstaller<float> _someValue;
+        [SerializeField] private DataInstaller<Transform> _someOtherValue;
+
+        protected override IEnumerable<IDataInstaller> GetInstallers()
+        {
+            yield return _someValue;
+            yield return _someOtherValue;
+        }
     }
 }

@@ -1,5 +1,8 @@
-public interface ISaveableData : ICastable
+namespace Dragon.Core
 {
-    bool IsPersistent { get; set; }
-    void SaveData();
+    public interface ISaveableData : ICastable
+    {
+        bool IsPersistent { get; set; }
+        void SaveData();
+    }
 }

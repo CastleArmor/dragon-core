@@ -1,11 +1,14 @@
 using System.Collections.Generic;
 
-public static class _DCoreCollectionExtension
+namespace Dragon.Core
 {
-    public static T GetRandom<T>(this List<T> list,T defaultValue = default)
+    public static class _DCoreCollectionExtension
     {
-        if (list.Count == 0) return defaultValue;
-        int selected = UnityEngine.Random.Range(0, list.Count);
-        return list[selected];
+        public static T GetRandom<T>(this List<T> list,T defaultValue = default)
+        {
+            if (list.Count == 0) return defaultValue;
+            int selected = UnityEngine.Random.Range(0, list.Count);
+            return list[selected];
+        }
     }
 }

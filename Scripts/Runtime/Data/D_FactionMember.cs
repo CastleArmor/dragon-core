@@ -1,34 +1,37 @@
 using System;
 using UnityEngine;
 
-[System.Serializable]
-public class D_FactionMember : InstalledData
+namespace Dragon.Core
 {
-    [SerializeField] private ActorTagKey _currentFaction;
-    public event Action<IContext, ActorTagKey, ActorTagKey> onCurrentFactionChanged;
-    public ActorTagKey CurrentFaction
+    [System.Serializable]
+    public class D_FactionMember : InstalledData
     {
-        get => _currentFaction;
-        set
+        [SerializeField] private ActorTagKey _currentFaction;
+        public event Action<IContext, ActorTagKey, ActorTagKey> onCurrentFactionChanged;
+        public ActorTagKey CurrentFaction
         {
-            ActorTagKey oldValue = _currentFaction;
-            bool isChanged = _currentFaction != value;
-            _currentFaction = value;
-            if (isChanged)
+            get => _currentFaction;
+            set
             {
-                if (oldValue != null)
+                ActorTagKey oldValue = _currentFaction;
+                bool isChanged = _currentFaction != value;
+                _currentFaction = value;
+                if (isChanged)
                 {
-                    if (Context.GetActor().ContainsTag(oldValue))
+                    if (oldValue != null)
                     {
-                        Context.GetActor().RemoveTag(oldValue);
-                    }                   
-                }
+                        if (Context.GetActor().ContainsTag(oldValue))
+                        {
+                            Context.GetActor().RemoveTag(oldValue);
+                        }                   
+                    }
 
-                if (_currentFaction != null)
-                {
-                    Context.GetActor().AddTag(_currentFaction);
+                    if (_currentFaction != null)
+                    {
+                        Context.GetActor().AddTag(_currentFaction);
+                    }
+                    onCurrentFactionChanged?.Invoke(Context, oldValue, value);
                 }
-                onCurrentFactionChanged?.Invoke(Context, oldValue, value);
             }
         }
     }

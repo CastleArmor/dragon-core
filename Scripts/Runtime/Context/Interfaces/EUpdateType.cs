@@ -1,6 +1,9 @@
-﻿public enum EUpdateType
+﻿namespace Dragon.Core
 {
-    Update,
-    FixedUpdate,
-    LateUpdate
+    public enum EUpdateType
+    {
+        Update,
+        FixedUpdate,
+        LateUpdate
+    }
 }

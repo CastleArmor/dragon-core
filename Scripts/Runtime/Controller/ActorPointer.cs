@@ -1,7 +1,10 @@
 ﻿using UnityEngine;
 
-public class ActorPointer : MonoBehaviour
+namespace Dragon.Core
 {
-    [SerializeField] private Actor _pointed;
-    public Actor Pointed => _pointed;
+    public class ActorPointer : MonoBehaviour
+    {
+        [SerializeField] private Actor _pointed;
+        public Actor Pointed => _pointed;
+    }
 }

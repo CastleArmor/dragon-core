@@ -1,19 +1,22 @@
 using UnityEngine;
 
-public class State_OnExitRaiseEvent : MonoActorState
+namespace Dragon.Core
 {
-    [SerializeField] private EventField _event;
-
-    protected override void OnEnter()
+    public class State_OnExitRaiseEvent : MonoActorState
     {
-        base.OnEnter();
-        FinishIfNot();
-    }
+        [SerializeField] private EventField _event;
+
+        protected override void OnEnter()
+        {
+            base.OnEnter();
+            FinishIfNot();
+        }
     
 
-    protected override void OnExit()
-    {
-        base.OnExit();
-        _event.Raise(EventContext);
+        protected override void OnExit()
+        {
+            base.OnExit();
+            _event.Raise(EventContext);
+        }
     }
 }

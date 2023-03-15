@@ -1,5 +1,8 @@
-public struct ActorRunResult
+namespace Dragon.Core
 {
-    public IActor RunningInstance;
-    public bool IsSuccess;
+    public struct ActorRunResult
+    {
+        public IActor RunningInstance;
+        public bool IsSuccess;
+    }
 }

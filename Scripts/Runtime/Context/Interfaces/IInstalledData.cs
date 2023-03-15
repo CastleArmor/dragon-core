@@ -1,8 +1,11 @@
-public interface IInstalledData : IData
+namespace Dragon.Core
 {
-    bool IsInstalled { get; }
-    string AssignedID { get; set; }
-    string KeyID { get; set; }
-    void OnInstalledData(IContext context);
-    void OnRemoveData();
+    public interface IInstalledData : IData
+    {
+        bool IsInstalled { get; }
+        string AssignedID { get; set; }
+        string KeyID { get; set; }
+        void OnInstalledData(IContext context);
+        void OnRemoveData();
+    }
 }

@@ -1,114 +1,117 @@
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-public class ActorService : MonoBehaviour
+namespace Dragon.Core
 {
-    [SerializeField]
-    private bool _explicitMain;
-
-    [SerializeField][ShowIf("_explicitMain")] private Actor _explicitReference;
-    private IActor _actor;
-    public IActor Actor => _actor;
-    private bool _unregisteredOrStopped;
-
-    private void OnEnable()
+    public class ActorService : MonoBehaviour
     {
-        if (_actor != null) return;
-        IActor main = _explicitMain?_explicitReference:GetComponentInParent<IActor>();
-        if (!main.IsInitialized)
+        [SerializeField]
+        private bool _explicitMain;
+
+        [SerializeField][ShowIf("_explicitMain")] private Actor _explicitReference;
+        private IActor _actor;
+        public IActor Actor => _actor;
+        private bool _unregisteredOrStopped;
+
+        private void OnEnable()
         {
-            main.onInitialize += OnMainDataReady;
+            if (_actor != null) return;
+            IActor main = _explicitMain?_explicitReference:GetComponentInParent<IActor>();
+            if (!main.IsInitialized)
+            {
+                main.onInitialize += OnMainDataReady;
+            }
+            else
+            {
+                RegisterActor(main);
+            }
         }
-        else
+
+        private void OnDestroy()
         {
-            RegisterActor(main);
+            UnregisterActor();
         }
-    }
 
-    private void OnDestroy()
-    {
-        UnregisterActor();
-    }
-
-    private void OnMainDataReady(IActor obj)
-    {
-        obj.onInitialize -= OnMainDataReady;
-        RegisterActor(obj);
-    }
-
-    private void RegisterActor(IActor obj)
-    {
-        _actor = obj;
-        _actor.onBegin += BeginActorBehaviour;
-        if (_actor.IsRunning)
+        private void OnMainDataReady(IActor obj)
         {
-            BeginActorBehaviour(obj);
+            obj.onInitialize -= OnMainDataReady;
+            RegisterActor(obj);
         }
-        _actor.onStop += StopActorBehaviour;
-        _actor.onDestroyActor += OnDestroyActor;
-        OnRegisterActor();
-    }
 
-    private void UnregisterActor()
-    {
-        if (Actor != null)
+        private void RegisterActor(IActor obj)
         {
-            OnUnregisterMain();
+            _actor = obj;
+            _actor.onBegin += BeginActorBehaviour;
+            if (_actor.IsRunning)
+            {
+                BeginActorBehaviour(obj);
+            }
+            _actor.onStop += StopActorBehaviour;
+            _actor.onDestroyActor += OnDestroyActor;
+            OnRegisterActor();
+        }
+
+        private void UnregisterActor()
+        {
+            if (Actor != null)
+            {
+                OnUnregisterMain();
+                if (!_unregisteredOrStopped)
+                {
+                    OnUnregisterOrStopAfterBegin();
+                    _unregisteredOrStopped = true;
+                }
+                _actor.onBegin -= BeginActorBehaviour;
+                _actor.onStop -= StopActorBehaviour;
+                _actor.onDestroyActor -= OnDestroyActor;
+                _actor = null;
+            }
+        }
+
+        private void OnDestroyActor(IActor obj)
+        {
+            UnregisterActor();
+        }
+
+        private void StopActorBehaviour(IActor obj)
+        {
+            OnStopBehaviour();
             if (!_unregisteredOrStopped)
             {
                 OnUnregisterOrStopAfterBegin();
                 _unregisteredOrStopped = true;
             }
-            _actor.onBegin -= BeginActorBehaviour;
-            _actor.onStop -= StopActorBehaviour;
-            _actor.onDestroyActor -= OnDestroyActor;
-            _actor = null;
         }
-    }
 
-    private void OnDestroyActor(IActor obj)
-    {
-        UnregisterActor();
-    }
-
-    private void StopActorBehaviour(IActor obj)
-    {
-        OnStopBehaviour();
-        if (!_unregisteredOrStopped)
+        private void BeginActorBehaviour(IActor obj)
         {
-            OnUnregisterOrStopAfterBegin();
-            _unregisteredOrStopped = true;
+            _unregisteredOrStopped = false;
+            OnBeginBehaviour();
         }
-    }
 
-    private void BeginActorBehaviour(IActor obj)
-    {
-        _unregisteredOrStopped = false;
-        OnBeginBehaviour();
-    }
-
-    protected virtual void OnBeginBehaviour()
-    {
+        protected virtual void OnBeginBehaviour()
+        {
         
-    }
+        }
 
-    protected virtual void OnStopBehaviour()
-    {
+        protected virtual void OnStopBehaviour()
+        {
         
-    }
+        }
     
-    protected virtual void OnRegisterActor()
-    {
+        protected virtual void OnRegisterActor()
+        {
         
-    }
+        }
 
-    protected virtual void OnUnregisterMain()
-    {
+        protected virtual void OnUnregisterMain()
+        {
         
-    }
+        }
 
-    protected virtual void OnUnregisterOrStopAfterBegin()
-    {
+        protected virtual void OnUnregisterOrStopAfterBegin()
+        {
         
+        }
     }
 }

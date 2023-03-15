@@ -1,24 +1,27 @@
 using System;
 using Sirenix.OdinInspector;
 
-[System.Serializable]
-public class D_PointBehaviourObject : InstalledData
+namespace Dragon.Core
 {
-    [ShowInInspector][ReadOnly]
-    private bool _pointActivated;
-    public event Action<IContext, bool, bool> onPointActivatedChanged;
-
-    public bool PointActivated
+    [System.Serializable]
+    public class D_PointBehaviourObject : InstalledData
     {
-        get => _pointActivated;
-        set
+        [ShowInInspector][ReadOnly]
+        private bool _pointActivated;
+        public event Action<IContext, bool, bool> onPointActivatedChanged;
+
+        public bool PointActivated
         {
-            bool oldValue = _pointActivated;
-            bool isChanged = _pointActivated != value;
-            _pointActivated = value;
-            if (isChanged)
+            get => _pointActivated;
+            set
             {
-                onPointActivatedChanged?.Invoke(Context, oldValue, value);
+                bool oldValue = _pointActivated;
+                bool isChanged = _pointActivated != value;
+                _pointActivated = value;
+                if (isChanged)
+                {
+                    onPointActivatedChanged?.Invoke(Context, oldValue, value);
+                }
             }
         }
     }

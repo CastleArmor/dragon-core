@@ -1,11 +1,14 @@
 ﻿using System.Collections.Generic;
 
-public class DIG_MultipleOnGameObject : DataInstallerGroup
+namespace Dragon.Core
 {
-    protected override IEnumerable<IDataInstaller> GetInstallers()
+    public class DIG_MultipleOnGameObject : DataInstallerGroup
     {
-        List<IDataInstaller> installers = new List<IDataInstaller>(GetComponents<IDataInstaller>());
-        installers.Remove(this);
-        return installers;
+        protected override IEnumerable<IDataInstaller> GetInstallers()
+        {
+            List<IDataInstaller> installers = new List<IDataInstaller>(GetComponents<IDataInstaller>());
+            installers.Remove(this);
+            return installers;
+        }
     }
 }

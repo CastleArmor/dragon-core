@@ -1,11 +1,14 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public class DIG_GOInstancePoolRegistry : DataInstallerGroup
+namespace Dragon.Core
 {
-    [SerializeField] private DataInstaller<D_GOInstancePoolRegistry> _poolData;
-    protected override IEnumerable<IDataInstaller> GetInstallers()
+    public class DIG_GOInstancePoolRegistry : DataInstallerGroup
     {
-        yield return _poolData;
+        [SerializeField] private DataInstaller<D_GOInstancePoolRegistry> _poolData;
+        protected override IEnumerable<IDataInstaller> GetInstallers()
+        {
+            yield return _poolData;
+        }
     }
 }

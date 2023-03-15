@@ -1,31 +1,32 @@
 using System.Collections.Generic;
 using System.Linq;
-#if UNITY_EDITOR
 using UnityEditor;
-#endif
 
-public class DEditorPath
+namespace Dragon.Core
 {
-#if UNITY_EDITOR
-    /// <summary>
-    /// If directory path doesn't exist it will create, if it exist it will do nothing.
-    /// </summary>
-    /// <param name="path"></param>
-    public static void EnsurePathExistence(string path)
+    public class DEditorPath
     {
-        string[] splitFoldersArray = path.Split('/');
-        List<string> splitFolders = splitFoldersArray.ToList();
-        splitFolders.RemoveAt(0); //Removing Assets directory it's special.
-
-        //Ensure path exists.
-        string directory = "Assets";
-        foreach (string folder in splitFolders)
+#if UNITY_EDITOR
+        /// <summary>
+        /// If directory path doesn't exist it will create, if it exist it will do nothing.
+        /// </summary>
+        /// <param name="path"></param>
+        public static void EnsurePathExistence(string path)
         {
-            if (!AssetDatabase.IsValidFolder(directory+"/"+folder))
-                AssetDatabase.CreateFolder(directory, folder);
+            string[] splitFoldersArray = path.Split('/');
+            List<string> splitFolders = splitFoldersArray.ToList();
+            splitFolders.RemoveAt(0); //Removing Assets directory it's special.
 
-            directory += "/" + folder;
+            //Ensure path exists.
+            string directory = "Assets";
+            foreach (string folder in splitFolders)
+            {
+                if (!AssetDatabase.IsValidFolder(directory+"/"+folder))
+                    AssetDatabase.CreateFolder(directory, folder);
+
+                directory += "/" + folder;
+            }
         }
-    }
 #endif
+    }
 }

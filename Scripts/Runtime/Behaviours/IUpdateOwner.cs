@@ -1,4 +1,7 @@
-public interface IUpdateOwner : ICastable
+namespace Dragon.Core
 {
-    IConfiguredUpdateBehaviour ConfiguredUpdateHandler { get; set; }
+    public interface IUpdateOwner : ICastable
+    {
+        IConfiguredUpdateBehaviour ConfiguredUpdateHandler { get; set; }
+    }
 }

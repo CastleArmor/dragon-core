@@ -1,61 +1,63 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
-public abstract class GlobalSingleton : MonoBehaviour
+namespace Dragon.Core
 {
-}
-public abstract class GlobalSingleton<T> : GlobalSingleton where T : GlobalSingleton
-{
-    private static bool _isInstanceBeingDestroyed;
-    public static bool IsInstanceBeingDestroyed => _isInstanceBeingDestroyed;
-    private static bool _isAppQuit;
-    public static bool IsAppQuit => _isAppQuit;
-    private static T _instance;
-    protected static T Instance
+    public abstract class GlobalSingleton : MonoBehaviour
     {
-        get
-        {
-            if (!Ensure()) return null;
-
-            return _instance;
-        }
     }
-
-    protected static bool Ensure()
+    public abstract class GlobalSingleton<T> : GlobalSingleton where T : GlobalSingleton
     {
-        if (_isInstanceBeingDestroyed) return false;
-        if (_instance == null)
+        private static bool _isInstanceBeingDestroyed;
+        public static bool IsInstanceBeingDestroyed => _isInstanceBeingDestroyed;
+        private static bool _isAppQuit;
+        public static bool IsAppQuit => _isAppQuit;
+        private static T _instance;
+        protected static T Instance
         {
-            GameObject go = new GameObject(typeof(T).Name+"-GlobalSingleton");
-            go.AddComponent<T>();
-            DontDestroyOnLoad(go);
+            get
+            {
+                if (!Ensure()) return null;
+
+                return _instance;
+            }
         }
 
-        return true;
-    }
-
-    private void OnApplicationQuit()
-    {
-        _isAppQuit = true;
-    }
-
-    private void Awake()
-    {
-        if (_instance != null && _instance != this)
+        protected static bool Ensure()
         {
-            Destroy(this);
-        }
-        _isInstanceBeingDestroyed = false;
-        _instance = this as T;
-    }
+            if (_isInstanceBeingDestroyed) return false;
+            if (_instance == null)
+            {
+                GameObject go = new GameObject(typeof(T).Name+"-GlobalSingleton");
+                go.AddComponent<T>();
+                DontDestroyOnLoad(go);
+            }
 
-    private void OnDestroy()
-    {
-        if (_instance == this)
-        {
-            _isInstanceBeingDestroyed = true;
-            _instance = null;
+            return true;
         }
-    }
+
+        private void OnApplicationQuit()
+        {
+            _isAppQuit = true;
+        }
+
+        private void Awake()
+        {
+            if (_instance != null && _instance != this)
+            {
+                Destroy(this);
+            }
+            _isInstanceBeingDestroyed = false;
+            _instance = this as T;
+        }
+
+        private void OnDestroy()
+        {
+            if (_instance == this)
+            {
+                _isInstanceBeingDestroyed = true;
+                _instance = null;
+            }
+        }
     
-} 
+    }
+}

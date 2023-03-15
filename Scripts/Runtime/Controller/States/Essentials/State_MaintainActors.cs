@@ -1,29 +1,29 @@
-using System;
 using System.Collections.Generic;
-using Sirenix.OdinInspector;
 using UnityEngine;
 
-
-public class State_MaintainActors : MonoActorState
+namespace Dragon.Core
 {
-    [SerializeField] private List<GameObject> _list;
-    protected override void OnEnter()
+    public class State_MaintainActors : MonoActorState
     {
-        base.OnEnter();
-        foreach (GameObject go in _list)
+        [SerializeField] private List<GameObject> _list;
+        protected override void OnEnter()
         {
-            go.GetComponent<IActor>().InitializeIfNot();
-            go.GetComponent<IActor>().BeginIfNot();
+            base.OnEnter();
+            foreach (GameObject go in _list)
+            {
+                go.GetComponent<IActor>().InitializeIfNot();
+                go.GetComponent<IActor>().BeginIfNot();
+            }
         }
-    }
 
-    protected override void OnExit()
-    {
-        base.OnExit();
-        foreach (GameObject go in _list)
+        protected override void OnExit()
         {
-            go.GetComponent<IActor>().InitializeIfNot();
-            go.GetComponent<IActor>().StopIfNot();
+            base.OnExit();
+            foreach (GameObject go in _list)
+            {
+                go.GetComponent<IActor>().InitializeIfNot();
+                go.GetComponent<IActor>().StopIfNot();
+            }
         }
     }
 }

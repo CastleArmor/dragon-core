@@ -1,9 +1,12 @@
 using System.Collections.Generic;
 
-public class DIG_LogicRunningHandling : DataInstallerGroup
+namespace Dragon.Core
 {
-    protected override IEnumerable<IDataInstaller> GetInstallers()
+    public class DIG_LogicRunningHandling : DataInstallerGroup
     {
-        yield break;
+        protected override IEnumerable<IDataInstaller> GetInstallers()
+        {
+            yield break;
+        }
     }
 }

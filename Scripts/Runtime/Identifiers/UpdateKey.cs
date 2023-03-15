@@ -1,10 +1,13 @@
 ﻿using UnityEngine;
 
-[CreateAssetMenu(fileName = "UK_",menuName = "Keys/Update Key")]
-public class UpdateKey : Key,ICreatableUnityAsset<UpdateKey>
+namespace Dragon.Core
 {
-    protected override void Awake()
+    [CreateAssetMenu(fileName = "UK_",menuName = "Keys/Update Key")]
+    public class UpdateKey : Key,ICreatableUnityAsset<UpdateKey>
     {
-        AssetCreationEvents<UpdateKey>.NotifyCreate(this);
+        protected override void Awake()
+        {
+            AssetCreationEvents<UpdateKey>.NotifyCreate(this);
+        }
     }
 }

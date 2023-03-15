@@ -1,7 +1,10 @@
-﻿[System.Serializable]
-public struct ActorUsageEventArgs
+﻿namespace Dragon.Core
 {
-    public string UsageRequestID;
-    public IGOInstance PrefabOrInstance;
-    public IActor ActorInstance;
+    [System.Serializable]
+    public struct ActorUsageEventArgs
+    {
+        public string UsageRequestID;
+        public IGOInstance PrefabOrInstance;
+        public IActor ActorInstance;
+    }
 }

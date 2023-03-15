@@ -1,6 +1,9 @@
-﻿[System.Serializable]
-public struct EventArgs
+﻿namespace Dragon.Core
 {
-    public IEventContext EventContext;
-    public string EventName;
+    [System.Serializable]
+    public struct EventArgs
+    {
+        public IEventContext EventContext;
+        public string EventName;
+    }
 }

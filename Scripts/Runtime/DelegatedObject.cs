@@ -1,5 +1,8 @@
-[System.Serializable]
-public class DelegatedObject<T>
+namespace Dragon.Core
 {
-    public T DelegateObject;
+    [System.Serializable]
+    public class DelegatedObject<T>
+    {
+        public T DelegateObject;
+    }
 }

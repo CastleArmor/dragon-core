@@ -3,13 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Sirenix.OdinInspector;
-using Sirenix.Utilities;
-using UnityEngine;
-#if UNITY_EDITOR
 using UnityEditor;
-#endif
+using UnityEngine;
 
-[System.Serializable]
+namespace Dragon.Core
+{
+    [System.Serializable]
     [TopTitle(ShowGenericName = false,
         NameSuffix = "<color=#ff77ff55><b>↖EVENT</b></color>",
         NamePrefix = "<color=#ff77ff55><b>↖</b></color>",
@@ -102,7 +101,7 @@ using UnityEditor;
                 directory += "/" + folder;
             }
         }
-        #endif
+#endif
         #endregion
 
         private void OnEventKeyChanged()
@@ -337,3 +336,4 @@ using UnityEditor;
             OnEventKeyChanged();
         }
     }
+}

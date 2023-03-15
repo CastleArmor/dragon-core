@@ -2,38 +2,41 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class State_OnEnterStartGroup : MonoActorState
+namespace Dragon.Core
 {
-    [SerializeField] private DataField<List<IActor>> _group;
-    [SerializeField] private float _delay;
-    protected override void OnEnter()
+    public class State_OnEnterStartGroup : MonoActorState
     {
-        base.OnEnter();
-        if (_delay > 0)
+        [SerializeField] private DataField<List<IActor>> _group;
+        [SerializeField] private float _delay;
+        protected override void OnEnter()
         {
-            StartCoroutine(DelayedRoutine());
-            return;
-        }
-        
-        if (_group.TryGet(DataContext))
-        {
-            foreach (IActor actor in _group.Data)
+            base.OnEnter();
+            if (_delay > 0)
             {
-                actor.InitializeIfNot();
-                actor.BeginIfNot();
+                StartCoroutine(DelayedRoutine());
+                return;
+            }
+        
+            if (_group.TryGet(DataContext))
+            {
+                foreach (IActor actor in _group.Data)
+                {
+                    actor.InitializeIfNot();
+                    actor.BeginIfNot();
+                }
             }
         }
-    }
 
-    private IEnumerator DelayedRoutine()
-    {
-        yield return new WaitForSeconds(_delay);
-        if (_group.TryGet(DataContext))
+        private IEnumerator DelayedRoutine()
         {
-            foreach (IActor actor in _group.Data)
+            yield return new WaitForSeconds(_delay);
+            if (_group.TryGet(DataContext))
             {
-                actor.InitializeIfNot();
-                actor.BeginIfNot();
+                foreach (IActor actor in _group.Data)
+                {
+                    actor.InitializeIfNot();
+                    actor.BeginIfNot();
+                }
             }
         }
     }

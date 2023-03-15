@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
-using System.Collections.Generic;
 
-public static class DMath
+namespace Dragon.Core
+{
+    public static class DMath
     {
         public static bool RollPercentageChance(float chance)
         {
@@ -335,3 +336,4 @@ public static class DMath
             }
         }
     }
+}

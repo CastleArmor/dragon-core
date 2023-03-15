@@ -1,8 +1,11 @@
 using System;
 
-public interface IContext : ICastable
+namespace Dragon.Core
 {
-    string ContextID { get; }
-    void InitializeIfNot();
-    event Action<IContext> onDestroyContext;
+    public interface IContext : ICastable
+    {
+        string ContextID { get; }
+        void InitializeIfNot();
+        event Action<IContext> onDestroyContext;
+    }
 }

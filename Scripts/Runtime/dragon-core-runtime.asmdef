@@ -1,6 +1,6 @@
 {
     "name": "dragon-core-runtime",
-    "rootNamespace": "",
+    "rootNamespace": "Dragon.Core",
     "references": [
         "GUID:4c25c05f410a3a447a75c3b0909152ef"
     ],

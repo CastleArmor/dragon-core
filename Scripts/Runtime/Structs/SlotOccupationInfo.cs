@@ -1,6 +1,9 @@
-﻿[System.Serializable]
-public struct SlotOccupationInfo
+﻿namespace Dragon.Core
 {
-    public Key Slot;
-    public SlotOccupationMode Mode;
+    [System.Serializable]
+    public struct SlotOccupationInfo
+    {
+        public Key Slot;
+        public SlotOccupationMode Mode;
+    }
 }

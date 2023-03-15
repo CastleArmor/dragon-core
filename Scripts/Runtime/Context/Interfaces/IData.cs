@@ -1,4 +1,7 @@
-public interface IData : ICastable
+namespace Dragon.Core
 {
-    IDataContext DataContext { get; }
+    public interface IData : ICastable
+    {
+        IDataContext DataContext { get; }
+    }
 }
