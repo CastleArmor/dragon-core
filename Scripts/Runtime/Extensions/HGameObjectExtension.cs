@@ -31,6 +31,16 @@ public static class HGameObjectExtension
         }
     }
 
+    public static string GetCategoryTag(this GameObject go,string ctag)
+    {
+        return TagRegistry.GetCategoryTag(ctag, go);
+    }
+    
+    public static string GetCategoryTag(this Component go,string ctag)
+    {
+        return TagRegistry.GetCategoryTag(ctag, go.gameObject);
+    }
+
     public static T GetCopyOf<T>(this Component comp, T other) where T : Component
     {
         Type type = comp.GetType();

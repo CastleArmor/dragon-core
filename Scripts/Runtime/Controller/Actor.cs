@@ -177,6 +177,11 @@ public abstract class Actor : MonoBehaviour,IActor
     {
         if (!_isInitialized) return;
         if (_isRunning) return;
+
+        if (!gameObject.activeSelf)
+        {
+            gameObject.SetActive(true);
+        }
         
         //Resets.
         _isEnded = false;
@@ -195,12 +200,12 @@ public abstract class Actor : MonoBehaviour,IActor
         _endingEventID = eventID;
         //Debug.Log("Checkout Finished, " + name + " - " + eventID);
         _isEnded = true;
-        onFinishEnded?.Invoke(this);
-        onEnded?.Invoke(this);
         if (_stopOnEnd)
         {
             StopIfNot();
         }
+        onFinishEnded?.Invoke(this);
+        onEnded?.Invoke(this);
         onEndedStateChanged?.Invoke(this);
         DataContext.ParentContext = null;
     }
@@ -212,13 +217,12 @@ public abstract class Actor : MonoBehaviour,IActor
         if (!_isRunning) return;
         _endingEventID = eventID;
         _isEnded = true;
-        onCancelEnded?.Invoke(this);
-        onEnded?.Invoke(this);
         if (_stopOnEnd)
         {
-            IActor main = this;
-            main.StopIfNot();
+            StopIfNot();
         }
+        onCancelEnded?.Invoke(this);
+        onEnded?.Invoke(this);
         onEndedStateChanged?.Invoke(this);
         DataContext.ParentContext = null;
     }

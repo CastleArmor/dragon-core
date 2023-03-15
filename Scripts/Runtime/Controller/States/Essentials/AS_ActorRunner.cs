@@ -53,7 +53,7 @@ public class AS_ActorRunner : ActorService
     {
         base.OnUnregisterOrStopAfterBegin();
         //ActorUsageStandards.StopAllChildActors("Exit",_runningList.Data);
-        
+        //We must make sure each state actually removes its stuff.
         _actorListPool.Clear();
         _stringListPool.Clear();
     }
