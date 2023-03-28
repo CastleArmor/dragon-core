@@ -71,8 +71,13 @@ namespace Dragon.Core
 
         private bool HideIfKey => !_keyFieldToggled && Key == null;
 
-        [SerializeField][HideLabel]
+        [SerializeField][HideLabel][OnValueChanged("OnInstalledValueChangedEditor")]
         public T InstalledValue;
+        private void OnInstalledValueChangedEditor(T value)
+        {
+            string key = Key ? Key.ID : "";
+            _lastInstallContext.SetData(key,value);
+        }
 
         private bool _createBegun;
         private bool ShouldShowCreateDataSetKey => Key == null;
@@ -161,15 +166,17 @@ namespace Dragon.Core
         return default;
 #endif
         }
-    
-        public void InstallFor(IDataContext main)
+
+        private IDataContext _lastInstallContext;
+        public void InstallFor(IDataContext context)
         {
+            _lastInstallContext = context;
             string key = Key ? Key.ID : "";
             if (InstalledValue == null && InstalledValue is not UnityEngine.Object)
             {
                 InstalledValue = Activator.CreateInstance<T>();
             }
-            DataRegistry<T>.SetData(main,InstalledValue,key);
+            DataRegistry<T>.SetData(context,InstalledValue,key);
         }
     }
 }

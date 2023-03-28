@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Dragon.Core
 {
     [System.Serializable]
-    public class D_Positioning : InstalledData
+    public class D_Positioning : ContextData
     {
         //Moving transform of the object. Probably with rigidbody. This is tank's rails.
         [SerializeField]

@@ -4,7 +4,7 @@ using Sirenix.OdinInspector;
 namespace Dragon.Core
 {
     [System.Serializable]
-    public class D_PositionalHittableObject : InstalledData
+    public class D_PositionalHittableObject : ContextData
     {
         [ShowInInspector][ReadOnly]
         private bool _hasIncomingHit;

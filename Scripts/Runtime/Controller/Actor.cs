@@ -12,6 +12,7 @@ namespace Dragon.Core
     [DisallowMultipleComponent]
     public abstract class Actor : MonoBehaviour,IActor
     {
+        [SerializeField] private float _timeScale = 1;
         [SerializeField] private List<Key> _groups;
         [SerializeField] private bool _stopOnEnd;
         [SerializeField] private bool _setSceneReference;
@@ -59,7 +60,7 @@ namespace Dragon.Core
                 return _eventContext;
             }
         }
-    
+
         private bool _isInitialized;
         private IGOInstancePoolRegistry _goPool;
         public IGOInstancePoolRegistry GOPool => _goPool;
@@ -68,6 +69,23 @@ namespace Dragon.Core
         public bool IsRunning => _isRunning;
         private bool _isEnded;
         public bool IsEnded => _isEnded;
+        
+        public event Action<IActor, float, float> onTimeScaleChanged;
+        public float TimeScale
+        {
+            get => _timeScale;
+            set
+            {
+                float oldValue = _timeScale;
+                bool isChanged = _timeScale != value;
+                _timeScale = value;
+                if (isChanged)
+                {
+                    onTimeScaleChanged?.Invoke(this, oldValue, value);
+                }
+            }
+        }
+        
         private string _endingEventID;
         public string EndingEventID => _endingEventID;
         public bool IsBeingDestroyed => _goInstance.IsBeingDestroyed;

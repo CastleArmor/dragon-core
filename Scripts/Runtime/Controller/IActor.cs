@@ -7,10 +7,12 @@ namespace Dragon.Core
         IGOInstancePoolRegistry GOPool { get; }
         bool IsBeingDestroyed { get; }
         bool IsEnded { get; }
+        float TimeScale { get; set; }
         string EndingEventID { get; }
         string ObjectTypeID { get; }
         IDataContext DataContext { get; }
         IEventContext EventContext { get; }
+        event Action<IActor, float, float> onTimeScaleChanged;
     
         //Methods
         void FinishIfNotEnded(string eventID);

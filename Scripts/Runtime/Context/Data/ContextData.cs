@@ -1,9 +1,10 @@
 using System;
+using UnityEngine;
 
 namespace Dragon.Core
 {
     [System.Serializable]
-    public class InstalledData : IInstalledData
+    public class ContextData : IInstalledData
     {
         [NonSerialized]
         private IContext _context;
@@ -40,6 +41,8 @@ namespace Dragon.Core
             get => _keyID;
             set => _keyID = value;
         }
+        
+        protected virtual void OnAssignedDataContext(){}
 
         public void OnInstalledData(IContext context)
         {
@@ -49,6 +52,8 @@ namespace Dragon.Core
                 _dataContext = context as IDataContext;
                 _eventContext = context as IEventContext;
             }
+
+            OnAssignedDataContext();
             _isInitializing = true;
             OnBindAdditional(context);
             OnInitialize();

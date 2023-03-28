@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Dragon.Core
 {
     [System.Serializable]
-    public class D_FactionMember : InstalledData
+    public class D_FactionMember : ContextData
     {
         [SerializeField] private ActorTagKey _currentFaction;
         public event Action<IContext, ActorTagKey, ActorTagKey> onCurrentFactionChanged;

@@ -4,7 +4,7 @@ using Sirenix.OdinInspector;
 namespace Dragon.Core
 {
     [System.Serializable]
-    public class D_PointBehaviourObject : InstalledData
+    public class D_PointBehaviourObject : ContextData
     {
         [ShowInInspector][ReadOnly]
         private bool _pointActivated;

@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Dragon.Core
 {
     [System.Serializable]
-    public class D_GOInstancePoolRegistry : InstalledData,IGOInstancePoolRegistry
+    public class D_GOInstancePoolRegistry : ContextData,IGOInstancePoolRegistry
     {
         protected override void OnBindAdditional(IContext context)
         {

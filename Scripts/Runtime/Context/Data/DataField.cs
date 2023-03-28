@@ -9,30 +9,6 @@ using UnityEngine;
 
 namespace Dragon.Core
 {
-    public enum DataAddress
-    {
-        Context = 0,
-        Global = 1,
-        GroupFirstMember = 2
-    }
-
-    public enum ContextAddress
-    {
-        Self = 0,
-        Parent=1,
-        Root=2,
-        Scene=3,
-        Relative = 4
-    }
-
-    public enum RelativeAddress
-    {
-        Self = 0,
-        Parent = 1,
-        Root = 2,
-        Scene = 3
-    }
-
     [System.Serializable]
     [TopTitle(
         NameSuffix = "<color=#00ffff33><b>☵</b></color>",
@@ -147,7 +123,7 @@ namespace Dragon.Core
             return DataKeyPath.GetKeys();
         }
 #endif
-
+        
         public void RegisterOnChange(IHierarchyContext context, Action<DataOnChangeArgs<T>> action)
         {
             DataRegistry<T>.RegisterOnChange(_addressField.GetFromAddress(context), action, Key?Key.ID:"");
@@ -218,40 +194,6 @@ namespace Dragon.Core
         {
             string key = Key ? Key.ID : "";
             DataRegistry<T>.SetData(_addressField.GetFromAddress(context),value,key);
-        }
-    
-        public IContext GetRelativeAtAddress(List<DataKey> stack,IContext starting)
-        {
-            if (stack.Count == 0) return null;
-            return RecursiveGetRelativeAtAddress(starting,stack, 0);
-        }
-
-        /// <summary>
-        /// Returns only on initials.
-        /// </summary>
-        /// <param name="relationOwner"></param>
-        /// <param name="stack"></param>
-        /// <param name="currentIndex"></param>
-        /// <returns></returns>
-        private IContext RecursiveGetRelativeAtAddress(IContext relationOwner,List<DataKey> stack, int currentIndex)
-        {
-            if (stack.Count <= currentIndex)
-            {
-                return null;
-            }
-            if (relationOwner.ContainsData<IContext>(stack[currentIndex].ID))
-            {
-                IContext main = relationOwner.GetData<IContext>(stack[currentIndex].ID);
-                IContext nextOwner = main;
-                IContext recurse = RecursiveGetRelativeAtAddress(nextOwner,stack, currentIndex + 1);
-                if (recurse != null)
-                {
-                    main = recurse;
-                }
-
-                return main;
-            }
-            return null;
         }
 
         public static DataField<T> SingleContextRoot()
