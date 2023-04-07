@@ -12,6 +12,3 @@ How to install;
 High Level UML Diagram
 
 ![highleveluml](https://user-images.githubusercontent.com/52652529/224702615-f3c8eefb-d436-4907-9a8c-8c47cd204e5b.png)
-
-## My Google Docs Document
-<iframe src="https://egehantolunay.atlassian.net/l/cp/X6xSefYD" width="100%" height="500" frameborder="0"></iframe>
