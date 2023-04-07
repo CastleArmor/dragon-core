@@ -43,8 +43,8 @@ namespace Dragon.Core
         protected override void OnAfterContextsInitialized()
         {
             base.OnAfterContextsInitialized();
-            DataContext.SetData(transform); //Set our own transform.
-            _positioning.InstallFor(DataContext);
+            pContext.SetData(transform); //Set our own transform.
+            _positioning.InstallFor(pContext);
             if (_runningState is IInitializedSubState state)
             {
                 state.Initialize();

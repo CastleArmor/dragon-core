@@ -5,24 +5,21 @@ using UnityEngine;
 
 namespace Dragon.Core
 {
-    public struct DataOnChangeArgs<T>
-    {
-        public string AssignedKey;
-        public IContext Context;
-        public T OldValue;
-        public T NewValue;
-    }
-
     public static class DataRegistry<T>
     {
-        private static readonly Dictionary<string, T> _dictionary = new Dictionary<string, T>();
-        public static Dictionary<string, T> Dictionary => _dictionary;
+        private static readonly Dictionary<string, T> _allData = new Dictionary<string, T>();
+        public static Dictionary<string, T> AllData => _allData;
+        
+        private static readonly Dictionary<string, T> _installedData = new Dictionary<string, T>();
+        public static Dictionary<string, T> InstalledData => _installedData;
 
         private static readonly Dictionary<string, List<string>> _contextKeys =
             new Dictionary<string, List<string>>();
 
         private static readonly Dictionary<string, Action<DataOnChangeArgs<T>>> _onChangeDictionary =
             new Dictionary<string, Action<DataOnChangeArgs<T>>>();
+
+        private static readonly Dictionary<string, IVar<T>> _variables = new Dictionary<string, IVar<T>>();
 
         private static readonly HashSet<string> _globalKeys = new HashSet<string>();
 
@@ -38,12 +35,12 @@ namespace Dragon.Core
         {
             foreach (string key in _globalKeys)
             {
-                if (!Dictionary.ContainsKey(key)) continue;
-                if (Dictionary[key] is IInstalledData installedData)
+                if (!AllData.ContainsKey(key)) continue;
+                if (AllData[key] is IContextData installedData)
                 {
                     installedData.OnRemoveData();
                 }
-                Dictionary.Remove(key);
+                AllData.Remove(key);
             }
             _globalKeys.Clear();
             StaticUpdate.onApplicationQuit -= OnApplicationQuit;
@@ -57,7 +54,7 @@ namespace Dragon.Core
             if (!pauseStatus) return;
             foreach (string key in _globalKeys)
             {
-                if (Dictionary[key] is ISaveableData saveable)
+                if (AllData[key] is ISaveableData saveable)
                 {
                     saveable.SaveData();
                 }
@@ -84,6 +81,18 @@ namespace Dragon.Core
             }
         }
 
+        public static void RegisterVariable(IContext context, string key, IVar<T> variable)
+        {
+            string assignedID = GetAssignedKey(context, key);
+            _variables.Add(assignedID,variable);
+        }
+
+        public static void UnregisterVariable(IContext context, string key, IVar<T> variable)
+        {
+            string assignedID = GetAssignedKey(context, key);
+            _variables.Remove(assignedID);
+        }
+
         public static void BindData(IContext context,T value, string key)
         {
             EnsureEventRegisters();
@@ -94,7 +103,7 @@ namespace Dragon.Core
                 context.onDestroyContext += (c) => UnbindData(c,key);
             }
 
-            Dictionary[assignedID] = value;
+            AllData[assignedID] = value;
         }
 
         public static void UnbindData(IContext context,string key)
@@ -107,7 +116,7 @@ namespace Dragon.Core
                 context.onDestroyContext -= (c) => UnbindData(c,key);
             }
         
-            Dictionary.Remove(assignedID);
+            AllData.Remove(assignedID);
         }
 
         private static string GetAssignedKey(IContext context,string key)
@@ -172,14 +181,18 @@ namespace Dragon.Core
                     context.onDestroyContext -= OnDestroyContextOfInstalledData;
                 }
             }
-            if (!Dictionary.ContainsKey(assignedID))
+            if (!InstalledData.ContainsKey(assignedID))
             {
                 return;
             }
-            T oldValue = Dictionary[assignedID];
-            if (oldValue is IInstalledData installedData)
+            T oldValue = InstalledData[assignedID];
+            if (oldValue is IAdditionalDataBinder binder)
             {
-                installedData.OnRemoveData();
+                binder.OnToggleBinding(context,key,assignedID,false);
+            }
+            if (oldValue is IInitializable initializable)
+            {
+                initializable.FinalizeIfNot();
             }
             if (_onChangeDictionary.ContainsKey(assignedID))
             {
@@ -228,24 +241,37 @@ namespace Dragon.Core
             }
 
             T oldValue = default;
-            if (Dictionary.ContainsKey(assignedID))
+            if (InstalledData.ContainsKey(assignedID))
             {
-                oldValue = Dictionary[assignedID];
+                oldValue = InstalledData[assignedID];
             }
-            Dictionary[assignedID] = value;
-            if (value is IInstalledData installedData)
+            InstalledData[assignedID] = value;
+            AllData[assignedID] = value;
+            if (value != null)
             {
-                installedData.AssignedID = assignedID;
-                installedData.KeyID = key;
-                installedData.OnInstalledData(context);
+                if (value is IInitializable initializable)
+                {
+                    if (initializable.IsInitialized)
+                    {
+                        Debug.LogError("This is already initialized and installed data context = " + (context!=null?context.name:"Global") + ", key = " + key + " type = " + typeof(T));
+                    }
+                }
+                
+                if (value is IContextInstallable installable)
+                {
+                    installable.SetInstallParameters(context,key,assignedID);
+                }
+
+                if (value is IAdditionalDataBinder binder)
+                {
+                    binder.OnToggleBinding();
+                }
             }
 
             if (_onChangeDictionary.ContainsKey(assignedID))
             {
-                Debug.Log("Contains Assigned ID = " + assignedID);
                 if (!_equalityComparer.Equals(oldValue, value))
                 {
-                    Debug.Log("OnChanged Assigned ID = " + assignedID);
                     _onChangeDictionary[assignedID]?.Invoke(new DataOnChangeArgs<T>()
                     {
                         AssignedKey = assignedID,
@@ -255,17 +281,25 @@ namespace Dragon.Core
                     });
                 }
             }
+            
+            if (oldValue != null)
+            {
+                if (oldValue is IInitializable initializable)
+                {
+                    initializable.FinalizeIfNot();
+                }
+            }
         }
 
         public static bool ContainsData(string fullKey)
         {
-            return Dictionary.ContainsKey(fullKey);
+            return AllData.ContainsKey(fullKey);
         }
 
         public static bool ContainsData(IContext context, string key)
         {
             string assignedID = GetAssignedKey(context, key);
-            return Dictionary.ContainsKey(assignedID);
+            return AllData.ContainsKey(assignedID);
         }
     
         public static bool ContainsData(string contextID, string key)
@@ -275,10 +309,33 @@ namespace Dragon.Core
             _stringBuilder.Append("/");
             _stringBuilder.Append(key);
             string assignedID = _stringBuilder.ToString();
-            return Dictionary.ContainsKey(assignedID);
+            return AllData.ContainsKey(assignedID);
         }
 
-        public static bool TryGetData(IDataContext context, out T data, string key = "")
+        public static IVar<T> GetVariable(IContext context, string key = "")
+        {
+            if (ContainsData(context, key))
+            {
+                string assignedKey = GetAssignedKey(context, key);
+                if (_variables.ContainsKey(assignedKey))
+                {
+                    return _variables[assignedKey];
+                }
+                else
+                {
+                    IVar<T> newVariable = new Var<T>();
+                    newVariable.InitializeVariable(context as IContext, key);
+                    return newVariable;
+                }
+            }
+            else
+            {
+                Debug.LogError("Trying to get variable of non existent data, " + context.ContextID + " - Key=" + key);
+                return null;
+            }
+        }
+
+        public static bool TryGetData(IContext context, out T data, string key = "")
         {
             if (ContainsData(context, key))
             {
@@ -290,7 +347,7 @@ namespace Dragon.Core
             return false;
         }
 
-        public static void TryActionOnData(IDataContext context, Action<T> action, string key = "")
+        public static void TryActionOnData(IContext context, Action<T> action, string key = "")
         {
             if (ContainsData(context, key))
             {
@@ -322,31 +379,31 @@ namespace Dragon.Core
         {
             string assignedID = GetAssignedKey(context, key);
 #if UNITY_EDITOR
-            if (!Dictionary.ContainsKey(assignedID))
+            if (!AllData.ContainsKey(assignedID))
             {
                 Debug.LogError(context.As<IUnityObject>().name + " doesn't contain " + typeof(T).Name + " With " + (string.IsNullOrEmpty(key)?"Single":key));
             }
 #endif
-            return Dictionary[assignedID];
+            return AllData[assignedID];
         }
     
         public static T GetDataByID(string contextID, string key = "")
         {
             string assignedID = contextID+"/"+key;
-            return Dictionary[assignedID];
+            return AllData[assignedID];
         }
 
         private static void OnDestroyContextOfInstalledData(IContext context)
         {
             context.onDestroyContext -= OnDestroyContextOfInstalledData;
-            foreach (string dataKey in _contextKeys[ContextRegistry.GetID(context.As<IDataContext>())])
+            foreach (string dataKey in _contextKeys[ContextRegistry.GetID(context)])
             {
-                if (!Dictionary.ContainsKey(dataKey)) continue;
-                if (Dictionary[dataKey] is IInstalledData installedData)
+                if (!AllData.ContainsKey(dataKey)) continue;
+                if (AllData[dataKey] is IInitializable initializable)
                 {
-                    installedData.OnRemoveData();
+                    initializable.FinalizeIfNot();
                 }
-                Dictionary.Remove(dataKey);
+                AllData.Remove(dataKey);
             }
         }
 

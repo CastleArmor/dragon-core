@@ -5,7 +5,15 @@ using UnityEngine;
 
 namespace Dragon.Core
 {
-    public class AS_ActorRunner : ActorService
+    public struct ARStartConfirmedArgs
+    {
+        public AS_ActorRunner Runner;
+        public IActor RunnerActor;
+        public IActor RunningActor;
+        public string UsageRequestID;
+    }
+    
+    public class AS_ActorRunner : ActorService<AS_ActorRunner>
     {
         [InfoBox("RequestRun, After validate it will run.")]
         [SerializeField] private ReturnEventField<ActorRunningArgs, ActorRunResult> _requestRunEvent;
@@ -18,8 +26,13 @@ namespace Dragon.Core
         /// Arg1 = Sender, Arg2 = Finished
         /// </summary>
         public event Action<IActor,IActor> onUsedActorEnded;
-    
+
+        public event Action<ARStartConfirmedArgs> onActorStartConfirmed; 
+
         [SerializeField] private DataField<Dictionary<string, List<IActor>>> _runningDictionary;
+        private Dictionary<string, List<IActor>> _thisRunningDictionary;
+        public Dictionary<string, List<IActor>> RunningDictionary => _thisRunningDictionary;
+        
         [SerializeField] private DataField<UniqueList<IActor>> _runningList;
         private DelegatedObject<bool> _validationObject = new DelegatedObject<bool>();
 
@@ -38,10 +51,9 @@ namespace Dragon.Core
         protected override void OnRegisterActor()
         {
             base.OnRegisterActor();
-            DataRegistry<AS_ActorRunner>.SetData(Actor.DataContext,this);
-        
-            _runningList.Get(Actor.DataContext);
-            _runningDictionary.Get(Actor.DataContext);
+            _runningList.Get(Actor.pContext);
+            _runningDictionary.Get(Actor.pContext);
+            _thisRunningDictionary = _runningDictionary.Data;
         }
 
         protected override void OnBeginBehaviour()
@@ -63,21 +75,21 @@ namespace Dragon.Core
         [Button]
         public bool ValidateRunning(ActorRunningArgs arg)
         {
-            _validationObject.DelegateObject = true;
+            _validationObject.Arg0 = true;
             validateActorRunning?.Invoke(Actor,new ActorUsageValidateArgs()
             {
                 DelegateObject = _validationObject,
                 PrefabOrInstance = arg.PrefabOrInstance.GetComponent<IGOInstance>(),
                 UsageRequestID = arg.UsageRequestID
             });
-            return _validationObject.DelegateObject;
+            return _validationObject.Arg0;
         }
 
         [Button]
         public ActorRunResult RequestRunning(ActorRunningArgs runningArgs)
         {
             if (Actor.IsBeingDestroyed) return new ActorRunResult();
-            _validationObject.DelegateObject = true;
+            _validationObject.Arg0 = true;
             string relationID = runningArgs.RelationKey ? runningArgs.RelationKey.ID : null;
             return DActorUsageStandards.TryStartChildActor(
                 Actor,
@@ -109,7 +121,7 @@ namespace Dragon.Core
 
         protected virtual void OnBeforeStart(IActor obj)
         {
-        
+            
         }
 
         protected virtual void OnActorCancelEnded(IActor endedActor)
@@ -140,7 +152,13 @@ namespace Dragon.Core
 
         protected virtual void OnStartConfirmed(ActorUsageEventArgs obj)
         {
-        
+            onActorStartConfirmed?.Invoke(new ARStartConfirmedArgs()
+            {
+                Runner = this,
+                RunnerActor = Actor,
+                RunningActor = obj.ActorInstance,
+                UsageRequestID = obj.UsageRequestID
+            });
         }
     }
 }

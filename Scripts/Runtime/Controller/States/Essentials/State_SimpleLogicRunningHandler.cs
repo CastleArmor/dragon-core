@@ -17,26 +17,26 @@ namespace Dragon.Core
         protected override void OnGetData()
         {
             base.OnGetData();
-            _gameMode.Get(DataContext);
+            _gameMode.Get(pContext);
         }
 
         protected override void OnEnter()
         {
             base.OnEnter();
             _gameMode.Data.ChangeStatus(LogicStatus.Greet);
-            _requestStartGameModeEvent.Register(EventContext,OnRequestStartGameMode);
-            _requestEndGameModeEvent.Register(EventContext,OnRequestEndGameMode);
-            _requestRestartGameModeEvent.Register(EventContext,OnRequestRestartGameMode);
-            _requestFinalizeGameModeEvent.Register(EventContext,OnFinalizeGameMode);
+            _requestStartGameModeEvent.Register(pContext,OnRequestStartGameMode);
+            _requestEndGameModeEvent.Register(pContext,OnRequestEndGameMode);
+            _requestRestartGameModeEvent.Register(pContext,OnRequestRestartGameMode);
+            _requestFinalizeGameModeEvent.Register(pContext,OnFinalizeGameMode);
         }
 
         protected override void OnExit()
         {
             base.OnExit();
-            _requestStartGameModeEvent.Unregister(EventContext,OnRequestStartGameMode);
-            _requestEndGameModeEvent.Unregister(EventContext,OnRequestEndGameMode);
-            _requestRestartGameModeEvent.Unregister(EventContext,OnRequestRestartGameMode);
-            _requestFinalizeGameModeEvent.Unregister(EventContext,OnFinalizeGameMode);
+            _requestStartGameModeEvent.Unregister(pContext,OnRequestStartGameMode);
+            _requestEndGameModeEvent.Unregister(pContext,OnRequestEndGameMode);
+            _requestRestartGameModeEvent.Unregister(pContext,OnRequestRestartGameMode);
+            _requestFinalizeGameModeEvent.Unregister(pContext,OnFinalizeGameMode);
         }
 
         private string OnFinalizeGameMode(EventArgs arg)
@@ -44,7 +44,7 @@ namespace Dragon.Core
             if (_gameMode.Data.Status == LogicStatus.Finalized) return "AlreadyFinalized";
             if (_gameMode.Data.Status != LogicStatus.Ended) return "Error:MustBeInEnded";
             _gameMode.Data.ChangeStatus(LogicStatus.Finalized);
-            _onFinalizeGameModeEvent.Raise(EventContext);
+            _onFinalizeGameModeEvent.Raise(pContext);
             return "Confirmed";
         }
 
@@ -52,15 +52,15 @@ namespace Dragon.Core
         {
             switch (_gameMode.Data.Status)
             {
-                case LogicStatus.Ended : _requestFinalizeGameModeEvent.Raise(EventContext);
+                case LogicStatus.Ended : _requestFinalizeGameModeEvent.Raise(pContext);
                     break;
                 case LogicStatus.Finalized :
                     //Not really stays in this.
                     return "AboutToLoadScene";
                     break;
                 case LogicStatus.Running : 
-                    _requestEndGameModeEvent.Raise(EventContext);
-                    _requestFinalizeGameModeEvent.Raise(EventContext);
+                    _requestEndGameModeEvent.Raise(pContext);
+                    _requestFinalizeGameModeEvent.Raise(pContext);
                     break;
             }
             return "Confirmed";
@@ -72,7 +72,7 @@ namespace Dragon.Core
             if (_gameMode.Data.Status != LogicStatus.Running) return "Error:NotInRunning";
             _gameMode.Data.ChangeStatus(LogicStatus.Stopped);
             _gameMode.Data.ChangeStatus(LogicStatus.Ended);
-            _onEndGameModeEvent.Raise(EventContext);
+            _onEndGameModeEvent.Raise(pContext);
             return "Confirmed";
         }
 
@@ -81,7 +81,7 @@ namespace Dragon.Core
             if (_gameMode.Data.Status == LogicStatus.Running) return "AlreadyRunning";
             if (_gameMode.Data.Status != LogicStatus.Greet) return "Error:NotInGreet";
             _gameMode.Data.ChangeStatus(LogicStatus.Running);
-            _onStartGameModeEvent.Raise(EventContext);
+            _onStartGameModeEvent.Raise(pContext);
             return "Confirmed";
         }
     }

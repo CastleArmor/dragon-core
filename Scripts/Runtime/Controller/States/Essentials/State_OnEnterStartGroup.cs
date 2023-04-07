@@ -17,7 +17,7 @@ namespace Dragon.Core
                 return;
             }
         
-            if (_group.TryGet(DataContext))
+            if (_group.TryGet(pContext))
             {
                 foreach (IActor actor in _group.Data)
                 {
@@ -30,7 +30,7 @@ namespace Dragon.Core
         private IEnumerator DelayedRoutine()
         {
             yield return new WaitForSeconds(_delay);
-            if (_group.TryGet(DataContext))
+            if (_group.TryGet(pContext))
             {
                 foreach (IActor actor in _group.Data)
                 {

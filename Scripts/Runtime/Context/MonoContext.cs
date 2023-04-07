@@ -6,7 +6,7 @@ namespace Dragon.Core
 {
     [RequireComponent(typeof(GOInstance))]
     [DisallowMultipleComponent]
-    public class MonoContext : MonoBehaviour, IDataContext, IEventContext, IUnityComponent
+    public class MonoContext : MonoBehaviour, IContext, IUnityComponent
     {
         [SerializeField] private bool _isSceneContext;
     
@@ -40,7 +40,7 @@ namespace Dragon.Core
                 IContext oldValue = _parentContext;
                 if (value != null)
                 {
-                    if (value == (IDataContext)this)
+                    if (value == (IContext)this)
                     {
                         Debug.LogError("You cannot assign actor's self as user " + name);
                         return;
@@ -71,12 +71,11 @@ namespace Dragon.Core
         {
             get
             {
-                IHierarchyContext latestHierarchyContext = this;
                 IContext latestContext = this;
                 bool isFinal = false;
                 while (!isFinal)
                 {
-                    IContext iteration = latestHierarchyContext.ParentContext;
+                    IContext iteration = latestContext.ParentContext;
                     if (iteration == null)
                     {
                         isFinal = true;
@@ -84,8 +83,6 @@ namespace Dragon.Core
                     else
                     {
                         latestContext = iteration;
-                        latestHierarchyContext = latestContext as IHierarchyContext;
-                        if (latestHierarchyContext == null) break;
                     }
                 }
 
@@ -94,12 +91,10 @@ namespace Dragon.Core
         }
 
         public event Action<IContext, IContext, IContext> onParentContextChanged;
-        public event Action<IDataContext> onInitializeData;
-        public event Action<IDataContext> onAllowAdditionalDataOnInitialize;
-        public event Action<IDataContext> onRequestSaveData;
-        public event Action<IDataContext> onRequestLoadData;
-        public event Action<IDataContext> onDestroyDataContext;
-        public event Action<IEventContext> onDestroyEventContext;
+        public event Action<IContext> onInitializeData;
+        public event Action<IContext> onAllowAdditionalDataOnInitialize;
+        public event Action<IContext> onRequestSaveData;
+        public event Action<IContext> onRequestLoadData;
 
         public void SaveData()
         {
@@ -159,8 +154,6 @@ namespace Dragon.Core
         private void OnDestroy()
         {
             onDestroyContext?.Invoke(this);
-            onDestroyDataContext?.Invoke(this);
-            onDestroyEventContext?.Invoke(this);
             ContextRegistry.Remove(this);
         }
     }

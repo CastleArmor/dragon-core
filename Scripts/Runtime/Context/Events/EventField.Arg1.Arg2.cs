@@ -165,7 +165,7 @@ namespace Dragon.Core
 
         public bool ShowRelationStack => FromUserRelative || FromRelative;
         
-        public void Install(IEventContext selfMain)
+        public void Install(IContext selfMain)
         {
             InstallForEach(selfMain);
         }
@@ -175,20 +175,20 @@ namespace Dragon.Core
             RemoveForEach();
         }
 
-        public void Register(IEventContext selfMain,Action<EventArgs,TArg1,TArg2> action)
+        public void Register(IContext selfMain,Action<EventArgs,TArg1,TArg2> action)
         {
             if (_eventKey == null) return;
             RegisterForEach(selfMain,action);
         }
 
-        public void Unregister(IEventContext selfMain, Action<EventArgs,TArg1,TArg2> action)
+        public void Unregister(IContext selfMain, Action<EventArgs,TArg1,TArg2> action)
         {
             if (_eventKey == null) return;
             UnregisterForEach(selfMain,action);
         }
 
         [Button][HideInEditorMode]
-        public void Raise(IEventContext selfMain,TArg1 arg1,TArg2 arg2)
+        public void Raise(IContext selfMain,TArg1 arg1,TArg2 arg2)
         {
             RaiseForEach(selfMain,arg1,arg2);
         }
@@ -204,7 +204,7 @@ namespace Dragon.Core
             }
         }
         
-        private void InstallForEach(IEventContext selfMain)
+        private void InstallForEach(IContext selfMain)
         {
             if (_eventKey == null) return;
             if (_addressType == EventAddressType.OnlyContext)
@@ -222,7 +222,7 @@ namespace Dragon.Core
             }
         }
 
-        private void RegisterForEach(IEventContext selfMain, Action<EventArgs,TArg1,TArg2> action)
+        private void RegisterForEach(IContext selfMain, Action<EventArgs,TArg1,TArg2> action)
         {
             if (_eventKey == null) return;
             if (_addressType == EventAddressType.OnlyContext)
@@ -240,7 +240,7 @@ namespace Dragon.Core
             }
         }
 
-        private void UnregisterForEach(IEventContext selfMain, Action<EventArgs,TArg1,TArg2> action)
+        private void UnregisterForEach(IContext selfMain, Action<EventArgs,TArg1,TArg2> action)
         {
             if (_eventKey == null) return;
             if (_addressType == EventAddressType.OnlyContext)
@@ -258,7 +258,7 @@ namespace Dragon.Core
             }
         }
         
-        private void RaiseForEach(IEventContext selfMain,TArg1 arg1,TArg2 arg2)
+        private void RaiseForEach(IContext selfMain,TArg1 arg1,TArg2 arg2)
         {
             if (_addressType == EventAddressType.OnlyContext)
             {

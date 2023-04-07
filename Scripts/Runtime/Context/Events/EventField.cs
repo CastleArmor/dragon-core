@@ -181,7 +181,7 @@ namespace Dragon.Core
 
         public bool ShowRelationStack => FromUserRelative || FromRelative;
 
-        public void Install(IEventContext selfMain)
+        public void Install(IContext selfMain)
         {
             InstallForEach(selfMain);
         }
@@ -191,20 +191,20 @@ namespace Dragon.Core
             RemoveForEach();
         }
 
-        public void Register(IEventContext selfMain,Action<EventArgs> action)
+        public void Register(IContext selfMain,Action<EventArgs> action)
         {
             if (_eventKey == null) return;
             RegisterForEach(selfMain,action);
         }
 
-        public void Unregister(IEventContext selfMain, Action<EventArgs> action)
+        public void Unregister(IContext selfMain, Action<EventArgs> action)
         {
             if (_eventKey == null) return;
             UnregisterForEach(selfMain,action);
         }
 
         [Button][HideInEditorMode]
-        public void Raise(IEventContext selfMain)
+        public void Raise(IContext selfMain)
         {
             RaiseForEach(selfMain);
         }
@@ -218,7 +218,7 @@ namespace Dragon.Core
             }
         }
 
-        private void InstallForEach(IEventContext selfMain)
+        private void InstallForEach(IContext selfMain)
         {
             
             if (_addressType == EventAddressType.OnlyContext)
@@ -236,11 +236,11 @@ namespace Dragon.Core
             }
             if ((_addressType & EventAddressType.FromGroupFirstMember) != 0)
             {
-                EventRegistry.Install(DataRegistry<List<IActor>>.GetData(null,_groupKey.ID)[0].EventContext, _eventKey.ID);
+                EventRegistry.Install(DataRegistry<List<IActor>>.GetData(null,_groupKey.ID)[0].pContext, _eventKey.ID);
             }
         }
         
-        private Action<EventArgs> RegisterForEach(IEventContext selfMain, Action<EventArgs> action)
+        private Action<EventArgs> RegisterForEach(IContext selfMain, Action<EventArgs> action)
         {
             if (_eventKey == null) return null;
             if (_addressType == EventAddressType.OnlyContext)
@@ -259,17 +259,17 @@ namespace Dragon.Core
             }
             if ((_addressType & EventAddressType.FinalUser) != 0)
             {
-                returned = EventRegistry.Register(selfMain.As<IHierarchyContext>().RootContext.As<IEventContext>(), _eventKey.ID,action);
+                returned = EventRegistry.Register(selfMain.RootContext, _eventKey.ID,action);
             }
             if ((_addressType & EventAddressType.FromGroupFirstMember) != 0)
             {
-                returned = EventRegistry.Register(DataRegistry<List<IActor>>.GetData(null,_groupKey.ID)[0].EventContext, _eventKey.ID, action);
+                returned = EventRegistry.Register(DataRegistry<List<IActor>>.GetData(null,_groupKey.ID)[0].pContext, _eventKey.ID, action);
             }
 
             return returned;
         }
 
-        private  Action<EventArgs> UnregisterForEach(IEventContext selfMain, Action<EventArgs> action)
+        private  Action<EventArgs> UnregisterForEach(IContext selfMain, Action<EventArgs> action)
         {
             if (_eventKey == null) return null;
             if (_addressType == EventAddressType.OnlyContext)
@@ -287,17 +287,17 @@ namespace Dragon.Core
             }
             if ((_addressType & EventAddressType.FinalUser) != 0)
             {
-                returned = EventRegistry.Unregister(selfMain.As<IHierarchyContext>().RootContext.As<IEventContext>(), _eventKey.ID,action);
+                returned = EventRegistry.Unregister(selfMain.RootContext, _eventKey.ID,action);
             }
             if ((_addressType & EventAddressType.FromGroupFirstMember) != 0)
             {
-                returned = EventRegistry.Unregister(DataRegistry<List<IActor>>.GetData(null,_groupKey.ID)[0].EventContext, _eventKey.ID, action);
+                returned = EventRegistry.Unregister(DataRegistry<List<IActor>>.GetData(null,_groupKey.ID)[0].pContext, _eventKey.ID, action);
             }
 
             return returned;
         }
         
-        private void RaiseForEach(IEventContext selfMain)
+        private void RaiseForEach(IContext selfMain)
         {
             if (_ignoreIfNull)
             {
@@ -318,11 +318,11 @@ namespace Dragon.Core
             }
             if ((_addressType & EventAddressType.FinalUser) != 0)
             {
-                EventRegistry.Raise(selfMain.As<IHierarchyContext>().RootContext.As<IEventContext>(), _eventKey.ID);
+                EventRegistry.Raise(selfMain.RootContext, _eventKey.ID);
             }
             if ((_addressType & EventAddressType.FromGroupFirstMember) != 0)
             {
-                EventRegistry.Raise(DataRegistry<List<IActor>>.GetData(null,_groupKey.ID)[0].EventContext, _eventKey.ID);
+                EventRegistry.Raise(DataRegistry<List<IActor>>.GetData(null,_groupKey.ID)[0].pContext, _eventKey.ID);
             }
         }
 

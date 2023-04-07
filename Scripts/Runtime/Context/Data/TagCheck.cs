@@ -39,10 +39,10 @@ namespace Dragon.Core
     
         public bool ContainsTag(IActor selfMain)
         {
-            return GetFromAddress(selfMain.DataContext).GetData<IActor>().ContainsTag(_checkedTag);
+            return GetFromAddress(selfMain.pContext).GetData<IActor>().ContainsTag(_checkedTag);
         }
     
-        private IContext GetFromAddress(IHierarchyContext context)
+        private IContext GetFromAddress(IContext context)
         {
             if (DataAddress == DataAddress.Global) return null;
             else

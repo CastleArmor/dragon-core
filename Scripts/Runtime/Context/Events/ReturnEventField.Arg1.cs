@@ -102,7 +102,7 @@ namespace Dragon.Core
 
         public bool ShowRelationStack => FromUserRelative || FromRelative;
     
-        public void Install(IEventContext selfMain)
+        public void Install(IContext selfMain)
         {
             if (_addressType == ReturnEventAddressType.Global)
             {
@@ -123,7 +123,7 @@ namespace Dragon.Core
         }
 
         //Optional
-        public void Register(IEventContext selfMain,Func<TArg1,TReturn> action)
+        public void Register(IContext selfMain,Func<TArg1,TReturn> action)
         {
             if (_eventKey == null) return;
             if (_addressType == ReturnEventAddressType.Global)
@@ -137,7 +137,7 @@ namespace Dragon.Core
         }
 
         //Optional
-        public void Unregister(IEventContext selfMain, Func<TArg1,TReturn> action)
+        public void Unregister(IContext selfMain, Func<TArg1,TReturn> action)
         {
             if (_eventKey == null) return;
             if (_addressType == ReturnEventAddressType.Global)
@@ -152,7 +152,7 @@ namespace Dragon.Core
     
         //MUST!
         [Button][HideInEditorMode]
-        public TReturn Raise(IEventContext selfMain,TArg1 arg1)
+        public TReturn Raise(IContext selfMain,TArg1 arg1)
         {
             if (_eventKey == null)
             {
@@ -171,7 +171,7 @@ namespace Dragon.Core
             }
         }
 
-        private IEventContext GetAddressMain(IEventContext selfMain)
+        private IContext GetAddressMain(IContext selfMain)
         {
             switch (_addressType)
             {

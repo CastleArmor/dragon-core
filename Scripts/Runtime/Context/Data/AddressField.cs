@@ -72,14 +72,14 @@ namespace Dragon.Core
             };
         }
     
-        public IContext GetFromAddress(IHierarchyContext context)
+        public IContext GetFromAddress(IContext context)
         {
             if (DataAddress == DataAddress.Global) return null;
             else
             {
                 if (DataAddress == DataAddress.GroupFirstMember)
                 {
-                    return DataRegistry<List<IActor>>.GetData(null, GroupKey.ID)[0].DataContext;
+                    return DataRegistry<List<IActor>>.GetData(null, GroupKey.ID)[0].pContext;
                 }
                 switch (ContextAddress)
                 {

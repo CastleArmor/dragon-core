@@ -17,7 +17,7 @@ namespace Dragon.Core
         protected override void OnGetData()
         {
             base.OnGetData();
-            _actorRunner.Get(Actor.DataContext);
+            _actorRunner.Get(Actor.pContext);
         }
 
         protected override void OnEnter()

@@ -10,8 +10,7 @@ namespace Dragon.Core
         float TimeScale { get; set; }
         string EndingEventID { get; }
         string ObjectTypeID { get; }
-        IDataContext DataContext { get; }
-        IEventContext EventContext { get; }
+        IContext pContext { get; }
         event Action<IActor, float, float> onTimeScaleChanged;
     
         //Methods

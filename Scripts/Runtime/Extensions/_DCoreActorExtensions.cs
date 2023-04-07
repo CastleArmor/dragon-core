@@ -3,6 +3,18 @@ using UnityEngine;
 
 namespace Dragon.Core
 {
+    public static class _DColliderExtensions
+    {
+        public static bool GetFinalPointedColliderOwner(this Collider collider,out IActor owner, out Transform ownerTransform)
+        {
+            bool isFound = false;
+            ownerTransform = collider.transform;
+            isFound = collider.TryGetComponent(out owner);
+
+            return isFound;
+        }
+    }
+    
     public static class _DCoreActorExtensions
     {
         public static IActor StartTransientUsedMain(
@@ -15,7 +27,7 @@ namespace Dragon.Core
         {
             GameObject instance = prefab.IsPrefab() ? contextActor.GOPool.Retrieve(prefab).gameObject : prefab;
             IActor actor = instance.GetComponent<IActor>();
-            actor.DataContext.ParentContext = contextActor.DataContext;
+            actor.pContext.ParentContext = contextActor.pContext;
             //actor.ConfiguredUpdateHandler = contextActor.ConfiguredUpdateHandler;
             oldParent = actor.transform.parent;
             if (setParentOnEnter)
@@ -86,7 +98,7 @@ namespace Dragon.Core
         /// <returns></returns>
         public static Transform GetFinalLookTransform(this IActor actor)
         {
-            return actor.DataContext.GetData<D_Positioning>().FinalLookTransform;
+            return actor.pContext.GetData<D_Positioning>().FinalLookTransform;
         }
 
         /// <summary>
@@ -96,17 +108,17 @@ namespace Dragon.Core
         /// <returns></returns>
         public static Transform GetFinalFacingTransform(this IActor actor)
         {
-            return actor.DataContext.GetData<D_Positioning>().FinalFacingTransform;
+            return actor.pContext.GetData<D_Positioning>().FinalFacingTransform;
         }
 
         public static IActor GetRoot(this IActor actor)
         {
-            return actor.DataContext.RootContext.GetData<IActor>();
+            return actor.pContext.RootContext.GetData<IActor>();
         }
     
         public static IActor GetParent(this IActor actor)
         {
-            return actor.DataContext.ParentContext.GetData<IActor>();
+            return actor.pContext.ParentContext.GetData<IActor>();
         }
     
         /// <summary>
@@ -116,7 +128,7 @@ namespace Dragon.Core
         /// <returns></returns>
         public static Transform GetFinalMoveTransform(this IActor actor)
         {
-            return actor.DataContext.GetData<D_Positioning>().FinalMoveTransform;
+            return actor.pContext.GetData<D_Positioning>().FinalMoveTransform;
         }
     
         /// <summary>
@@ -154,11 +166,11 @@ namespace Dragon.Core
         }
         public static T GetData<T>(this IActor actor,string key = "")
         {
-            return DataRegistry<T>.GetData(actor.DataContext,key);
+            return DataRegistry<T>.GetData(actor.pContext,key);
         }
         public static T Get<T>(this DataField<T> field,IActor actor)
         {
-            return field.Get(actor.DataContext);
+            return field.Get(actor.pContext);
         }
     
         public static IActor GetActor(this IContext context,string key = "")

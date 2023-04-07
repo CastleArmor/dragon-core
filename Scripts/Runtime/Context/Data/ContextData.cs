@@ -4,19 +4,11 @@ using UnityEngine;
 namespace Dragon.Core
 {
     [System.Serializable]
-    public class ContextData : IInstalledData
+    public class ContextData : IContextData
     {
         [NonSerialized]
         private IContext _context;
-        public IContext Context => _context;
-    
-        [NonSerialized]
-        private IDataContext _dataContext;
-        public IDataContext DataContext => _dataContext;
-    
-        [NonSerialized]
-        private IEventContext _eventContext;
-        public IEventContext EventContext => _eventContext;
+        public IContext pContext => _context;
     
         [NonSerialized]
         private bool _isInstalled;
@@ -25,6 +17,9 @@ namespace Dragon.Core
         [NonSerialized]
         private bool _isInitializing;
         public bool IsInitializing => _isInitializing;
+
+        private bool _isInitialized;
+        public bool IsInitialized => _isInitialized;
 
         [NonSerialized]
         private string _assignedID;
@@ -41,37 +36,39 @@ namespace Dragon.Core
             get => _keyID;
             set => _keyID = value;
         }
-        
-        protected virtual void OnAssignedDataContext(){}
 
-        public void OnInstalledData(IContext context)
+        public void SetInstallParameters(IContext context, string key, string assignedID)
         {
             _context = context;
+            _assignedID = assignedID;
+            _keyID = key;
+            OnAssignedContext();
+            _isInstalled = true;
+        }
+        
+        protected virtual void OnAssignedContext(){}
+
+        protected virtual void OnBindAdditional(IContext context)
+        {
+        
+        }
+
+        public void InitializeIfNot()
+        {
+            if (_isInitializing || _isInitialized) return;
+            
+            _isInitializing = true;
+            OnInitialize();
             if (_context != null)
             {
-                _dataContext = context as IDataContext;
-                _eventContext = context as IEventContext;
-            }
-
-            OnAssignedDataContext();
-            _isInitializing = true;
-            OnBindAdditional(context);
-            OnInitialize();
-            if (_dataContext != null)
-            {
-                if (!_dataContext.IsPrefab && !_dataContext.IsDefaultPrefabInstance)
+                if (!_context.IsPrefab && !_context.IsDefaultPrefabInstance)
                 {
                     OnInitializeInstanceData();
                 }
             }
 
             _isInitializing = false;
-            _isInstalled = true;
-        }
-
-        protected virtual void OnBindAdditional(IContext context)
-        {
-        
+            _isInitialized = true;
         }
     
         protected virtual void OnInitialize()
@@ -83,24 +80,31 @@ namespace Dragon.Core
         {
         
         }
-
-        public void OnRemoveData()
+    
+        protected virtual void OnRemove()
         {
-            if (_dataContext != null)
+        
+        }
+
+        public void OnToggleBinding(IContext context, string key, string assignedID)
+        {
+            OnBindAdditional(context);
+        }
+
+        public void FinalizeIfNot()
+        {
+            if (!_isInitialized) return;
+            if (_context != null)
             {
-                if (!_dataContext.IsPrefab && !_dataContext.IsDefaultPrefabInstance)
+                if (!_context.IsPrefab && !_context.IsDefaultPrefabInstance)
                 {
                     OnInitializeInstanceData();
                 }
             }
 
             OnRemove();
+            _isInitialized = false;
             _isInstalled = false;
-        }
-    
-        protected virtual void OnRemove()
-        {
-        
         }
     }
 }

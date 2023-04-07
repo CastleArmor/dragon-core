@@ -170,7 +170,7 @@ namespace Dragon.Core
 
         public bool ShowRelationStack => FromUserRelative || FromRelative;
 
-        public void Install(IEventContext selfMain)
+        public void Install(IContext selfMain)
         {
             InstallForEach(selfMain);
         }
@@ -180,31 +180,31 @@ namespace Dragon.Core
             RemoveForEach();
         }
 
-        public void Register(IEventContext selfMain,Action<EventArgs,TArg1> action)
+        public void Register(IContext selfMain,Action<EventArgs,TArg1> action)
         {
             if (_eventKey == null) return;
             RegisterForEach(selfMain, action);
         }
 
-        public void Unregister(IEventContext selfMain, Action<EventArgs,TArg1> action)
+        public void Unregister(IContext selfMain, Action<EventArgs,TArg1> action)
         {
             if (_eventKey == null) return;
             UnregisterForEach(selfMain,action);
         }
 
         [Button][HideInEditorMode]
-        public void Raise(IEventContext selfMain,TArg1 arg1)
+        public void Raise(IContext selfMain,TArg1 arg1)
         {
             RaiseForEach(selfMain,arg1);
         }
         
-        public void TryRaise(IEventContext selfMain,TArg1 arg1)
+        public void TryRaise(IContext selfMain,TArg1 arg1)
         {
             if (_eventKey == null) return;
             RaiseForEach(selfMain,arg1);
         }
         
-        private void InstallForEach(IEventContext selfMain)
+        private void InstallForEach(IContext selfMain)
         {
             if (_eventKey == null) return;
             if (_addressType == EventAddressType.OnlyContext)
@@ -222,7 +222,7 @@ namespace Dragon.Core
             }
             if ((_addressType & EventAddressType.FromGroupFirstMember) != 0)
             {
-                EventRegistry<TArg1>.Install(DataRegistry<List<IActor>>.GetData(null,_groupKey.ID)[0].EventContext, _eventKey.ID);
+                EventRegistry<TArg1>.Install(DataRegistry<List<IActor>>.GetData(null,_groupKey.ID)[0].pContext, _eventKey.ID);
             }
         }
         
@@ -235,7 +235,7 @@ namespace Dragon.Core
             }
         }
         
-        private void RegisterForEach(IEventContext selfMain, Action<EventArgs,TArg1> action)
+        private void RegisterForEach(IContext selfMain, Action<EventArgs,TArg1> action)
         {
             if (_eventKey == null) return;
             if (_addressType == EventAddressType.OnlyContext)
@@ -253,11 +253,11 @@ namespace Dragon.Core
             }
             if ((_addressType & EventAddressType.FromGroupFirstMember) != 0)
             {
-                EventRegistry<TArg1>.Register(DataRegistry<List<IActor>>.GetData(null,_groupKey.ID)[0].EventContext, _eventKey.ID, action);
+                EventRegistry<TArg1>.Register(DataRegistry<List<IActor>>.GetData(null,_groupKey.ID)[0].pContext, _eventKey.ID, action);
             }
         }
 
-        private void UnregisterForEach(IEventContext selfMain, Action<EventArgs,TArg1> action)
+        private void UnregisterForEach(IContext selfMain, Action<EventArgs,TArg1> action)
         {
             if (_eventKey == null) return;
             if (_addressType == EventAddressType.OnlyContext)
@@ -275,11 +275,11 @@ namespace Dragon.Core
             }
             if ((_addressType & EventAddressType.FromGroupFirstMember) != 0)
             {
-                EventRegistry<TArg1>.Unregister(DataRegistry<List<IActor>>.GetData(null,_groupKey.ID)[0].EventContext, _eventKey.ID, action);
+                EventRegistry<TArg1>.Unregister(DataRegistry<List<IActor>>.GetData(null,_groupKey.ID)[0].pContext, _eventKey.ID, action);
             }
         }
         
-        private void RaiseForEach(IEventContext selfMain,TArg1 arg1)
+        private void RaiseForEach(IContext selfMain,TArg1 arg1)
         {
             if (_addressType == EventAddressType.OnlyContext)
             {
@@ -296,7 +296,7 @@ namespace Dragon.Core
             }
             if ((_addressType & EventAddressType.FromGroupFirstMember) != 0)
             {
-                EventRegistry<TArg1>.Raise(DataRegistry<List<IActor>>.GetData(null,_groupKey.ID)[0].EventContext, _eventKey.ID,arg1);
+                EventRegistry<TArg1>.Raise(DataRegistry<List<IActor>>.GetData(null,_groupKey.ID)[0].pContext, _eventKey.ID,arg1);
             }
         }
 

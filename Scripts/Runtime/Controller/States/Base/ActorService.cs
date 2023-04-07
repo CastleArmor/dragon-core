@@ -1,9 +1,15 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using Sirenix.OdinInspector;
+using Sirenix.Utilities;
+using UnityEditor;
 using UnityEngine;
 
 namespace Dragon.Core
 {
-    public class ActorService : MonoBehaviour
+    public abstract class ActorService : MonoBehaviour
     {
         [SerializeField]
         private bool _explicitMain;
@@ -112,6 +118,23 @@ namespace Dragon.Core
         protected virtual void OnUnregisterOrStopAfterBegin()
         {
         
+        }
+    }
+
+    public abstract class ActorService<T> : ActorService where T : ActorService
+    {
+        [SerializeField][HideLabel][GUIColor(0.7f,1f,1f)] protected DataKeyField<T> _keyField;
+
+        protected override void OnRegisterActor()
+        {
+            base.OnRegisterActor();
+            DataRegistry<T>.SetData(Actor.pContext,this as T,_keyField.GetKey());
+            OnAfterInstalledSelf();
+        }
+
+        protected virtual void OnAfterInstalledSelf()
+        {
+            
         }
     }
 }

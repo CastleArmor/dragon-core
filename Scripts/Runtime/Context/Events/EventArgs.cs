@@ -3,7 +3,7 @@
     [System.Serializable]
     public struct EventArgs
     {
-        public IEventContext EventContext;
+        public IContext EventContext;
         public string EventName;
     }
 }

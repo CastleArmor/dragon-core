@@ -10,7 +10,7 @@ namespace Dragon.Core
         protected override void OnEnter()
         {
             base.OnEnter();
-            _event.Raise(EventContext,_actorToSend.GetFromAddress(DataContext).GetData<IActor>());
+            _event.Raise(pContext,_actorToSend.GetFromAddress(pContext).GetActor());
             FinishIfNot();
         }
     }

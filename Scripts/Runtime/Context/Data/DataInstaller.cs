@@ -167,8 +167,8 @@ namespace Dragon.Core
 #endif
         }
 
-        private IDataContext _lastInstallContext;
-        public void InstallFor(IDataContext context)
+        private IContext _lastInstallContext;
+        public void InstallFor(IContext context)
         {
             _lastInstallContext = context;
             string key = Key ? Key.ID : "";

@@ -4,5 +4,6 @@
     {
         bool IsInitialized { get; }
         void InitializeIfNot();
+        void FinalizeIfNot();
     }
 }

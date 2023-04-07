@@ -2,13 +2,14 @@ using System;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 //Responsible for integrating logic with data.
 //First spark of logic.
 namespace Dragon.Core
 {
-    [RequireComponent(typeof(IDataContext))]
-    [RequireComponent(typeof(IEventContext))]
+    [RequireComponent(typeof(IContext))]
+    [RequireComponent(typeof(IContext))]
     [DisallowMultipleComponent]
     public abstract class Actor : MonoBehaviour,IActor
     {
@@ -20,15 +21,15 @@ namespace Dragon.Core
         private DataInstaller<IActor> _sceneInstall;
     
         [SerializeField][HideInPlayMode][ReadOnly] private GOInstance _goInstance;
-        [SerializeField][HideInPlayMode][ReadOnly] private MonoBehaviour _dataContextObject;
-        [SerializeField][HideInPlayMode][ReadOnly] private MonoBehaviour _eventContextObject;
+        [SerializeField][HideInPlayMode][ReadOnly][FormerlySerializedAs("_dataContextObject")] private MonoBehaviour _contextObject;
+        [SerializeReference] private IContext _serializedContext;
     
         [ShowInInspector][HideInEditorMode]
-        private IDataContext _dataContext;
+        private IContext _context;
 
         public string ObjectTypeID => _goInstance.ObjectTypeID;
 
-        public IDataContext DataContext
+        public IContext pContext
         {
             get
             {
@@ -37,27 +38,10 @@ namespace Dragon.Core
 #endif
                 if (!_isInitialized)
                 {
-                    _dataContext = _dataContextObject as IDataContext;
+                    _context = _contextObject as IContext;
                 }
 
-                return _dataContext;
-            }
-        }
-        [ShowInInspector][HideInEditorMode]
-        private IEventContext _eventContext;
-        public IEventContext EventContext
-        {
-            get
-            {
-#if UNITY_EDITOR
-                if (!Application.isPlaying) return null;
-#endif
-                if (!_isInitialized)
-                {
-                    _eventContext = _eventContextObject as IEventContext;
-                }
-
-                return _eventContext;
+                return _context;
             }
         }
 
@@ -112,13 +96,9 @@ namespace Dragon.Core
                 {
                     _goInstance = GetComponent<IGOInstance>() as GOInstance;
                 }
-                if (_dataContextObject == null)
+                if (_contextObject == null)
                 {
-                    _dataContextObject = GetComponent<IDataContext>() as MonoBehaviour;
-                }
-                if (_eventContextObject == null)
-                {
-                    _eventContextObject = GetComponent<IEventContext>() as MonoBehaviour;
+                    _contextObject = GetComponent<IContext>() as MonoBehaviour;
                 }
             }
         }
@@ -144,18 +124,17 @@ namespace Dragon.Core
             if (_setSceneReference)
             {
                 _sceneInstall.InstalledValue = this;
-                _sceneInstall.InstallFor(ContextRegistry.GetContext(gameObject.scene.name).As<IDataContext>());
+                _sceneInstall.InstallFor(ContextRegistry.GetContext(gameObject.scene.name));
             }
             _goPool = DataRegistry<IGOInstancePoolRegistry>.GetData(null);
             OnBeforeContextsInitialize();
-            _dataContext = _dataContextObject as IDataContext;
-            _dataContext.onDestroyContext += OnDestroyDataContext;
-            _dataContext.InitializeIfNot();
-            _dataContext.SetData(this as IActor);
+            _context = _contextObject as IContext;
+            _context.onDestroyContext += onDestroyContext;
+            _context.InitializeIfNot();
+            _context.SetData(this as IActor);
+            
             OnAfterActorInstalledItself();
-        
-            _eventContext = _eventContextObject as IEventContext;
-            _eventContext.InitializeIfNot();
+            
             OnAfterContextsInitialized();
             _isInitialized = true;
             onInitialize?.Invoke(this);
@@ -166,10 +145,10 @@ namespace Dragon.Core
         
         }
 
-        private void OnDestroyDataContext(IContext obj)
+        private void onDestroyContext(IContext obj)
         {
             if (!_isInitialized) return;
-            _dataContext.onDestroyContext -= OnDestroyDataContext;
+            _context.onDestroyContext -= onDestroyContext;
             foreach (Key group in _groups)
             {
                 DataRegistry<List<IActor>>.TryActionOnData(null,(a)=>a.Remove(this),group.ID);
@@ -227,7 +206,7 @@ namespace Dragon.Core
             onFinishEnded?.Invoke(this);
             onEnded?.Invoke(this);
             onEndedStateChanged?.Invoke(this);
-            DataContext.ParentContext = null;
+            pContext.ParentContext = null;
         }
     
         [Button][ShowIf("ShowStopButton")]
@@ -244,7 +223,7 @@ namespace Dragon.Core
             onCancelEnded?.Invoke(this);
             onEnded?.Invoke(this);
             onEndedStateChanged?.Invoke(this);
-            DataContext.ParentContext = null;
+            pContext.ParentContext = null;
         }
 
         protected virtual void OnBeginLogic()

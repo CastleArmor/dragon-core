@@ -5,7 +5,7 @@ namespace Dragon.Core
 {
     public abstract class DataInstallerGroup : MonoBehaviour, IDataInstaller
     {
-        public void InstallFor(IDataContext dataContext)
+        public void InstallFor(IContext dataContext)
         {
             foreach (IDataInstaller installer in GetInstallers())
             {

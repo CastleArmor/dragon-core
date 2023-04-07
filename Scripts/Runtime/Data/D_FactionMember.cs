@@ -20,17 +20,17 @@ namespace Dragon.Core
                 {
                     if (oldValue != null)
                     {
-                        if (Context.GetActor().ContainsTag(oldValue))
+                        if (pContext.GetActor().ContainsTag(oldValue))
                         {
-                            Context.GetActor().RemoveTag(oldValue);
+                            pContext.GetActor().RemoveTag(oldValue);
                         }                   
                     }
 
                     if (_currentFaction != null)
                     {
-                        Context.GetActor().AddTag(_currentFaction);
+                        pContext.GetActor().AddTag(_currentFaction);
                     }
-                    onCurrentFactionChanged?.Invoke(Context, oldValue, value);
+                    onCurrentFactionChanged?.Invoke(pContext, oldValue, value);
                 }
             }
         }

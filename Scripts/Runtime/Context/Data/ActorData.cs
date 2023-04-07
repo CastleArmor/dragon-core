@@ -6,10 +6,10 @@
         private IActor _actor;
         public IActor Actor => _actor;
 
-        protected override void OnAssignedDataContext()
+        protected override void OnAssignedContext()
         {
-            base.OnAssignedDataContext();
-            _actor = DataContext.GetActor();
+            base.OnAssignedContext();
+            _actor = pContext.GetActor();
         }
     }
 }

@@ -19,7 +19,7 @@ namespace Dragon.Core
                 _hasIncomingHit = value;
                 if (isChanged)
                 {
-                    onHasIncomingAttackChanged?.Invoke(Context, oldValue, value);
+                    onHasIncomingAttackChanged?.Invoke(pContext, oldValue, value);
                 }
             }
         }
@@ -35,7 +35,7 @@ namespace Dragon.Core
             {
                 PositionalEffectData oldValue = _latestIncomingHit;
                 _latestIncomingHit = value;
-                onLatestHitDataChanged?.Invoke(Context, oldValue, value);
+                onLatestHitDataChanged?.Invoke(pContext, oldValue, value);
             }
         }
     
@@ -50,7 +50,7 @@ namespace Dragon.Core
             {
                 PositionalEffectData oldValue = _latestHitData;
                 _latestHitData = value;
-                onLatestHitDataChanged?.Invoke(Context, oldValue, value);
+                onLatestHitDataChanged?.Invoke(pContext, oldValue, value);
             }
         }
     }

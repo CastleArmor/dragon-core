@@ -11,7 +11,7 @@ namespace Dragon.Core
         private string _listDebugName;
         [SerializeField] private List<T> _list = new List<T>();
         private readonly HashSet<T> _set = new HashSet<T>();
-        public List<T> List => _list;
+        public List<T> Collection => _list;
 
         public event Action<UniqueList<T>, T> onAdded;
         public event Action<UniqueList<T>, T> onRemoved;

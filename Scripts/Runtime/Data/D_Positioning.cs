@@ -70,18 +70,18 @@ namespace Dragon.Core
         {
             base.OnInitializeInstanceData();
         
-            DataContext.onParentContextChanged += OnUserContextChanged;
+            pContext.onParentContextChanged += OnUserContextChanged;
             if (!_facingTransform)
             {
-                _facingTransform = DataContext.GetData<Transform>();
+                _facingTransform = pContext.GetData<Transform>();
             }
             if (!_lookTransform)
             {
-                _lookTransform = DataContext.GetData<Transform>();
+                _lookTransform = pContext.GetData<Transform>();
             }
             if (!_moveTransform)
             {
-                _moveTransform = DataContext.GetData<Transform>();
+                _moveTransform = pContext.GetData<Transform>();
             }
             UpdateValues();
         }
@@ -89,7 +89,7 @@ namespace Dragon.Core
         protected override void OnRemove()
         {
             base.OnRemove();
-            Context.As<IHierarchyContext>().onParentContextChanged -= OnUserContextChanged;
+            pContext.onParentContextChanged -= OnUserContextChanged;
         }
 
         private void OnUserContextChanged(IContext self, IContext oldUser, IContext newUser)
@@ -99,9 +99,9 @@ namespace Dragon.Core
 
         private void UpdateValues()
         {
-            if (DataContext.ParentContext != null)
+            if (pContext.ParentContext != null)
             {
-                D_Positioning positioning = DataContext.ParentContext.As<IDataContext>().GetData<D_Positioning>();
+                D_Positioning positioning = pContext.ParentContext.GetData<D_Positioning>();
                 _finalFacingTransform = positioning._finalFacingTransform;
                 _finalLookTransform = positioning._finalLookTransform;
                 _finalMoveTransform = positioning._finalMoveTransform;

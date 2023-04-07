@@ -40,14 +40,14 @@ namespace Dragon.Core
             bool validated = true;
             if (delegatedObject != null && evaluateCanStart != null)
             {
-                delegatedObject.DelegateObject = true;
+                delegatedObject.Arg0 = true;
                 evaluateCanStart.Invoke(new ActorUsageValidateArgs()
                 {
                     UsageRequestID = usageRequestID,
                     PrefabOrInstance = prefabOrInstance,
                     DelegateObject = delegatedObject
                 });
-                validated = delegatedObject.DelegateObject;
+                validated = delegatedObject.Arg0;
             }
         
             if (!validated)
@@ -98,16 +98,16 @@ namespace Dragon.Core
                 }
             }
 
-            instanceActor.DataContext.ParentContext = parent.DataContext;
+            instanceActor.pContext.ParentContext = parent.pContext;
             if (!string.IsNullOrEmpty(relationKey))
             {
-                string relationStringKey = "ActorRelation" + instanceActor.DataContext.ContextID;
-                parent.DataContext.SetData<string>(relationStringKey,instanceActor.DataContext.ContextID);
-                parent.DataContext.SetData<IContext>(relationKey,instanceActor.DataContext);
+                string relationStringKey = "ActorRelation" + instanceActor.pContext.ContextID;
+                parent.pContext.SetData<string>(relationStringKey,instanceActor.pContext.ContextID);
+                parent.pContext.SetData<IContext>(relationKey,instanceActor.pContext);
             }
             instanceActor.InitializeIfNot();
 
-            instanceActor.DataContext.SetData(parent.DataContext.GetData<IConfiguredUpdateBehaviour>());
+            instanceActor.pContext.SetData(parent.pContext.GetData<IConfiguredUpdateBehaviour>());
         
             startConfirmed?.Invoke(new ActorUsageEventArgs()
             {
@@ -206,13 +206,13 @@ namespace Dragon.Core
                 }
             }
 
-            IContext parent = endedActor.DataContext.ParentContext;
-            string relationStringKey = "ActorRelation" + endedActor.DataContext.ContextID;
+            IContext parent = endedActor.pContext.ParentContext;
+            string relationStringKey = "ActorRelation" + endedActor.pContext.ContextID;
             if (parent.ContainsData<string>(relationStringKey))
             {
                 string relationKey = parent.GetData<string>(relationStringKey);
-                endedActor.DataContext.ParentContext.RemoveData<IContext>(relationKey);
-                endedActor.DataContext.ParentContext.RemoveData<string>(relationStringKey);
+                endedActor.pContext.ParentContext.RemoveData<IContext>(relationKey);
+                endedActor.pContext.ParentContext.RemoveData<string>(relationStringKey);
             }
         }
 

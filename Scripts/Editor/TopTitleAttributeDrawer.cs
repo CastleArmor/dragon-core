@@ -127,17 +127,79 @@ namespace Dragon.Core.Editor
                 SirenixEditorGUI.EndBoxHeader();
             }
 
+            InspectorProperty directParent = Property.Parent;
+
             if (Attribute.SetTransform || Attribute.SetParentObject || Attribute.SetName)
             {
-                if (Property.Parent != null)
+                InspectorProperty firstUnityObjectProperty = null;
+                UnityEngine.Object firstUnityObject = null;
+                
+                InspectorProperty loopingProperty = Property;
+                int max = 1000;
+                int count = 0;
+                while (loopingProperty != null && firstUnityObjectProperty == null)
                 {
-                    if (Property.Parent.ValueEntry != null)
+                    if (loopingProperty.ValueEntry.WeakSmartValue is UnityEngine.Object foundUnityObject)
+                    {
+                        firstUnityObjectProperty = loopingProperty;
+                        firstUnityObject = foundUnityObject;
+                    }
+
+                    loopingProperty = loopingProperty.Parent;
+                    
+                    count++;
+                    if (count > max)
+                    {
+                        Debug.LogError("Parent finding loop count exceeded " + max + ", you might have a problem");
+                        Debug.LogError("Last Looping Property = " + loopingProperty);
+                        Debug.LogError("First Unity Object = " + firstUnityObject);
+                        break;
+                    }
+                }
+                
+                if (firstUnityObjectProperty != null && directParent != null)
+                {
+                    if (firstUnityObject != null)
                     {
                         Type type = Property.ValueEntry.WeakSmartValue.GetType();
                         object self = Property.ValueEntry.WeakSmartValue;
-                        Type containerType = Property.Parent.ValueEntry.WeakSmartValue.GetType();
-                        object container = Property.Parent.ValueEntry.WeakSmartValue;
-                        MonoBehaviour mono = Property.Parent.ValueEntry.WeakSmartValue as MonoBehaviour;
+                        Type containerType = firstUnityObject.GetType();
+                        
+                        //Handle unity engine object operations.
+                        if (Attribute.SetName)
+                        {
+                            PropertyInfo namePropInfo = type.GetProperty("name");
+                            if (namePropInfo != null)
+                            {
+                                if ((string) namePropInfo.GetValue(self) != Property.Name)
+                                {
+                                    Undo.RecordObject(firstUnityObject,"NameSet-"+type);
+                                    namePropInfo.SetValue(self,Property.Name);
+                                    InspectorProperty thisProperty = Property;
+                                    thisProperty.ValueEntry.WeakSmartValue = self;
+                                    EditorUtility.SetDirty(firstUnityObject);
+                                }
+                            }
+                        }
+                        if (Attribute.SetParentObject)
+                        {
+                            PropertyInfo parentObjectPropInfo = type.GetProperty("parentObject");
+                            if (parentObjectPropInfo != null)
+                            {
+                                if ((UnityEngine.Object) parentObjectPropInfo.GetValue(self) != firstUnityObject)
+                                {
+                                    Undo.RecordObject(firstUnityObject,"ParentObjectSet-"+type);
+                                    parentObjectPropInfo.SetValue(self, firstUnityObject);
+                                    
+                                    InspectorProperty thisProperty = Property;
+                                    thisProperty.ValueEntry.WeakSmartValue = self;
+                                    
+                                    EditorUtility.SetDirty(firstUnityObject);
+                                }
+                            }
+                        }
+                        
+                        MonoBehaviour mono = firstUnityObject as MonoBehaviour;
                         if (mono != null)
                         {
                             if (containerType.IsSubclassOf(typeof(MonoBehaviour)))
@@ -151,45 +213,13 @@ namespace Dragon.Core.Editor
                                     {
                                         if ((Transform) propInfo.GetValue(self) != transformValue)
                                         {
-                                            FieldInfo field = containerType.GetField(Property.Name, BindingFlags.Instance | BindingFlags.NonPublic);
                                             Undo.RecordObject(mono,"TransformChangedInChildProp-"+type);
                                             propInfo.SetValue(self,transformValue);
-                                            if (field != null) field.SetValue(container, self);
+                                            InspectorProperty thisProperty = Property;
+                                            thisProperty.ValueEntry.WeakSmartValue = self;
                                             EditorUtility.SetDirty(mono);
                                         }
                                     }
-                                }
-                                if (Attribute.SetName)
-                                {
-                                    PropertyInfo namePropInfo = type.GetProperty("name");
-                                    if (namePropInfo != null)
-                                    {
-                                        if ((string) namePropInfo.GetValue(self) != Property.Name)
-                                        {
-                                            FieldInfo field = containerType.GetField(Property.Name, BindingFlags.Instance | BindingFlags.NonPublic);
-                                            Undo.RecordObject(mono,"NameSet-"+type);
-                                            namePropInfo.SetValue(self,Property.Name);
-                                            if (field != null) field.SetValue(container, self);
-                                            EditorUtility.SetDirty(mono);
-                                        }
-                                    }
-                                }
-
-                                if (Attribute.SetParentObject)
-                                {
-                                    PropertyInfo parentObjectPropInfo = type.GetProperty("parentObject");
-                                    if (parentObjectPropInfo != null)
-                                    {
-                                        if ((UnityEngine.Object) parentObjectPropInfo.GetValue(self) != mono as UnityEngine.Object)
-                                        {
-                                            FieldInfo field = containerType.GetField(Property.Name, BindingFlags.Instance | BindingFlags.NonPublic);
-                                            Undo.RecordObject(mono,"ParentObjectSet-"+type);
-                                            parentObjectPropInfo.SetValue(self,mono as UnityEngine.Object);
-                                            if (field != null) field.SetValue(container, self);
-                                            EditorUtility.SetDirty(mono);
-                                        }
-                                    }
-                            
                                 }
                             }
                         }

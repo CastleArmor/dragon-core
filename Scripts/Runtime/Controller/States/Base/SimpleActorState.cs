@@ -32,20 +32,17 @@ namespace Dragon.Core
         private IGOInstancePoolRegistry _goPool;
         public IGOInstancePoolRegistry GOPool => _goPool;
     
-        private IDataContext _dataContext;
-        public IDataContext DataContext => _dataContext;
-    
-        private IEventContext _eventContext;
-        public IEventContext EventContext => _eventContext;
+        private IContext _context;
+        public IContext pContext => _context;
 
         public T Get<T>(DataField<T> field)
         {
-            return field.Get(DataContext);
+            return field.Get(pContext);
         }
 
         public void Set<T>(DataField<T> field,T value)
         {
-            field.Set(DataContext, value);
+            field.Set(pContext, value);
         }
     
         private bool _isRunning;
@@ -57,8 +54,7 @@ namespace Dragon.Core
         {
             _actor = actor;
             _goPool = _actor.GOPool;
-            _dataContext = _actor.DataContext;
-            _eventContext = _actor.EventContext;
+            _context = _actor.pContext;
         }
     
         public void CheckoutEnter(IActor actor)

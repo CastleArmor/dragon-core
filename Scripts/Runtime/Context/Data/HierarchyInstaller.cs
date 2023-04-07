@@ -8,7 +8,7 @@ namespace Dragon.Core
 
         private void Awake()
         {
-            IDataContext parentContext = GetComponentInParent<IDataContext>();
+            IContext parentContext = GetComponentInParent<IContext>();
             if (parentContext != null)
             {
                 if (!parentContext.IsDataPrepared)
@@ -25,7 +25,7 @@ namespace Dragon.Core
                 _installerGroup.InstallFor(null);//Global install.
             }
         }
-        private void OnMainAllowsDataInstallOnInitialize(IDataContext obj)
+        private void OnMainAllowsDataInstallOnInitialize(IContext obj)
         {
             obj.onAllowAdditionalDataOnInitialize -= OnMainAllowsDataInstallOnInitialize;
             _installerGroup.InstallFor(obj);

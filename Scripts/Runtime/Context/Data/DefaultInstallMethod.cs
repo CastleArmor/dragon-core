@@ -7,7 +7,7 @@ namespace Dragon.Core
     {
         [SerializeField] private DataInstallerGroup _installerGroup;
 
-        public override void InstallFor(IDataContext context)
+        public override void InstallFor(IContext context)
         {
             if (_installerGroup)
             {

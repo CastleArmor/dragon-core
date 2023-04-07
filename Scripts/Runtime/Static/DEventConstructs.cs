@@ -2,7 +2,7 @@ namespace Dragon.Core
 {
     public static class DEventConstructs
     {
-        public static IEventContext GetReturnEventAddressMain(IEventContext context,ReturnEventAddressType addressType)
+        public static IContext GetReturnEventAddressMain(IContext context,ReturnEventAddressType addressType)
         {
             switch (addressType)
             {

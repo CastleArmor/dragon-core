@@ -16,7 +16,7 @@ namespace Dragon.Core
         protected override void OnExit()
         {
             base.OnExit();
-            _event.Raise(EventContext);
+            _event.Raise(pContext);
         }
     }
 }

@@ -20,7 +20,7 @@ namespace Dragon.Core
                 _pointActivated = value;
                 if (isChanged)
                 {
-                    onPointActivatedChanged?.Invoke(Context, oldValue, value);
+                    onPointActivatedChanged?.Invoke(pContext, oldValue, value);
                 }
             }
         }

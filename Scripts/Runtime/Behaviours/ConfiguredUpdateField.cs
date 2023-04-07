@@ -36,7 +36,7 @@ namespace Dragon.Core
         public void RegisterUpdate(IActor actor,Action action)
         {
             if (_isRegistered) return;
-            actor.DataContext.GetData<IConfiguredUpdateBehaviour>().RegisterConfiguredUpdate(_updateKey.ID,new UpdateArgs()
+            actor.pContext.GetData<IConfiguredUpdateBehaviour>().RegisterConfiguredUpdate(_updateKey.ID,new UpdateArgs()
             {
                 UpdateName = UpdateName
             }, action);
@@ -63,7 +63,7 @@ namespace Dragon.Core
         public void UnregisterUpdate(IActor actor, Action action)
         {
             if (!_isRegistered) return;
-            actor.DataContext.GetData<IConfiguredUpdateBehaviour>().UnregisterConfiguredUpdate(_updateKey.ID, action);
+            actor.pContext.GetData<IConfiguredUpdateBehaviour>().UnregisterConfiguredUpdate(_updateKey.ID, action);
             _isRegistered = false;
         }
     }

@@ -61,7 +61,7 @@ namespace Dragon.Core
                     {
                         list.Add(t);
                     }
-                    else if (typeof(IData).IsAssignableFrom(t))
+                    else if (typeof(IDropdownSelectableData).IsAssignableFrom(t))
                     {
                         list.Add(t);
                     }

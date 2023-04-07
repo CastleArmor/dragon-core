@@ -79,6 +79,9 @@ namespace Dragon.Core
         private T _data;
         public T Data => _data;
 
+        private IVar<T> _var;
+        public IVar<T> Var => _var;
+
         private bool _createBegun;
         private bool ShouldShowCreateDataSetKey => Key == null;
         public bool CreateBegun => _createBegun && ShouldShowCreateDataSetKey;
@@ -124,12 +127,12 @@ namespace Dragon.Core
         }
 #endif
         
-        public void RegisterOnChange(IHierarchyContext context, Action<DataOnChangeArgs<T>> action)
+        public void RegisterOnChange(IContext context, Action<DataOnChangeArgs<T>> action)
         {
             DataRegistry<T>.RegisterOnChange(_addressField.GetFromAddress(context), action, Key?Key.ID:"");
         }
     
-        public void UnregisterOnChange(IHierarchyContext context, Action<DataOnChangeArgs<T>> action)
+        public void UnregisterOnChange(IContext context, Action<DataOnChangeArgs<T>> action)
         {
             DataRegistry<T>.UnregisterOnChange(_addressField.GetFromAddress(context), action, Key?Key.ID:"");
         }
@@ -171,7 +174,7 @@ namespace Dragon.Core
 #endif
         }
 
-        public bool TryGet(IDataContext context)
+        public bool TryGet(IContext context)
         {
             string key = Key ? Key.ID : "";
             if (DataRegistry<T>.ContainsData(_addressField.GetFromAddress(context), key))
@@ -183,14 +186,26 @@ namespace Dragon.Core
             return false;
         }
     
-        public T Get(IDataContext context)
+        public T Get(IContext context)
         {
             string key = Key ? Key.ID : "";
             _data = DataRegistry<T>.GetData(_addressField.GetFromAddress(context),key);
             return _data;
         }
 
-        public void Set(IDataContext context, T value)
+        /// <summary>
+        /// Beware if non existent, this will create a variable for a data.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public IVar<T> GetVar(IContext context)
+        {
+            string key = Key ? Key.ID : "";
+            _var = DataRegistry<T>.GetVariable(_addressField.GetFromAddress(context), key);
+            return _var;
+        }
+
+        public void Set(IContext context, T value)
         {
             string key = Key ? Key.ID : "";
             DataRegistry<T>.SetData(_addressField.GetFromAddress(context),value,key);

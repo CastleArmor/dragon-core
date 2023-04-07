@@ -4,34 +4,34 @@ namespace Dragon.Core
 {
     public static class EventContextRegistry
     {
-        private static readonly Dictionary<string, IEventContext> _idToContext = new Dictionary<string, IEventContext>();
-        private static readonly Dictionary<IEventContext, string> _contextToID = new Dictionary<IEventContext, string>();
+        private static readonly Dictionary<string, IContext> _idToContext = new Dictionary<string, IContext>();
+        private static readonly Dictionary<IContext, string> _contextToID = new Dictionary<IContext, string>();
     
-        public static IEventContext GetContext(string instanceID)
+        public static IContext GetContext(string instanceID)
         {
             return _idToContext[instanceID];
         }
     
-        public static string GetID(IEventContext context)
+        public static string GetID(IContext context)
         {
             return _contextToID[context];
         }
 
-        public static void Set(IEventContext context)
+        public static void Set(IContext context)
         {
             string stringID = context.ContextID;
             _idToContext[stringID] = context;
             _contextToID[context] = stringID;
         }
 
-        public static void Set(string contextID, IEventContext context)
+        public static void Set(string contextID, IContext context)
         {
             string stringID = contextID;
             _idToContext[stringID] = context;
             _contextToID[context] = stringID;
         }
 
-        public static void Remove(IEventContext context)
+        public static void Remove(IContext context)
         {
             string stringID = context.ContextID;
             _idToContext.Remove(stringID);

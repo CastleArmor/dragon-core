@@ -8,7 +8,7 @@ namespace Dragon.Core
         protected override void OnEnter()
         {
             base.OnEnter();
-            _event.Raise(EventContext);
+            _event.Raise(pContext);
         }
     }
 }

@@ -15,7 +15,7 @@ namespace Dragon.Core
 
         private void OnClose()
         {
-            _event.Raise(EventContext);
+            _event.Raise(pContext);
         }
 
         protected override void OnExit()

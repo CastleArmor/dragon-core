@@ -30,8 +30,8 @@ namespace Dragon.Core
         protected override void OnGetData()
         {
             base.OnGetData();
-            _actorRunner.Get(DataContext);
-            _pointList.Get(DataContext);
+            _actorRunner.Get(pContext);
+            _pointList.Get(pContext);
         }
 
         protected override void OnEnter()

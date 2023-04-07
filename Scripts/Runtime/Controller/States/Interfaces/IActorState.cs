@@ -5,7 +5,7 @@ namespace Dragon.Core
     public interface IActorState : ICastable
     {
         public IActor Actor { get; }
-        public IDataContext DataContext { get; }
+        public IContext pContext { get; }
         bool IsRunning { get; }
         bool IsFinished { get; }
         void CheckoutEnter(IActor actor);

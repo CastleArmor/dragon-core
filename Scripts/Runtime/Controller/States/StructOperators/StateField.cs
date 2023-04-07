@@ -13,11 +13,11 @@ namespace Dragon.Core
     [TopTitle(
         NameSuffix = "<color=#ffa50055><b>⌥STATE</b></color>",
         NamePrefix = "<color=#ffa50055><b>⌥</b></color>",
-        BoldName = true,SetTransform = true,SetName = true,ShowNameOnPrefix = true,HideNameOnMid = true)]
+        BoldName = true,SetTransform = true,SetName = true,ShowNameOnPrefix = true,HideNameOnMid = true,SetParentObject = true)]
     [System.Serializable][GUIColor(1f,0.9f,0.65f)]
     public struct StateField
     {
-        [SerializeField][HideInInspector]
+        [SerializeField] [HideInInspector]
         private string _name;
         public string name
         {
@@ -25,11 +25,18 @@ namespace Dragon.Core
             set => _name = value;
         }
         
-        [SerializeField][HideInInspector] private Transform _transform;
+        [SerializeField] [HideInInspector] private Transform _transform;
         public Transform transform
         {
             get => _transform;
             set => _transform = value;
+        }
+        
+        [SerializeField] [HideInInspector] private UnityEngine.Object _parentObject;
+        public UnityEngine.Object parentObject
+        {
+            get => _parentObject;
+            set => _parentObject = value;
         }
     
         [SerializeField][HideLabel][HorizontalGroup] private StateType _stateType;

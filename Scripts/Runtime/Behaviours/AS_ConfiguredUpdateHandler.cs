@@ -16,7 +16,7 @@ namespace Dragon.Core
         void InitializeIfNot();
         void TriggerUpdate(string tag);
     }
-    public class AS_ConfiguredUpdateHandler : ActorService,IConfiguredUpdateBehaviour
+    public class AS_ConfiguredUpdateHandler : ActorService<AS_ConfiguredUpdateHandler>,IConfiguredUpdateBehaviour
     {
         public struct RemovalPair
         {
@@ -55,11 +55,15 @@ namespace Dragon.Core
         [ShowInInspector][ReadOnly]
         private bool _isInitialized;
 
+        protected override void OnAfterInstalledSelf()
+        {
+            base.OnAfterInstalledSelf();
+            DataRegistry<IConfiguredUpdateBehaviour>.SetData(Actor.pContext,this, _keyField.GetKey());
+        }
+
         protected override void OnRegisterActor()
         {
             base.OnRegisterActor();
-            
-            DataRegistry<IConfiguredUpdateBehaviour>.SetData(Actor.DataContext,this);
             InitializeIfNot();
         }
 
