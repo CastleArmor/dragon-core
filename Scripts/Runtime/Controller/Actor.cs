@@ -129,7 +129,7 @@ namespace Dragon.Core
             _goPool = DataRegistry<IGOInstancePoolRegistry>.GetData(null);
             OnBeforeContextsInitialize();
             _context = _contextObject as IContext;
-            _context.onDestroyContext += onDestroyContext;
+            _context.onDestroyContext += OnDestroyContext;
             _context.InitializeIfNot();
             _context.SetData(this as IActor);
             
@@ -140,25 +140,31 @@ namespace Dragon.Core
             onInitialize?.Invoke(this);
         }
 
+        public void FinalizeIfNot()
+        {
+            
+        }
+
         protected virtual void OnAfterActorInstalledItself()
         {
         
         }
 
-        private void onDestroyContext(IContext obj)
+        private void OnDestroyContext(IContext obj)
         {
             if (!_isInitialized) return;
-            _context.onDestroyContext -= onDestroyContext;
+            _context.onDestroyContext -= OnDestroyContext;
             foreach (Key group in _groups)
             {
                 DataRegistry<List<IActor>>.TryActionOnData(null,(a)=>a.Remove(this),group.ID);
             }
-
+            
             if (_isRunning && !_onApplicationQuit)
             {
                 StopIfNot();
             }
             onDestroyActor?.Invoke(this);
+            FinalizeIfNot();
         }
 
         protected virtual void OnBeforeContextsInitialize()

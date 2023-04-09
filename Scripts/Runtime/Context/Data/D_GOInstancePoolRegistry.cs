@@ -7,9 +7,10 @@ namespace Dragon.Core
     [System.Serializable]
     public class D_GOInstancePoolRegistry : ContextData,IGOInstancePoolRegistry
     {
-        protected override void OnBindAdditional(IContext context)
+        public override void OnToggleBinding(IContext context, string key, string assignedID, bool isBind)
         {
-            DataRegistry<IGOInstancePoolRegistry>.BindData(context,this,KeyID);
+            base.OnToggleBinding(context, key, assignedID, isBind);
+            DataRegistry<IGOInstancePoolRegistry>.ToggleBind(context,KeyID,this,isBind);
         }
 
         [ShowInInspector][ReadOnly]

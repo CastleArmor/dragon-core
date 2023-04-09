@@ -48,11 +48,6 @@ namespace Dragon.Core
         
         protected virtual void OnAssignedContext(){}
 
-        protected virtual void OnBindAdditional(IContext context)
-        {
-        
-        }
-
         public void InitializeIfNot()
         {
             if (_isInitializing || _isInitialized) return;
@@ -86,11 +81,6 @@ namespace Dragon.Core
         
         }
 
-        public void OnToggleBinding(IContext context, string key, string assignedID)
-        {
-            OnBindAdditional(context);
-        }
-
         public void FinalizeIfNot()
         {
             if (!_isInitialized) return;
@@ -105,6 +95,11 @@ namespace Dragon.Core
             OnRemove();
             _isInitialized = false;
             _isInstalled = false;
+        }
+
+        public virtual void OnToggleBinding(IContext context, string key, string assignedID, bool isBind)
+        {
+            
         }
     }
 }

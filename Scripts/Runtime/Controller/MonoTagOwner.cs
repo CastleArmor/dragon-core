@@ -54,5 +54,13 @@ namespace Dragon.Core
             }
             _isInitialized = true;
         }
+
+        public void FinalizeIfNot()
+        {
+            if (!_isInitialized) return;
+            _tagList.Clear();
+            _tagSet.Clear();
+            _isInitialized = false;
+        }
     }
 }

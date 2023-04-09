@@ -38,7 +38,7 @@ namespace Dragon.Core
                 if (!AllData.ContainsKey(key)) continue;
                 if (AllData[key] is IContextData installedData)
                 {
-                    installedData.OnRemoveData();
+                    installedData.FinalizeIfNot();
                 }
                 AllData.Remove(key);
             }
@@ -93,16 +93,23 @@ namespace Dragon.Core
             _variables.Remove(assignedID);
         }
 
+        public static void ToggleBind(IContext context, string key, T value, bool isBind)
+        {
+            if (isBind)
+            {
+                BindData(context,value,key);
+            }
+            else
+            {
+                UnbindData(context,key);
+            }
+        }
+
         public static void BindData(IContext context,T value, string key)
         {
             EnsureEventRegisters();
 
             string assignedID = GetAssignedKey(context, key);
-            if (context != null)
-            {
-                context.onDestroyContext += (c) => UnbindData(c,key);
-            }
-
             AllData[assignedID] = value;
         }
 
@@ -111,11 +118,6 @@ namespace Dragon.Core
             EnsureEventRegisters();
         
             string assignedID = GetAssignedKey(context, key);
-            if (context != null)
-            {
-                context.onDestroyContext -= (c) => UnbindData(c,key);
-            }
-        
             AllData.Remove(assignedID);
         }
 
@@ -186,6 +188,8 @@ namespace Dragon.Core
                 return;
             }
             T oldValue = InstalledData[assignedID];
+            InstalledData.Remove(assignedID);
+            AllData.Remove(assignedID);
             if (oldValue is IAdditionalDataBinder binder)
             {
                 binder.OnToggleBinding(context,key,assignedID,false);
@@ -210,7 +214,7 @@ namespace Dragon.Core
                 }
             }
         }
-
+        
         public static void SetData(IContext context, T value, string key = "")
         {
             EnsureEventRegisters();
@@ -254,6 +258,7 @@ namespace Dragon.Core
                     if (initializable.IsInitialized)
                     {
                         Debug.LogError("This is already initialized and installed data context = " + (context!=null?context.name:"Global") + ", key = " + key + " type = " + typeof(T));
+                        return;
                     }
                 }
                 
@@ -264,7 +269,7 @@ namespace Dragon.Core
 
                 if (value is IAdditionalDataBinder binder)
                 {
-                    binder.OnToggleBinding();
+                    binder.OnToggleBinding(context,key,assignedID,true);
                 }
             }
 
@@ -398,12 +403,7 @@ namespace Dragon.Core
             context.onDestroyContext -= OnDestroyContextOfInstalledData;
             foreach (string dataKey in _contextKeys[ContextRegistry.GetID(context)])
             {
-                if (!AllData.ContainsKey(dataKey)) continue;
-                if (AllData[dataKey] is IInitializable initializable)
-                {
-                    initializable.FinalizeIfNot();
-                }
-                AllData.Remove(dataKey);
+                RemoveData(context,dataKey);
             }
         }
 
