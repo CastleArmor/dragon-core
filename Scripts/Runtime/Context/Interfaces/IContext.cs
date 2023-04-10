@@ -7,6 +7,7 @@ namespace Dragon.Core
         string name { get; set; }
         string ContextID { get; }
         void InitializeIfNot();
+        void InstallDataIfNot();
         event Action<IContext> onDestroyContext;
         
         event Action<IContext> onInitializeData;

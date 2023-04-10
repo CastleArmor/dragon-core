@@ -119,6 +119,7 @@ namespace Dragon.Core
 
         private void OnDestroy()
         {
+            Debug.Log("Destroying " + gameObject.name);
             _isBeingDestroyed = true;
             if (!_isPooledInstance) return;
             if (_isRetrievedFromPool)

@@ -49,6 +49,7 @@ namespace Dragon.Core
         private IGOInstancePoolRegistry _goPool;
         public IGOInstancePoolRegistry GOPool => _goPool;
         public bool IsInitialized => _isInitialized;
+        private bool _isInitializing;
         private bool _isRunning;
         public bool IsRunning => _isRunning;
         private bool _isEnded;
@@ -119,7 +120,8 @@ namespace Dragon.Core
         [Button][ShowIf("ShowInitButton")]
         public void InitializeIfNot()
         {
-            if (_isInitialized) return;
+            if (_isInitialized || _isInitializing) return;
+            _isInitializing = true;
 
             if (_setSceneReference)
             {
@@ -132,11 +134,13 @@ namespace Dragon.Core
             _context.onDestroyContext += OnDestroyContext;
             _context.InitializeIfNot();
             _context.SetData(this as IActor);
+            _context.InstallDataIfNot();
             
             OnAfterActorInstalledItself();
             
             OnAfterContextsInitialized();
             _isInitialized = true;
+            _isInitializing = false;
             onInitialize?.Invoke(this);
         }
 

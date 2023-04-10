@@ -6,7 +6,7 @@ namespace Dragon.Core
 {
     [RequireComponent(typeof(GOInstance))]
     [DisallowMultipleComponent]
-    public class MonoContext : MonoBehaviour, IContext, IUnityComponent
+    public class MonoContext : MonoBehaviour, IContext, IUnityComponent, IInitializable
     {
         [SerializeField] private bool _isSceneContext;
     
@@ -116,15 +116,33 @@ namespace Dragon.Core
             if (_initializeAtAwake)
             {
                 InitializeIfNot();
+                InstallDataIfNot();
             }
 
             _onEnableRun = true;
         }
 
+        private bool _isInitialized;
+
+        public bool IsInitialized => _isInitialized;
+
         public void InitializeIfNot()
         {
-            if (_isDataPrepared) return;
+            if (_isInitialized) return; 
             ContextRegistry.Set(ContextID,this);
+            _isInitialized = true;
+        }
+
+        public void FinalizeIfNot()
+        {
+            Debug.Log("Finalizing Context " + name);
+            onDestroyContext?.Invoke(this);
+            ContextRegistry.Remove(this);
+        }
+
+        public void InstallDataIfNot()
+        {
+            if (_isDataPrepared) return;
             DataInstallMethod installMethod = CreateInstallMethod();
             installMethod.InstallFor(this);
             onAllowAdditionalDataOnInitialize?.Invoke(this);
@@ -153,8 +171,7 @@ namespace Dragon.Core
 
         private void OnDestroy()
         {
-            onDestroyContext?.Invoke(this);
-            ContextRegistry.Remove(this);
+            FinalizeIfNot();
         }
     }
 }

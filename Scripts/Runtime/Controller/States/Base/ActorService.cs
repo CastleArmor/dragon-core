@@ -15,6 +15,7 @@ namespace Dragon.Core
         private bool _explicitMain;
 
         [SerializeField][ShowIf("_explicitMain")] private Actor _explicitReference;
+        [ShowInInspector][ReadOnly][HideInEditorMode]
         private IActor _actor;
         public IActor Actor => _actor;
         private bool _unregisteredOrStopped;
@@ -47,6 +48,7 @@ namespace Dragon.Core
         private void RegisterActor(IActor obj)
         {
             _actor = obj;
+            OnRegisterActor();
             _actor.onBegin += BeginActorBehaviour;
             if (_actor.IsRunning)
             {
@@ -54,7 +56,6 @@ namespace Dragon.Core
             }
             _actor.onStop += StopActorBehaviour;
             _actor.onDestroyActor += OnDestroyActor;
-            OnRegisterActor();
         }
 
         private void UnregisterActor()

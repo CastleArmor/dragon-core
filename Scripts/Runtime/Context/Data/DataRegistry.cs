@@ -253,7 +253,9 @@ namespace Dragon.Core
             AllData[assignedID] = value;
             if (value != null)
             {
-                if (value is IInitializable initializable)
+                IInitializable initializable = value as IInitializable;
+                bool isAnInitializable = initializable != null;
+                if (isAnInitializable)
                 {
                     if (initializable.IsInitialized)
                     {
@@ -261,7 +263,7 @@ namespace Dragon.Core
                         return;
                     }
                 }
-                
+
                 if (value is IContextInstallable installable)
                 {
                     installable.SetInstallParameters(context,key,assignedID);
@@ -270,6 +272,11 @@ namespace Dragon.Core
                 if (value is IAdditionalDataBinder binder)
                 {
                     binder.OnToggleBinding(context,key,assignedID,true);
+                }
+
+                if (isAnInitializable)
+                {
+                    initializable.InitializeIfNot();
                 }
             }
 
