@@ -134,7 +134,13 @@ namespace Dragon.Core
     
         public void UnregisterOnChange(IContext context, Action<DataOnChangeArgs<T>> action)
         {
-            DataRegistry<T>.UnregisterOnChange(_addressField.GetFromAddress(context), action, Key?Key.ID:"");
+            IContext addressContext = _addressField.GetFromAddress(context);
+            if (context != null)
+            {
+                if (addressContext == null) return;
+                if (!ContextRegistry.Contains(addressContext)) return;
+            }
+            DataRegistry<T>.UnregisterOnChange(addressContext, action, Key?Key.ID:"");
         }
     
         private static bool EvaluateForAppropriateResource(DataKeyInfo keyInfo)
@@ -177,9 +183,14 @@ namespace Dragon.Core
         public bool TryGet(IContext context)
         {
             string key = Key ? Key.ID : "";
-            if (DataRegistry<T>.ContainsData(_addressField.GetFromAddress(context), key))
+            IContext addressContext = _addressField.GetFromAddress(context);
+            if (addressContext != null)
             {
-                _data = DataRegistry<T>.GetData(_addressField.GetFromAddress(context),key);
+                if (!ContextRegistry.Contains(addressContext)) return false;
+            }
+            if (DataRegistry<T>.ContainsData(addressContext, key))
+            {
+                _data = DataRegistry<T>.GetData(addressContext,key);
                 return true;
             }
 

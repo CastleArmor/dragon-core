@@ -194,24 +194,26 @@ namespace Dragon.Core
             {
                 binder.OnToggleBinding(context,key,assignedID,false);
             }
-            if (oldValue is IInitializable initializable)
+            if (oldValue is IContextInitializable initializable)
             {
                 initializable.FinalizeIfNot();
             }
             if (_onChangeDictionary.ContainsKey(assignedID))
             {
                 Debug.Log("Contains Assigned ID = " + assignedID);
-                if (!_equalityComparer.Equals(oldValue, default))
+                if (oldValue == null)
                 {
-                    Debug.Log("OnChanged Assigned ID = " + assignedID);
-                    _onChangeDictionary[assignedID].Invoke(new DataOnChangeArgs<T>()
-                    {
-                        AssignedKey = assignedID,
-                        Context = context,
-                        OldValue = oldValue,
-                        NewValue = default
-                    });
+                    Debug.Log("Null = " + assignedID);
+                    return;
                 }
+                Debug.Log("OnChanged Assigned ID = " + assignedID);
+                _onChangeDictionary[assignedID]?.Invoke(new DataOnChangeArgs<T>()
+                {
+                    AssignedKey = assignedID,
+                    Context = context,
+                    OldValue = oldValue,
+                    NewValue = default
+                });
             }
         }
         
@@ -253,16 +255,8 @@ namespace Dragon.Core
             AllData[assignedID] = value;
             if (value != null)
             {
-                IInitializable initializable = value as IInitializable;
+                IContextInitializable initializable = value as IContextInitializable;
                 bool isAnInitializable = initializable != null;
-                if (isAnInitializable)
-                {
-                    if (initializable.IsInitialized)
-                    {
-                        Debug.LogError("This is already initialized and installed data context = " + (context!=null?context.name:"Global") + ", key = " + key + " type = " + typeof(T));
-                        return;
-                    }
-                }
 
                 if (value is IContextInstallable installable)
                 {
@@ -296,7 +290,7 @@ namespace Dragon.Core
             
             if (oldValue != null)
             {
-                if (oldValue is IInitializable initializable)
+                if (oldValue is IContextInitializable initializable)
                 {
                     initializable.FinalizeIfNot();
                 }
@@ -408,7 +402,7 @@ namespace Dragon.Core
         private static void OnDestroyContextOfInstalledData(IContext context)
         {
             context.onDestroyContext -= OnDestroyContextOfInstalledData;
-            foreach (string dataKey in _contextKeys[ContextRegistry.GetID(context)])
+            foreach (string dataKey in _contextKeys[ContextRegistry.GetID(context)].ToArray())
             {
                 RemoveData(context,dataKey);
             }

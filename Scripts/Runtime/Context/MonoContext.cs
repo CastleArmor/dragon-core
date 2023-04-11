@@ -136,8 +136,6 @@ namespace Dragon.Core
         public void FinalizeIfNot()
         {
             Debug.Log("Finalizing Context " + name);
-            onDestroyContext?.Invoke(this);
-            ContextRegistry.Remove(this);
         }
 
         public void InstallDataIfNot()
@@ -171,7 +169,8 @@ namespace Dragon.Core
 
         private void OnDestroy()
         {
-            FinalizeIfNot();
+            onDestroyContext?.Invoke(this);
+            ContextRegistry.Remove(this);
         }
     }
 }

@@ -88,7 +88,14 @@ namespace Dragon.Core
                     case ContextAddress.Root: return context.RootContext;
                     case ContextAddress.Scene:
                         Scene scene = context.As<IUnityComponent>().gameObject.scene;
-                        return ContextRegistry.GetContext(scene.name);
+                        if (ContextRegistry.Contains(scene.name))
+                        {
+                            return ContextRegistry.GetContext(scene.name);
+                        }
+                        else
+                        {
+                            return null;
+                        }
                     case ContextAddress.Relative:
                         switch (RelativeAddress)
                         {

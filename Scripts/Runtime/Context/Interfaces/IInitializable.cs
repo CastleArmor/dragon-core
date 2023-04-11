@@ -6,4 +6,9 @@
         void InitializeIfNot();
         void FinalizeIfNot();
     }
+
+    public interface IContextInitializable : IInitializable
+    {
+        
+    }
 }
